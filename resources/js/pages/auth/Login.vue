@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
+import Icon from '@/components/Icon.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,47 +28,40 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthBase title="Log in to your account" description="Enter your email and password below to log in">
+    <AuthBase title="Log in to your account" description="Enter your username and password below to log in">
+
         <Head title="Log in" />
 
         <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
             {{ status }}
         </div>
 
+        <div class="bg-red-50 p-2 flex text-sm text-red-400 rounded-md"
+            v-if="form.errors.email || form.errors.password">
+            <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
+            <p class="ml-1">
+                <strong class="font-medium">Whoops!</strong> Username or Password is incorrect.
+            </p>
+        </div>
+
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="username">Username</Label>
-                    <Input
-                        id="username"
-                        type="text"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="off"
-                        v-model="form.email"
-                        placeholder="Enter username"
-                    />
-                    <InputError :message="form.errors.email" />
+                    <Input id="username" type="text" required autofocus :tabindex="1" autocomplete="off"
+                        v-model="form.email" placeholder="Enter username" />
                 </div>
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
+                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
+                            :tabindex="5">
                             Forgot password?
                         </TextLink>
                     </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="form.errors.password" />
+                    <Input id="password" type="password" required :tabindex="2" autocomplete="current-password"
+                        v-model="form.password" placeholder="Password" />
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -82,11 +75,6 @@ const submit = () => {
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Log in
                 </Button>
-            </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
             </div>
         </form>
     </AuthBase>
