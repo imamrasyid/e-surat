@@ -25,7 +25,7 @@
 <script lang="ts" setup>
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from '@/components/ui/pagination';
 import { Link } from '@inertiajs/vue3';
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 import Icon from './Icon.vue';
 
 // --- Type Definitions ---
