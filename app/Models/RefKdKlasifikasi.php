@@ -23,4 +23,9 @@ class RefKdKlasifikasi extends Model
         'nama',
         'is_active',
     ];
+
+    public function agendaSurats()
+    {
+        return $this->hasMany(RefAgendaSurat::class);
+    }
 }
