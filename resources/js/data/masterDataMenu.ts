@@ -11,6 +11,11 @@ const masterNavItems: NavItem[] = [
         href: 'ref.position.index',
         current: 'ref.position.*',
     },
+    {
+        title: 'Data Pengguna',
+        href: 'ref.user.index',
+        current: 'ref.user.*',
+    },
 ];
 
 export default masterNavItems;

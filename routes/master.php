@@ -2,9 +2,27 @@
 
 use App\Http\Controllers\MasterData\KodeKlasifikasiController;
 use App\Http\Controllers\MasterData\PositionController;
+use App\Http\Controllers\MasterData\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('master-data')->middleware('auth')->group(function () {
+    Route::prefix('pengguna')->group(function () {
+        Route::get('/', [UserController::class, 'index'])
+            ->name('ref.user.index');
+        Route::get('create', [UserController::class, 'create'])
+            ->name('ref.user.create');
+        Route::post('store', [UserController::class, 'store'])
+            ->name('ref.user.store');
+        Route::get('edit/{user}', [UserController::class, 'edit'])
+            ->name('ref.user.edit');
+        Route::patch('update/{user}', [UserController::class, 'update'])
+            ->name('ref.user.update');
+        Route::get('edit/jabatan/{user}', [UserController::class, 'editPosition'])
+            ->name('ref.user.editPosition');
+        Route::post('update/jabatan/{user}', [UserController::class, 'updatePosition'])
+            ->name('ref.user.updatePosition');
+    });
+
     Route::prefix('jabatan')->group(function () {
         Route::get('/', [PositionController::class, 'index'])
             ->name('ref.position.index');
