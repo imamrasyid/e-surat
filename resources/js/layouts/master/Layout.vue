@@ -2,19 +2,8 @@
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { type NavItem } from '@/types';
-import { Link, usePage } from '@inertiajs/vue3';
-
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Kode Klasifikasi',
-        href: '/master-data/klasifikasi-arsip',
-    },
-];
-
-const page = usePage();
-
-const currentPath = page.props.ziggy?.location ? new URL(page.props.ziggy.location).pathname : '';
+import masterNavItems from '@/data/masterDataMenu';
+import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
@@ -25,13 +14,13 @@ const currentPath = page.props.ziggy?.location ? new URL(page.props.ziggy.locati
             <aside class="w-full max-w-xl lg:w-48">
                 <nav class="flex flex-col space-y-1 space-x-0">
                     <Button
-                        v-for="item in sidebarNavItems"
+                        v-for="item in masterNavItems"
                         :key="item.href"
                         variant="ghost"
-                        :class="['w-full justify-start', { 'bg-muted': currentPath === item.href }]"
+                        :class="['w-full justify-start', { 'bg-muted': item.current && route().current(item.current) }]"
                         as-child
                     >
-                        <Link :href="item.href">
+                        <Link :href="route(item.href)">
                             {{ item.title }}
                         </Link>
                     </Button>
