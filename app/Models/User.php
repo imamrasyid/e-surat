@@ -47,4 +47,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function positions()
+    {
+        return $this->morphToMany(Position::class, 'model', 'model_has_position')
+                    ->withPivot(['start_date', 'end_date', 'is_active'])
+                    ->withTimestamps();
+    }
+
+    // Ambil jabatan aktif saat ini
+    public function currentPosition()
+    {
+        return $this->positions()->wherePivot('is_active', true);
+    }
 }
