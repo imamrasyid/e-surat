@@ -4,8 +4,17 @@ use App\Http\Controllers\MasterData\KodeKlasifikasiController;
 use App\Http\Controllers\MasterData\PositionController;
 use App\Http\Controllers\MasterData\UserController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::prefix('master-data')->middleware('auth')->group(function () {
+    Route::get('/', function () {
+        return Inertia::render('master/Index', [
+            'breadcrumbItems' => [
+                ['title' => 'Master Data'],
+            ],
+        ]);
+    })->name('ref.master-data');
+
     Route::prefix('pengguna')->group(function () {
         Route::get('/', [UserController::class, 'index'])
             ->name('ref.user.index');
