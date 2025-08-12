@@ -24,14 +24,21 @@ class Letter extends Model
         'status',
         'created_by',
     ];
-
+    
     public function recipients()
     {
-        return $this->hasMany(LetterRecipient::class);
+        return $this->hasMany(LetterRecipient::class)
+            ->with(['fromPosition:id,name', 'toPosition:id,name'])
+            ->orderBy('received_at');
     }
 
     public function docs()
     {
-        return $this->hasMany(LetterDoc::class);
+        return $this->hasMany(LetterDoc::class)->where('is_active', true);
+    }
+
+    public function senderUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

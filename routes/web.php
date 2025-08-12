@@ -23,6 +23,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('sent', [SentController::class, 'index'])
         ->name('sent.index');
+    Route::get('sent/{letter_id}', [SentController::class, 'show'])
+        ->name('sent.show');
 });
 
 require __DIR__.'/master.php';

@@ -37,8 +37,13 @@ watchDebounced(
 );
 
 function goToDetail(letter_id: string) {
-    // router.visit(`/sent/${id}`);
-    console.log(letter_id);
+    router.get(
+        route('sent.show', letter_id),
+        {},
+        {
+            preserveState: true,
+        },
+    );
 }
 </script>
 

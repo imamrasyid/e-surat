@@ -7,18 +7,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Response;
 
 class SentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        $user = Auth::user();
-
         $sent = Letter::where('type', 'in')
-            ->where('created_by', $user->id)
             ->select('letter_id', 'agenda', 'sender', 'subject', 'number', 'created_at')
             ->where(function(Builder $query) {
                 $search = FacadesRequest::input('search');
@@ -61,9 +59,29 @@ class SentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $letter_id): Response
     {
-        //
+        $letter = Letter::where('letter_id', $letter_id)
+            ->where('type', 'in')
+            ->with([
+                'senderUser:id,name',
+                'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
+                'docs:id,letter_id,url'])
+            ->firstOrFail();
+        
+        return inertia('app/sent/Show', [
+            'breadcrumbItems' => [
+                [
+                    'title' => 'Terkirim',
+                    'href' => '/sent',
+                ],
+                [
+                    'title' => 'Detail Surat',
+                    'href' => '',
+                ],
+            ],
+            'letter' => fn() => $letter,
+        ]);
     }
 
     /**

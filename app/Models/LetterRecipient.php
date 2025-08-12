@@ -25,4 +25,14 @@ class LetterRecipient extends Model
     {
         return $this->belongsTo(Letter::class);
     }
+
+    public function fromPosition()
+    {
+        return $this->belongsTo(Position::class, 'from_position_id');
+    }
+
+    public function toPosition()
+    {
+        return $this->belongsTo(Position::class, 'to_position_id');
+    }
 }
