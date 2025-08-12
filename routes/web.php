@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ComposeController;
+use App\Http\Controllers\SentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,6 +18,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('app.compose.create');
     Route::post('compose/store', [ComposeController::class, 'store'])
         ->name('app.compose.store');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('sent', [SentController::class, 'index'])
+        ->name('sent.index');
 });
 
 require __DIR__.'/master.php';

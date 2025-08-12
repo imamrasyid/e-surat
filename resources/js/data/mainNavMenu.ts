@@ -16,9 +16,9 @@ const platformItems: NavItem[] = [
     },
     {
         title: 'Terkirim',
-        href: 'dashboard',
+        href: 'sent.index',
         icon: SendHorizonal,
-        current: '',
+        current: 'sent.*',
     },
 ];
 
