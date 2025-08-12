@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ComposeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -11,9 +12,12 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('app/compose', function () {
-    return Inertia::render('app/Compose');
-})->middleware(['auth', 'verified'])->name('app.compose');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('compose', [ComposeController::class, 'create'])
+        ->name('app.compose.create');
+    Route::post('compose/store', [ComposeController::class, 'store'])
+        ->name('app.compose.store');
+});
 
 require __DIR__.'/master.php';
 require __DIR__.'/settings.php';
