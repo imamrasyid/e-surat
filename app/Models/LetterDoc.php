@@ -13,6 +13,7 @@ class LetterDoc extends Model
      */
     protected $fillable = [
         'letter_id',
+        'name',
         'url',
         'is_active',
     ];

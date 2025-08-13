@@ -121,6 +121,7 @@ class ComposeController extends Controller
                 $storeUrl = "/storage/{$path}/{$filename}";
                 LetterDoc::create([
                     'letter_id' => $letter->id,
+                    'name'      => $filename,
                     'url'       => $storeUrl,
                 ]);
             }
