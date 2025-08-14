@@ -16,12 +16,14 @@ export interface NavItem {
     current?: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    notif?: number;
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    inbox: { primary: number; undangan: number; disposisi: number; memo: number };
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
 };
