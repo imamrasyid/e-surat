@@ -52,10 +52,10 @@ function goToDetail(letter_id: string) {
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6">
-            <div class="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Heading class="!mb-0" title="Surat Terkirim" description="Daftar surat yang telah terkirim" />
                 <div class="relative w-full max-w-sm items-center sm:max-w-[250px]">
-                    <Input id="search" type="text" v-model="search" placeholder="Cari..." class="pl-8" autocomplete="off" />
+                    <Input id="search" type="text" v-model="search" placeholder="Cari..." class="h-10 pl-8" autocomplete="off" />
                     <span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
                         <Search class="size-5 text-muted-foreground" />
                     </span>
@@ -65,11 +65,12 @@ function goToDetail(letter_id: string) {
             <div class="space-y-6">
                 <div class="rounded-md border">
                     <Table>
-                        <TableHeader>
-                            <TableRow>
+                        <TableHeader class="bg-muted/30">
+                            <TableRow class="hover:bg-transparent">
                                 <TableHead class="w-[125px] xl:w-[175px]">Agenda</TableHead>
                                 <TableHead class="w-[165px] xl:w-[260px]">Nomor Surat</TableHead>
                                 <TableHead class="min-w-[180px]">Perihal</TableHead>
+                                <TableHead class="w-[100px]">Status</TableHead>
                                 <TableHead class="w-[100px] text-right"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -82,17 +83,18 @@ function goToDetail(letter_id: string) {
                                         <p>
                                             {{ item.sender }}
                                         </p>
-                                        <p class="line-clamp-1 text-gray-600">
+                                        <p class="line-clamp-1 text-muted-foreground">
                                             {{ item.subject }}
                                         </p>
                                     </div>
                                 </TableCell>
+                                <TableCell class="align-top">{{ item.status == 'open' ? 'Open' : 'Close' }}</TableCell>
                                 <TableCell class="text-right align-top">
                                     {{ formatCreate(item.created_at) }}
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="sent.data.length === 0">
-                                <TableCell colspan="4" class="text-center text-gray-500">Data tidak ditemukan.</TableCell>
+                                <TableCell colspan="4" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

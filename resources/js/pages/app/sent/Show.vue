@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
+import { useDateFormat } from '@vueuse/core';
+import { ChevronLeft, FilePenLine, Printer } from 'lucide-vue-next';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -21,20 +27,52 @@ function getCategoryName(value: number) {
     <Head title="Lihat Surat Terkirim" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <div class="px-4 py-6">
+        <div class="px-4 py-6 xl:px-12">
             <div class="flex flex-col gap-4 sm:flex-row sm:justify-between">
                 <HeadingSmall title="Surat Terkirim" description="Detail data surat terkirim" />
                 <div class="sm:text-end">
-                    <p class="text-xs text-gray-500">{{ letter.created_at }}</p>
+                    <p class="text-xs text-gray-500">{{ useDateFormat(letter.created_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' }) }}</p>
                     <h6 class="text-sm">Oleh {{ letter.sender_user.name }}</h6>
                 </div>
             </div>
 
             <Separator class="my-6" />
 
-            <div class="space-y-2">
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+            <div class="flex items-center justify-between">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button variant="outline" size="icon" class="cursor-pointer rounded-full" @click="$inertia.get(route('sent.index'))">
+                                <ChevronLeft class="size-5" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Kembali</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <div class="flex gap-2">
+                    <Button variant="ghost" size="icon" class="cursor-pointer">
+                        <Printer class="size-5" />
+                    </Button>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Button variant="ghost" size="icon" class="cursor-pointer">
+                                    <FilePenLine class="size-5" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Perbarui Surat</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-2">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Nomor Agenda</h6>
                     </aside>
 
@@ -43,8 +81,8 @@ function getCategoryName(value: number) {
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Pengirim</h6>
                     </aside>
 
@@ -53,8 +91,8 @@ function getCategoryName(value: number) {
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Nomor Surat</h6>
                     </aside>
 
@@ -63,8 +101,8 @@ function getCategoryName(value: number) {
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Perihal</h6>
                     </aside>
 
@@ -73,28 +111,28 @@ function getCategoryName(value: number) {
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Tanggal Surat</h6>
                     </aside>
 
                     <div class="flex-1">
-                        <h6 class="text-sm dark:text-gray-300">{{ letter.date }}</h6>
+                        <h6 class="text-sm dark:text-gray-300">{{ useDateFormat(letter.date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}</h6>
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Tanggal Diterima</h6>
                     </aside>
 
                     <div class="flex-1">
-                        <h6 class="text-sm dark:text-gray-300">{{ letter.receipt_date }}</h6>
+                        <h6 class="text-sm dark:text-gray-300">{{ useDateFormat(letter.receipt_date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}</h6>
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Kategori</h6>
                     </aside>
 
@@ -103,32 +141,84 @@ function getCategoryName(value: number) {
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row lg:space-x-12">
-                    <aside class="w-full max-w-md lg:w-[150px]">
+                <div class="flex space-x-4 lg:space-x-12">
+                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
                         <h6 class="text-sm font-medium">Status Surat</h6>
                     </aside>
 
                     <div class="flex-1">
-                        <div v-if="letter.status === 'open'" class="inline rounded-lg bg-green-50 px-3 py-1 text-sm text-green-500 dark:bg-gray-800">
+                        <span
+                            v-if="letter.status === 'open'"
+                            class="inline-block rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-500 dark:bg-gray-800"
+                        >
                             Open
-                        </div>
-                        <div v-else class="inline rounded-lg bg-indigo-50 px-3 py-1 text-sm text-indigo-500 dark:bg-gray-800">Close</div>
+                        </span>
+                        <span v-else class="inline-block rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-500 dark:bg-gray-800">
+                            Close
+                        </span>
                     </div>
                 </div>
             </div>
 
             <div class="mt-6">
-                <h6 class="text-sm font-medium">Penerima:</h6>
-                <span>
-                    {{ letter.recipients }}
-                </span>
+                <div class="flex items-center justify-between">
+                    <h6 class="text-sm font-medium">Penerima:</h6>
+                    <Button size="sm">
+                        <FilePenLine />
+                        Edit
+                    </Button>
+                </div>
+                <Separator class="mt-4" />
+                <div class="mt-4 rounded-md border">
+                    <Table>
+                        <TableHeader class="bg-muted/30">
+                            <TableRow class="hover:bg-transparent">
+                                <TableHead class="w-[175px]">Waktu Kirim</TableHead>
+                                <TableHead>Dari</TableHead>
+                                <TableHead>Kepada</TableHead>
+                                <TableHead>Catatan</TableHead>
+                                <TableHead class="w-[175px]">Waktu Baca</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow v-for="item in letter.recipients" :key="item.id" class="cursor-pointer">
+                                <TableCell>
+                                    {{ useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) }}
+                                </TableCell>
+                                <TableCell>{{ item.from_position.name }}</TableCell>
+                                <TableCell>{{ item.to_position.name }}</TableCell>
+                                <TableCell>{{ item.instruction ?? '-' }}</TableCell>
+                                <TableCell>
+                                    {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
 
             <div class="mt-6">
-                <h6 class="text-sm font-medium">Lampiran:</h6>
-                <span>
-                    {{ letter.docs }}
-                </span>
+                <div class="flex items-center justify-between">
+                    <h6 class="text-sm font-medium">Lampiran:</h6>
+                    <Button size="sm">
+                        <FilePenLine />
+                        Edit
+                    </Button>
+                </div>
+                <Separator class="mt-4" />
+                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+                    <a :href="item.url" target="_blank" v-for="(item, index) in letter.docs" :key="index">
+                        <Card class="cursor-pointer py-4">
+                            <CardContent class="px-4">
+                                <picture class="flex justify-center">
+                                    <img class="flex size-20 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
+                                    <img class="hidden size-20 dark:flex" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
+                                </picture>
+                                <p class="mt-2 line-clamp-1 text-center text-sm">{{ item.name }}</p>
+                            </CardContent>
+                        </Card>
+                    </a>
+                </div>
             </div>
         </div>
     </AppLayout>
