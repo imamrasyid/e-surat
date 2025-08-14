@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Award, Inbox, LayoutGrid, SendHorizonal, SquarePen } from 'lucide-vue-next';
+import { Award, ClipboardList, Inbox, LayoutGrid, Mails, SendHorizonal, SquarePen } from 'lucide-vue-next';
 
 const platformItems: NavItem[] = [
     {
@@ -25,15 +25,31 @@ const platformItems: NavItem[] = [
 const inboxItems: NavItem[] = [
     {
         title: 'Primary',
-        href: 'dashboard',
+        href: 'inbox.primary.index',
         icon: Inbox,
-        current: '',
+        current: 'inbox.primary.*',
+        notif: 1,
     },
     {
         title: 'Undangan',
-        href: 'dashboard',
+        href: 'inbox.undangan.index',
         icon: Award,
+        current: 'inbox.undangan.*',
+        notif: 2,
+    },
+    {
+        title: 'Disposisi',
+        href: 'dashboard',
+        icon: Mails,
         current: '',
+        notif: 8,
+    },
+    {
+        title: 'Nota Dinas',
+        href: 'dashboard',
+        icon: ClipboardList,
+        current: '',
+        notif: 9,
     },
 ];
 
