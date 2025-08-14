@@ -94,7 +94,6 @@ useClearErrorsOnChange(form, { debounceMs: 120 });
 const openPenerima = ref(false);
 const searchPenerima = ref();
 const penerimaSelect = (item: any) => {
-    console.log(item.value.name);
     form.penerima.push({ id: item.value.id, name: item.value.name });
     searchPenerima.value = '';
     if (filteredPenerima.value.length === 0) {
@@ -150,6 +149,9 @@ const onSubmit = () => {
     form.post(route('app.compose.store'), {
         onSuccess: () => {
             form.reset();
+            form.tglSurat = undefined;
+            form.tglDiterima = undefined;
+            openPenerima.value = false;
             toast({
                 title: 'Success! Data terkirim.',
                 description: 'Data input surat masuk berhasil terkirim',
@@ -218,6 +220,7 @@ const onSubmit = () => {
                                         autocomplete="off"
                                         v-model="form.pengirim"
                                         placeholder="Nama pengirim surat"
+                                        :class="'h-10'"
                                     />
                                     <InputError :message="form.errors.pengirim" />
                                 </div>
@@ -230,6 +233,7 @@ const onSubmit = () => {
                                         autocomplete="off"
                                         v-model="form.nomor"
                                         placeholder="Nomor surat masuk"
+                                        :class="'h-10'"
                                     />
                                     <InputError :message="form.errors.nomor" />
                                 </div>
@@ -257,7 +261,10 @@ const onSubmit = () => {
                                                 variant="outline"
                                                 :tabindex="3"
                                                 :class="
-                                                    cn('max-w-[200px] justify-start text-left font-normal', !form.tglSurat && 'text-muted-foreground')
+                                                    cn(
+                                                        'h-10 max-w-[200px] justify-start text-left font-normal',
+                                                        !form.tglSurat && 'text-muted-foreground',
+                                                    )
                                                 "
                                             >
                                                 <CalendarIcon class="mr-2 h-4 w-4" />
@@ -280,7 +287,7 @@ const onSubmit = () => {
                                                 :tabindex="4"
                                                 :class="
                                                     cn(
-                                                        'max-w-[200px] justify-start text-left font-normal',
+                                                        'h-10 max-w-[200px] justify-start text-left font-normal',
                                                         !form.tglDiterima && 'text-muted-foreground',
                                                     )
                                                 "
@@ -299,7 +306,13 @@ const onSubmit = () => {
                             <section class="mt-6 max-w-2xl">
                                 <div class="grid gap-2">
                                     <Label for="perihal">Perihal</Label>
-                                    <Textarea id="perihal" :tabindex="5" v-model="form.perihal" placeholder="Perihal isi surat" />
+                                    <Textarea
+                                        id="perihal"
+                                        :tabindex="5"
+                                        v-model="form.perihal"
+                                        placeholder="Perihal isi surat"
+                                        class="dark:bg-input/30"
+                                    />
                                     <InputError :message="form.errors.perihal" />
                                 </div>
                             </section>
@@ -320,7 +333,7 @@ const onSubmit = () => {
                                 <div class="grid gap-2 lg:basis-1/3">
                                     <Label for="kaetgori">Kategori</Label>
                                     <Select v-model="form.kategori">
-                                        <SelectTrigger id="kaetgori" :tabindex="6" aria-label="Select kategori">
+                                        <SelectTrigger id="kaetgori" :tabindex="6" aria-label="Select kategori" class="dark:bg-input/30">
                                             <SelectValue placeholder="Pilih kategori" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -338,7 +351,7 @@ const onSubmit = () => {
                                     <div class="flex w-full items-center justify-between gap-2">
                                         <div class="grid w-[60%] gap-2">
                                             <Select v-model="form.agenda">
-                                                <SelectTrigger id="agenda" :tabindex="7" aria-label="Select agenda">
+                                                <SelectTrigger id="agenda" :tabindex="7" aria-label="Select agenda" class="dark:bg-input/30">
                                                     <SelectValue placeholder="Pilih klasifikasi" />
                                                 </SelectTrigger>
                                                 <SelectContent class="max-h-[300px]">
@@ -354,7 +367,7 @@ const onSubmit = () => {
                                         </div>
                                         <div class="grid w-[40%] gap-2">
                                             <Select v-model="form.agendaTahun">
-                                                <SelectTrigger :tabindex="8" aria-label="Select year">
+                                                <SelectTrigger :tabindex="8" aria-label="Select year" class="dark:bg-input/30">
                                                     <SelectValue placeholder="Tahun agenda" />
                                                 </SelectTrigger>
                                                 <SelectContent class="max-h-[200px]">
@@ -393,9 +406,9 @@ const onSubmit = () => {
                             <section class="max-w-2xl space-y-6">
                                 <div class="grid gap-2">
                                     <Label for="penerima">Penerima</Label>
-                                    <Combobox :tabindex="9" v-model="form.penerima" v-model:open="openPenerima" :ignore-filter="true">
+                                    <Combobox v-model="form.penerima" v-model:open="openPenerima" :ignore-filter="true">
                                         <ComboboxAnchor as-child>
-                                            <TagsInput id="penerima" v-model="form.penerima" class="w-full gap-2 px-2">
+                                            <TagsInput id="penerima" v-model="form.penerima" class="w-full gap-2 px-2 dark:bg-input/30">
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <TagsInputItem
                                                         v-for="(item, index) in form.penerima"
@@ -409,6 +422,7 @@ const onSubmit = () => {
 
                                                 <ComboboxInput v-model="searchPenerima" as-child>
                                                     <TagsInputInput
+                                                        :tabindex="9"
                                                         placeholder="Penerima surat..."
                                                         class="h-auto w-full min-w-[200px] border-none p-0 shadow-none focus-visible:ring-0"
                                                         @keydown.enter.prevent
@@ -439,7 +453,13 @@ const onSubmit = () => {
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="catatan">Catatan</Label>
-                                    <Textarea id="catatan" :tabindex="10" v-model="form.catatan" placeholder="Masukkan catatan surat (Opsional)" />
+                                    <Textarea
+                                        id="catatan"
+                                        :tabindex="10"
+                                        v-model="form.catatan"
+                                        placeholder="Masukkan catatan surat (Opsional)"
+                                        class="dark:bg-input/30"
+                                    />
                                     <InputError :message="form.errors.catatan" />
                                 </div>
                             </section>
@@ -460,7 +480,7 @@ const onSubmit = () => {
                                 <div class="flex items-center justify-between">
                                     <div class="grid gap-1">
                                         <Label for="lampiran">Dokumen</Label>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Supported Format: PDF</p>
+                                        <p class="text-xs text-muted-foreground">Supported Format: PDF</p>
                                     </div>
                                     <Button
                                         id="lampiran"
@@ -486,7 +506,7 @@ const onSubmit = () => {
                                 <Card class="mt-2" :class="{ 'border-red-500': form.errors.lampiran }">
                                     <CardContent>
                                         <div v-if="form.lampiran.length === 0" class="text-center">
-                                            <p class="text-sm text-gray-500">Silahkan unggah lampiran surat masuk.</p>
+                                            <p class="text-sm text-muted-foreground">Silahkan unggah lampiran surat masuk.</p>
                                         </div>
                                         <div
                                             v-for="(item, index) in form.lampiran"
