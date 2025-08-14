@@ -50,7 +50,7 @@ export function useClearErrorsOnChange<T extends object>(
 
         const stop = watch(
             getter,
-            (_newVal, _oldVal) => {
+            () => {
                 if (options.debounceMs && options.debounceMs > 0) {
                     const prev = timers.get(key);
                     if (prev) clearTimeout(prev);
