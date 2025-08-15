@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MasterData\FollowupController;
 use App\Http\Controllers\MasterData\KodeKlasifikasiController;
 use App\Http\Controllers\MasterData\PositionController;
 use App\Http\Controllers\MasterData\UserController;
@@ -56,5 +57,18 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.klasifikasi.edit');
         Route::patch('update/{kode}', [KodeKlasifikasiController::class, 'update'])
             ->name('ref.klasifikasi.update');
+    });
+
+    Route::prefix('followup')->group(function () {
+        Route::get('/', [FollowupController::class, 'index'])
+            ->name('ref.followup.index');
+        Route::get('create', [FollowupController::class, 'create'])
+            ->name('ref.followup.create');
+        Route::post('store', [FollowupController::class, 'store'])
+            ->name('ref.followup.store');
+        Route::get('edit/{followup}', [FollowupController::class, 'edit'])
+            ->name('ref.followup.edit');
+        Route::patch('update/{followup}', [FollowupController::class, 'update'])
+            ->name('ref.followup.update');
     });
 });

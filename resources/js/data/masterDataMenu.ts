@@ -2,6 +2,11 @@ import { type NavItem } from '@/types';
 
 const masterNavItems: NavItem[] = [
     {
+        title: 'Data Followup',
+        href: 'ref.followup.index',
+        current: 'ref.followup.*',
+    },
+    {
         title: 'Kode Klasifikasi',
         href: 'ref.klasifikasi.index',
         current: 'ref.klasifikasi.*',
