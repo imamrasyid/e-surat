@@ -91,6 +91,7 @@ class UndanganController extends Controller
                 ],
             ],
             'letter' => fn() => $letter,
+            'recipient_id' => fn() => $letter_recipient_id,
         ]);
     }
 

@@ -32,6 +32,13 @@ class Letter extends Model
             ->orderBy('received_at');
     }
 
+    public function dispositions()
+    {
+        return $this->hasMany(Disposition::class)
+            ->with(['fromPosition:id,name', 'toPosition:id,name'])
+            ->orderBy('received_at');
+    }
+
     public function docs()
     {
         return $this->hasMany(LetterDoc::class)->where('is_active', true);

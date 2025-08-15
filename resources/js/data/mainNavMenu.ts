@@ -39,9 +39,9 @@ const inboxItems: NavItem[] = [
     },
     {
         title: 'Disposisi',
-        href: 'dashboard',
+        href: 'dispo.index',
         icon: Mails,
-        current: '',
+        current: 'dispo.*',
         notif: 8,
     },
     {

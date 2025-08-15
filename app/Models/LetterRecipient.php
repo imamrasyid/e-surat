@@ -26,6 +26,13 @@ class LetterRecipient extends Model
         return $this->belongsTo(Letter::class);
     }
 
+    public function dispositions()
+    {
+        return $this->hasMany(Disposition::class)
+            ->with(['fromPosition:id,name', 'toPosition:id,name'])
+            ->orderBy('received_at');
+    }
+
     public function fromPosition()
     {
         return $this->belongsTo(Position::class, 'from_position_id');

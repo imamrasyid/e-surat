@@ -9,19 +9,34 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { useDateFormat } from '@vueuse/core';
+import { Head, router } from '@inertiajs/vue3';
+import { now, useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Forward, Printer, Reply } from 'lucide-vue-next';
 
-defineProps<{
+const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
     letter: any;
+    recipient_id: string;
 }>();
 
 function getCategoryName(value: number) {
     const found = categoryInbox.find((cat) => cat.value === value);
     return found ? found.name : '-';
 }
+
+const createDisposition = (letter_id: string) => {
+    const key = btoa(String(now().toPrecision(21)) + letter_id);
+    router.get(
+        route('dispo.create', [props.recipient_id, key]),
+        {},
+        {
+            onSuccess: () => {
+                sessionStorage.setItem('dsp_c_helper', 'primary');
+            },
+            preserveState: true,
+        },
+    );
+};
 </script>
 
 <template>
@@ -58,13 +73,13 @@ function getCategoryName(value: number) {
                     </Tooltip>
                 </TooltipProvider>
                 <div class="flex gap-2">
-                    <Button variant="ghost" size="icon" class="cursor-pointer">
+                    <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
                         <Printer class="size-5" />
                     </Button>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button variant="ghost" size="icon" class="cursor-pointer">
+                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
                                     <Reply class="size-5" />
                                 </Button>
                             </TooltipTrigger>
@@ -76,7 +91,7 @@ function getCategoryName(value: number) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button variant="ghost" size="icon" class="cursor-pointer">
+                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer" @click="createDisposition(letter.letter_id)">
                                     <Forward class="size-5" />
                                 </Button>
                             </TooltipTrigger>
