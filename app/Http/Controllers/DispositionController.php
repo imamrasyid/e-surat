@@ -270,7 +270,7 @@ class DispositionController extends Controller
 
             DB::commit();
 
-            return redirect()->route('dispo.show', (['disposition' => $disposition->id, 'letter_id' => $letter_id]));
+            return redirect()->route('dispo.show', (['recipient' => $disposition->id, 'letter_id' => $letter_id]));
 
         } catch (\Throwable $th) {
             DB::rollBack();

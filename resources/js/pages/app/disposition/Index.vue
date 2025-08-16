@@ -154,7 +154,7 @@ function goToDetailPatch(disposition: number, letter_id: string) {
                             <TableRow class="hover:bg-transparent">
                                 <TableHead class="min-w-[175px]">Agenda</TableHead>
                                 <TableHead class="min-w-[175px]">Dari</TableHead>
-                                <TableHead class="min:w-[260px]">Catatan</TableHead>
+                                <TableHead class="min-w-[260px]">Catatan</TableHead>
                                 <TableHead class="min-w-[180px]">Followup</TableHead>
                                 <TableHead class="w-[100px] text-right"></TableHead>
                             </TableRow>
@@ -175,9 +175,12 @@ function goToDetailPatch(disposition: number, letter_id: string) {
                                         </button>
                                     </div>
                                 </TableCell>
-                                <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
-                                <TableCell class="align-top">{{ item.instruction }}</TableCell>
-                                <TableCell class="align-top">{{ item.followup }}</TableCell>
+                                <TableCell class="align-top">
+                                    <p v-if="item.is_cc === 1" class="text-xs text-muted-foreground">CC Dari:</p>
+                                    {{ item.from_position.name }}
+                                </TableCell>
+                                <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
+                                <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
                                 <TableCell class="text-right align-top">
                                     {{ formatCreate(item.received_at) }}
                                 </TableCell>

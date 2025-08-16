@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Disposition;
 use App\Models\Letter;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
@@ -43,6 +44,7 @@ class HandleInertiaRequests extends Middleware
 
         $primary = 0;
         $undangan = 0;
+        $disposisi = 0;
 
         if ($request->user()) {
             $currentPositionId = $request->user()->currentPosition()->pluck('positions.id')->first();
@@ -51,7 +53,7 @@ class HandleInertiaRequests extends Middleware
                 // Gunakan cache per user + posisi
                 $cacheKey = "inbox_counts_user_{$request->user()->id}_pos_{$currentPositionId}";
 
-                [$primary, $undangan] = Cache::remember($cacheKey, now()->addSeconds(60), function () use ($currentPositionId) {
+                [$primary, $undangan, $disposisi] = Cache::remember($cacheKey, now()->addSeconds(15), function () use ($currentPositionId) {
                     $baseQuery = Letter::query()
                         ->leftJoin('letter_recipients', 'letters.id', '=', 'letter_recipients.letter_id')
                         ->where('type', 'in')
@@ -61,7 +63,12 @@ class HandleInertiaRequests extends Middleware
                     $primary = (clone $baseQuery)->where('category', '1')->count();
                     $undangan = (clone $baseQuery)->where('category', '2')->count();
 
-                    return [$primary, $undangan];
+                    $disposisi = Disposition::query()
+                        ->where('to_position_id', $currentPositionId)
+                        ->whereNull('read_at')
+                        ->count();
+
+                    return [$primary, $undangan, $disposisi];
                 });
             }
         }
@@ -76,6 +83,7 @@ class HandleInertiaRequests extends Middleware
             'inbox' => [
                 'primary' => fn() => $primary,
                 'undangan' => fn() => $undangan,
+                'disposisi' => fn() => $disposisi,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

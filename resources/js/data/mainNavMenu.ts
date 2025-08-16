@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Award, ClipboardList, Inbox, LayoutGrid, Mails, SendHorizonal, SquarePen } from 'lucide-vue-next';
+import { Award, Inbox, LayoutGrid, Mails, SendHorizonal, SquarePen, StickyNote } from 'lucide-vue-next';
 
 const platformItems: NavItem[] = [
     {
@@ -47,7 +47,7 @@ const inboxItems: NavItem[] = [
     {
         title: 'Nota Dinas',
         href: 'dashboard',
-        icon: ClipboardList,
+        icon: StickyNote,
         current: '',
         notif: 9,
     },

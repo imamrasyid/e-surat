@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import {
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuAction,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { inboxItems, platformItems } from '@/data/mainNavMenu';
 import { Link, usePage } from '@inertiajs/vue3';
 
@@ -9,36 +17,46 @@ const { props } = usePage();
 <template>
     <SidebarGroup class="px-2 py-0">
         <SidebarGroupLabel>Platform</SidebarGroupLabel>
-        <SidebarMenu>
-            <SidebarMenuItem v-for="item in platformItems" :key="item.title">
-                <SidebarMenuButton as-child :is-active="item.current ? route().current(item.current) : false" :tooltip="item.title">
-                    <Link :href="route(item.href)">
-                        <component :is="item.icon" />
-                        <span>{{ item.title }}</span>
-                    </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarGroupContent>
+            <SidebarMenu>
+                <SidebarMenuItem v-for="item in platformItems" :key="item.title">
+                    <SidebarMenuButton as-child :is-active="item.current ? route().current(item.current) : false" :tooltip="item.title">
+                        <Link :href="route(item.href)">
+                            <component :is="item.icon" />
+                            <span>{{ item.title }}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarGroupContent>
     </SidebarGroup>
     <SidebarGroup class="px-2 py-0">
         <SidebarGroupLabel>Surat Masuk</SidebarGroupLabel>
-        <SidebarMenu>
-            <SidebarMenuItem v-for="item in inboxItems" :key="item.title">
-                <SidebarMenuButton as-child :is-active="item.current ? route().current(item.current) : false" :tooltip="item.title">
-                    <Link :href="route(item.href)" class="justify-between">
-                        <div class="flex items-center gap-2">
-                            <component :is="item.icon" class="h-4 w-4" />
+        <SidebarGroupContent>
+            <SidebarMenu>
+                <SidebarMenuItem v-for="item in inboxItems" :key="item.title">
+                    <SidebarMenuButton as-child :is-active="item.current ? route().current(item.current) : false" :tooltip="item.title">
+                        <Link :href="route(item.href)">
+                            <component :is="item.icon" />
                             <span>{{ item.title }}</span>
-                        </div>
-                        <div v-if="item.notif === 1 && props.inbox.primary > 0" class="self-center">
+                        </Link>
+                    </SidebarMenuButton>
+                    <SidebarMenuAction>
+                        <div v-if="item.notif === 1 && props.inbox.primary > 0">
                             <span class="text-xs font-semibold">{{ props.inbox.primary }}</span>
                         </div>
-                        <div v-if="item.notif === 2 && props.inbox.undangan > 0" class="self-center">
+                        <div v-if="item.notif === 2 && props.inbox.undangan > 0">
                             <span class="text-xs font-semibold">{{ props.inbox.undangan }}</span>
                         </div>
-                    </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-        </SidebarMenu>
+                        <div v-if="item.notif === 8 && props.inbox.disposisi > 0">
+                            <span class="text-xs font-semibold">{{ props.inbox.disposisi }}</span>
+                        </div>
+                        <div v-if="item.notif === 9 && props.inbox.memo > 0">
+                            <span class="text-xs font-semibold">{{ props.inbox.memo }}</span>
+                        </div>
+                    </SidebarMenuAction>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarGroupContent>
     </SidebarGroup>
 </template>
