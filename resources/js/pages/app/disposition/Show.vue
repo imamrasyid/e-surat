@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -116,7 +116,7 @@ const createDisposition = (letter_id: string) => {
             </div>
 
             <div class="mt-6">
-                <Accordion default-value="item-1" type="single" collapsible>
+                <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
                         <AccordionTrigger class="cursor-pointer text-sm">Detail Surat:</AccordionTrigger>
                         <AccordionContent>
@@ -225,7 +225,38 @@ const createDisposition = (letter_id: string) => {
                 <Accordion default-value="item-1" type="single" collapsible>
                     <AccordionItem value="item-1">
                         <AccordionTrigger class="cursor-pointer text-sm">Timeline:</AccordionTrigger>
-                        <AccordionContent></AccordionContent>
+                        <AccordionContent>
+                            <div class="rounded-md border">
+                                <Table>
+                                    <TableHeader class="bg-muted/30">
+                                        <TableRow class="hover:bg-transparent">
+                                            <TableHead class="min-w-[75px]">Tgl Kirim</TableHead>
+                                            <TableHead class="min-w-[175px]">Dari</TableHead>
+                                            <TableHead class="min-w-[175px]">Kepada</TableHead>
+                                            <TableHead class="min-w-[250px]">Catatan</TableHead>
+                                            <TableHead class="min-w-[175px]">Followup</TableHead>
+                                            <TableHead class="min-w-[75px]">Tgl Baca</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <TableRow v-for="item in recipients" :key="item.id">
+                                            <TableCell class="align-top">
+                                                {{ useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) }}
+                                            </TableCell>
+                                            <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
+                                            <TableCell class="align-top">
+                                                {{ item.is_cc === 1 ? 'cc: ' : '' }} {{ item.to_position.name }}
+                                            </TableCell>
+                                            <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
+                                            <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
+                                            <TableCell class="align-top">
+                                                {{ item.read_at ? useDateFormat(item.read_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) : '-' }}
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </AccordionContent>
                     </AccordionItem>
                 </Accordion>
             </div>

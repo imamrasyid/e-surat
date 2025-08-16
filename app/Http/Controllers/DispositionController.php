@@ -70,10 +70,7 @@ class DispositionController extends Controller
 
         $letter = Letter::where('letter_id', $letter_id)->where('status', 'open')->firstOrFail();
 
-        $letter_recipients = LetterRecipient::where('letter_id', $letter->id)
-            ->with(['fromPosition:id,name', 'toPosition:id,name'])
-            ->orderBy('received_at')
-            ->get();
+        $recipients = $this->getTimeline($letter->id);
 
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
@@ -102,7 +99,7 @@ class DispositionController extends Controller
                 ],
             ],
             'letter' => fn() => $letter,
-            'letter_recipients' => fn() => $letter_recipients,
+            'recipients' => fn() => $recipients,
             'recipient_id' => fn() => $recipient,
             'positions' => fn() => $positions,
             'followup' => fn() => $followup,
@@ -231,7 +228,7 @@ class DispositionController extends Controller
 
         $from = $recipient->senderUser()->select('id', 'name')->first();
 
-        $recipients = [];
+        $recipients = $this->getTimeline($recipient->letter_id);
 
         $letter = $recipient->letter()->with([
             'docs:id,letter_id,name,url'

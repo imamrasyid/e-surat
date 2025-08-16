@@ -26,7 +26,7 @@ const { toast } = useToast();
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
     letter: any;
-    letter_recipients: any;
+    recipients: any;
     recipient_id: string;
     positions: any;
     followup: any;
@@ -292,14 +292,16 @@ onUnmounted(() => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        <TableRow v-for="item in letter_recipients" :key="item.id">
+                                        <TableRow v-for="item in recipients" :key="item.id">
                                             <TableCell class="align-top">
                                                 {{ useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) }}
                                             </TableCell>
                                             <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
-                                            <TableCell class="align-top">{{ item.to_position.name }}</TableCell>
+                                            <TableCell class="align-top">
+                                                {{ item.is_cc === 1 ? 'cc: ' : '' }} {{ item.to_position.name }}
+                                            </TableCell>
                                             <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
-                                            <TableCell class="align-top">-</TableCell>
+                                            <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
                                             <TableCell class="align-top">
                                                 {{ item.read_at ? useDateFormat(item.read_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) : '-' }}
                                             </TableCell>
