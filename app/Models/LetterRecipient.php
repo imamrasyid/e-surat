@@ -17,6 +17,7 @@ class LetterRecipient extends Model
         'from_position_id',
         'to_position_id',
         'instruction',
+        'followup',
         'received_at',
         'read_at',
     ];

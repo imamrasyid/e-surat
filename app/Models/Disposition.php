@@ -31,7 +31,7 @@ class Disposition extends Model
 
     public function recipient()
     {
-        return $this->belongsTo(LetterRecipient::class);
+        return $this->belongsTo(LetterRecipient::class, 'letter_recipient_id');
     }
 
     public function fromPosition()
@@ -42,5 +42,10 @@ class Disposition extends Model
     public function toPosition()
     {
         return $this->belongsTo(Position::class, 'to_position_id');
+    }
+
+    public function senderUser()
+    {
+        return $this->belongsTo(User::class, 'from_user_id');
     }
 }

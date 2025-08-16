@@ -12,4 +12,10 @@ Route::prefix('disposition')->middleware('auth')->group(function () {
 
     Route::post('/store', [DispositionController::class, 'store'])
         ->name('dispo.store');
+
+    Route::patch('/update-read-at/{disposition}/{letter_id}', [DispositionController::class, 'update'])
+            ->name('dispo.update');
+        
+    Route::get('/{disposition}/{letter_id}', [DispositionController::class, 'show'])
+        ->name('dispo.show');
 });

@@ -34,9 +34,12 @@ const props = defineProps<{
 
 type FormInput = {
     type: string;
+    letter_id_primary: number;
     letter_id: string;
-    letter_recipient_id: string;
+    letter_recipient_id: number;
+    letter_receipt_date: string;
     penerima: { id: number; name: string }[];
+    penerima_cc: { id: number; name: string }[];
     catatan: string;
     followup: { id: number; name: string }[];
     lampiran: File[];
@@ -44,9 +47,12 @@ type FormInput = {
 
 const form: InertiaForm<FormInput> = useForm<FormInput>({
     type: '',
+    letter_id_primary: Number(props.letter.id),
     letter_id: props.letter.letter_id,
-    letter_recipient_id: props.recipient_id,
+    letter_recipient_id: Number(props.recipient_id),
+    letter_receipt_date: props.letter.receipt_date,
     penerima: [],
+    penerima_cc: [],
     catatan: '',
     followup: [],
     lampiran: [],
@@ -72,6 +78,25 @@ const filteredPenerima = computed(() => {
     const options = props.positions.filter((i: any) => !selectedIds.includes(i.id));
     if (searchPenerima.value) {
         const keyword = searchPenerima.value.toLowerCase();
+        return options.filter((option: any) => option.name.toLowerCase().includes(keyword));
+    }
+    return options;
+});
+
+const openPenerimacc = ref(false);
+const searchPenerimacc = ref();
+const penerimaSelectcc = (item: any) => {
+    form.penerima_cc.push({ id: item.value.id, name: item.value.name });
+    searchPenerimacc.value = '';
+    if (filteredPenerimacc.value.length === 0) {
+        openPenerimacc.value = false;
+    }
+};
+const filteredPenerimacc = computed(() => {
+    const selectedIds = form.penerima_cc.map((p) => p.id);
+    const options = props.positions.filter((i: any) => !selectedIds.includes(i.id));
+    if (searchPenerimacc.value) {
+        const keyword = searchPenerimacc.value.toLowerCase();
         return options.filter((option: any) => option.name.toLowerCase().includes(keyword));
     }
     return options;
@@ -136,6 +161,7 @@ const onSubmit = () => {
         onSuccess: () => {
             form.reset();
             openPenerima.value = false;
+            openPenerimacc.value = false;
             openFollowup.value = false;
             toast({
                 title: 'Success! Data terkirim.',
@@ -295,53 +321,103 @@ onUnmounted(() => {
                     <Separator class="my-6 lg:hidden" />
 
                     <div class="flex-1 md:max-w-2xl">
-                        <div class="grid gap-2">
-                            <Label for="penerima">Pilih Penerima</Label>
-                            <Combobox v-model="form.penerima" v-model:open="openPenerima" :ignore-filter="true">
-                                <ComboboxAnchor as-child>
-                                    <TagsInput id="penerima" v-model="form.penerima" class="w-full gap-2 px-2 dark:bg-input/30">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <TagsInputItem v-for="(item, index) in form.penerima" :key="index" :value="item.name">
-                                                <TagsInputItemText />
-                                                <TagsInputItemDelete :as-child="true">
-                                                    <button type="button" class="cursor-pointer" @click="form.penerima.splice(index, 1)">
-                                                        <XCircle class="size-4 text-gray-700 dark:text-gray-300" />
-                                                    </button>
-                                                </TagsInputItemDelete>
-                                            </TagsInputItem>
-                                        </div>
+                        <section class="max-w-2xl space-y-6">
+                            <div class="grid gap-2">
+                                <Label for="penerima">Pilih Penerima</Label>
+                                <Combobox v-model="form.penerima" v-model:open="openPenerima" :ignore-filter="true">
+                                    <ComboboxAnchor as-child>
+                                        <TagsInput id="penerima" v-model="form.penerima" class="w-full gap-2 px-2 dark:bg-input/30">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <TagsInputItem v-for="(item, index) in form.penerima" :key="index" :value="item.name">
+                                                    <TagsInputItemText />
+                                                    <TagsInputItemDelete :as-child="true">
+                                                        <button type="button" class="cursor-pointer" @click="form.penerima.splice(index, 1)">
+                                                            <XCircle class="size-4 text-gray-700 dark:text-gray-300" />
+                                                        </button>
+                                                    </TagsInputItemDelete>
+                                                </TagsInputItem>
+                                            </div>
 
-                                        <ComboboxInput v-model="searchPenerima" as-child>
-                                            <TagsInputInput
-                                                :tabindex="1"
-                                                placeholder="Penerima disposisi..."
-                                                class="h-auto w-full min-w-[200px] border-none p-0 shadow-none focus-visible:ring-0"
-                                                @keydown.enter.prevent
-                                            />
-                                        </ComboboxInput>
-                                    </TagsInput>
+                                            <ComboboxInput v-model="searchPenerima" as-child>
+                                                <TagsInputInput
+                                                    :tabindex="1"
+                                                    placeholder="Penerima disposisi..."
+                                                    class="h-auto w-full min-w-[200px] border-none p-0 shadow-none focus-visible:ring-0"
+                                                    @keydown.enter.prevent
+                                                />
+                                            </ComboboxInput>
+                                        </TagsInput>
 
-                                    <ComboboxList class="w-[--reka-popper-anchor-width]">
-                                        <ComboboxEmpty />
-                                        <ComboboxGroup>
-                                            <ComboboxItem
-                                                v-for="item in filteredPenerima"
-                                                :key="item.id"
-                                                :value="item"
-                                                @select.prevent="
-                                                    (ev) => {
-                                                        penerimaSelect(ev.detail);
-                                                    }
-                                                "
-                                            >
-                                                {{ item.name }}
-                                            </ComboboxItem>
-                                        </ComboboxGroup>
-                                    </ComboboxList>
-                                </ComboboxAnchor>
-                            </Combobox>
-                            <InputError :message="form.errors.penerima" />
-                        </div>
+                                        <ComboboxList class="w-[--reka-popper-anchor-width]">
+                                            <ComboboxEmpty />
+                                            <ComboboxGroup>
+                                                <ComboboxItem
+                                                    v-for="item in filteredPenerima"
+                                                    :key="item.id"
+                                                    :value="item"
+                                                    @select.prevent="
+                                                        (ev) => {
+                                                            penerimaSelect(ev.detail);
+                                                        }
+                                                    "
+                                                >
+                                                    {{ item.name }}
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </ComboboxAnchor>
+                                </Combobox>
+                                <InputError :message="form.errors.penerima" />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <Label for="penerima_cc">CC Penerima</Label>
+                                <Combobox v-model="form.penerima_cc" v-model:open="openPenerimacc" :ignore-filter="true">
+                                    <ComboboxAnchor as-child>
+                                        <TagsInput id="penerima_cc" v-model="form.penerima_cc" class="w-full gap-2 px-2 dark:bg-input/30">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <TagsInputItem v-for="(item, index) in form.penerima_cc" :key="index" :value="item.name">
+                                                    <TagsInputItemText />
+                                                    <TagsInputItemDelete :as-child="true">
+                                                        <button type="button" class="cursor-pointer" @click="form.penerima_cc.splice(index, 1)">
+                                                            <XCircle class="size-4 text-gray-700 dark:text-gray-300" />
+                                                        </button>
+                                                    </TagsInputItemDelete>
+                                                </TagsInputItem>
+                                            </div>
+
+                                            <ComboboxInput v-model="searchPenerimacc" as-child>
+                                                <TagsInputInput
+                                                    :tabindex="1"
+                                                    placeholder="CC Penerima disposisi..."
+                                                    class="h-auto w-full min-w-[200px] border-none p-0 shadow-none focus-visible:ring-0"
+                                                    @keydown.enter.prevent
+                                                />
+                                            </ComboboxInput>
+                                        </TagsInput>
+
+                                        <ComboboxList class="w-[--reka-popper-anchor-width]">
+                                            <ComboboxEmpty />
+                                            <ComboboxGroup>
+                                                <ComboboxItem
+                                                    v-for="item in filteredPenerimacc"
+                                                    :key="item.id"
+                                                    :value="item"
+                                                    @select.prevent="
+                                                        (ev) => {
+                                                            penerimaSelectcc(ev.detail);
+                                                        }
+                                                    "
+                                                >
+                                                    {{ item.name }}
+                                                </ComboboxItem>
+                                            </ComboboxGroup>
+                                        </ComboboxList>
+                                    </ComboboxAnchor>
+                                </Combobox>
+                                <InputError :message="form.errors.penerima_cc" />
+                            </div>
+                        </section>
                     </div>
                 </div>
 
