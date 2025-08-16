@@ -75,10 +75,16 @@ const createDisposition = (letter_id: string) => {
                     <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
                         <Printer class="size-5" />
                     </Button>
-                    <TooltipProvider :disabled="disposition.is_cc === 1 || letter.status === 'close'">
+                    <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="cursor-pointer"
+                                    :disabled="disposition.is_cc === 1 || letter.status === 'close'"
+                                >
                                     <Reply class="size-5" />
                                 </Button>
                             </TooltipTrigger>
@@ -87,10 +93,17 @@ const createDisposition = (letter_id: string) => {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <TooltipProvider :disabled="disposition.is_cc === 1 || letter.status === 'close'">
+                    <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer" @click="createDisposition(letter.letter_id)">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="cursor-pointer"
+                                    :disabled="disposition.is_cc === 1 || letter.status === 'close'"
+                                    @click="createDisposition(letter.letter_id)"
+                                >
                                     <Forward class="size-5" />
                                 </Button>
                             </TooltipTrigger>

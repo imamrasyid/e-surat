@@ -16,7 +16,7 @@ import { ChevronLeft, Forward, Printer, Reply } from 'lucide-vue-next';
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
     letter: any;
-    recipient_id: string;
+    recipient: number;
 }>();
 
 function getCategoryName(value: number) {
@@ -27,7 +27,7 @@ function getCategoryName(value: number) {
 const createDisposition = (letter_id: string) => {
     const key = btoa(String(now().toPrecision(21)) + letter_id);
     router.get(
-        route('dispo.create', [props.recipient_id, key]),
+        route('dispo.create', [props.recipient, key]),
         {},
         {
             onSuccess: () => {
@@ -79,7 +79,7 @@ const createDisposition = (letter_id: string) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
+                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer" :disabled="letter.status === 'close'">
                                     <Reply class="size-5" />
                                 </Button>
                             </TooltipTrigger>
@@ -91,7 +91,14 @@ const createDisposition = (letter_id: string) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer" @click="createDisposition(letter.letter_id)">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="cursor-pointer"
+                                    :disabled="letter.status === 'close'"
+                                    @click="createDisposition(letter.letter_id)"
+                                >
                                     <Forward class="size-5" />
                                 </Button>
                             </TooltipTrigger>
@@ -196,7 +203,7 @@ const createDisposition = (letter_id: string) => {
             <div class="mt-6">
                 <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
-                        <AccordionTrigger class="cursor-pointer">Penerima</AccordionTrigger>
+                        <AccordionTrigger class="cursor-pointer text-sm">Penerima:</AccordionTrigger>
                         <AccordionContent>
                             <div class="rounded-md border">
                                 <Table>
@@ -232,7 +239,7 @@ const createDisposition = (letter_id: string) => {
             <div class="mt-4">
                 <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
-                        <AccordionTrigger class="cursor-pointer">Lampiran</AccordionTrigger>
+                        <AccordionTrigger class="cursor-pointer text-sm">Lampiran:</AccordionTrigger>
                         <AccordionContent>
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                                 <a :href="item.url" target="_blank" v-for="(item, index) in letter.docs" :key="index">

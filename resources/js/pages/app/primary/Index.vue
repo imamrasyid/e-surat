@@ -56,19 +56,34 @@ watchDebounced(
     },
 );
 
-function goToDetail(letter_recipient_id: string, letter_id: string) {
+function goToDetail(recipient: number, letter_id: string) {
     router.get(
-        route('inbox.primary.show', { letter_recipient_id, letter_id }),
+        route('inbox.primary.show', { recipient, letter_id }),
         {},
         {
+            onError: (errors: any) => {
+                if (errors.confirm) {
+                    toast({
+                        title: 'Uh oh! Something went wrong.',
+                        description: errors.confirm,
+                        variant: 'destructive',
+                    });
+                } else {
+                    toast({
+                        title: 'Uh oh! Something went wrong.',
+                        description: 'Sepertinya terjadi kesalahan, silahkan coba lagi beberapa saat!',
+                        variant: 'info',
+                    });
+                }
+            },
             preserveState: true,
         },
     );
 }
 
-function goToDetailPatch(letter_recipient_id: string, letter_id: string) {
+function goToDetailPatch(recipient: number, letter_id: string) {
     router.patch(
-        route('inbox.primary.update', { letter_recipient_id, letter_id }),
+        route('inbox.primary.show', { recipient, letter_id }),
         {},
         {
             onError: (errors: any) => {
@@ -98,7 +113,7 @@ function goToDetailPatch(letter_recipient_id: string, letter_id: string) {
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <Heading class="!mb-0" title="Primary" description="Daftar surat masuk yang telah diterima" />
+                <Heading class="!mb-0" title="Primary" description="Daftar surat masuk primary" />
                 <div class="flex gap-2">
                     <div class="relative w-full items-center sm:max-w-[250px]">
                         <Input
@@ -137,9 +152,9 @@ function goToDetailPatch(letter_recipient_id: string, letter_id: string) {
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
-                                <TableHead class="w-[125px] xl:w-[175px]">Agenda</TableHead>
-                                <TableHead class="w-[165px] xl:w-[260px]">Nomor Surat</TableHead>
-                                <TableHead class="min-w-[180px]">Perihal</TableHead>
+                                <TableHead class="min-w-[100px]">Agenda</TableHead>
+                                <TableHead class="min-w-[170px]">Nomor Surat</TableHead>
+                                <TableHead class="min-w-[250px]">Perihal</TableHead>
                                 <TableHead class="w-[100px] text-right"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -148,24 +163,16 @@ function goToDetailPatch(letter_recipient_id: string, letter_id: string) {
                                 v-for="(item, index) in primary.data"
                                 :key="index"
                                 class="cursor-pointer"
-                                @click="
-                                    item.read_at
-                                        ? goToDetail(item.letter_recipient_id, item.letter_id)
-                                        : goToDetailPatch(item.letter_recipient_id, item.letter_id)
-                                "
+                                @click="item.read_at ? goToDetail(item.id, item.letter.letter_id) : goToDetailPatch(item.id, item.letter.letter_id)"
                                 :class="{ 'font-semibold': !item.read_at }"
                             >
-                                <TableCell class="align-top">{{ item.agenda }}</TableCell>
-                                <TableCell class="align-top">{{ item.number }}</TableCell>
+                                <TableCell class="align-top">{{ item.letter.agenda }}</TableCell>
+                                <TableCell class="align-top">{{ item.letter.number }}</TableCell>
                                 <TableCell class="align-top">
-                                    <div>
-                                        <p>
-                                            {{ item.sender }}
-                                        </p>
-                                        <p class="line-clamp-1 text-muted-foreground">
-                                            {{ item.subject }}
-                                        </p>
-                                    </div>
+                                    {{ item.letter.sender }}
+                                    <p class="line-clamp-1 text-muted-foreground">
+                                        {{ item.letter.subject }}
+                                    </p>
                                 </TableCell>
                                 <TableCell class="text-right align-top">
                                     {{ formatCreate(item.received_at) }}

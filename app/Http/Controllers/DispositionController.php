@@ -63,7 +63,7 @@ class DispositionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(string $recipient_id, string $key): Response
+    public function create(string $recipient, string $key): Response
     {
         $keyDecode = base64_decode($key);
         $letter_id = substr($keyDecode, -26);
@@ -103,7 +103,7 @@ class DispositionController extends Controller
             ],
             'letter' => fn() => $letter,
             'letter_recipients' => fn() => $letter_recipients,
-            'recipient_id' => fn() => $recipient_id,
+            'recipient_id' => fn() => $recipient,
             'positions' => fn() => $positions,
             'followup' => fn() => $followup,
         ]);
@@ -200,7 +200,7 @@ class DispositionController extends Controller
 
             if (array_key_exists($request->type, $routes)) {
                 return redirect()->route($routes[$request->type], [
-                    'letter_recipient_id' => $request->letter_recipient_id,
+                    'recipient' => $request->letter_recipient_id,
                     'letter_id' => $request->letter_id,
                 ]);
             }
@@ -216,24 +216,24 @@ class DispositionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Disposition $disposition, string $letter_id): Response | RedirectResponse
+    public function show(Disposition $recipient, string $letter_id): Response | RedirectResponse
     {
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
 
-        if ($disposition->to_position_id != $currentPosition->id) {
+        if ($recipient->to_position_id != $currentPosition->id) {
             return redirect()->back()->withErrors(['confirm' => 'Anda tidak memiliki akses ke disposisi ini.']);
         }
 
-        if ($disposition->letter()->where('letter_id', $letter_id)->doesntExist()) {
+        if ($recipient->letter()->where('letter_id', $letter_id)->doesntExist()) {
             return redirect()->back()->withErrors(['confirm' => 'Surat tidak ditemukan atau tidak sesuai dengan disposisi ini.']);
         }
 
-        $from = $disposition->senderUser()->select('id', 'name')->first();
+        $from = $recipient->senderUser()->select('id', 'name')->first();
 
         $recipients = [];
 
-        $letter = $disposition->letter()->with([
+        $letter = $recipient->letter()->with([
             'docs:id,letter_id,name,url'
         ])->firstOrFail();
 
@@ -249,7 +249,7 @@ class DispositionController extends Controller
                 ],
             ],
             'from' => fn() => $from,
-            'disposition' => fn() => $disposition->only(
+            'disposition' => fn() => $recipient->only(
                 'id',
                 'letter_id',
                 'letter_recipient_id',

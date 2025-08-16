@@ -56,9 +56,9 @@ watchDebounced(
     },
 );
 
-function goToDetail(disposition: number, letter_id: string) {
+function goToDetail(recipient: number, letter_id: string) {
     router.get(
-        route('dispo.show', { disposition, letter_id }),
+        route('dispo.show', { recipient, letter_id }),
         {},
         {
             onError: (errors: any) => {

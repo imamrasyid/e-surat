@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Inbox;
 
 use App\Http\Controllers\Controller;
-use App\Models\Letter;
 use App\Models\LetterRecipient;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request as FacadesRequest;
@@ -24,33 +22,35 @@ class UndanganController extends Controller
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
 
-        $undangan = Letter::query()
-            ->select('letters.letter_id', 'agenda', 'sender', 'subject', 'number', 'letter_recipients.id as letter_recipient_id', 'received_at', 'read_at')
-            ->leftJoin('letter_recipients', 'letters.id', '=', 'letter_recipients.letter_id')
-            ->where('type', 'in')
-            ->where('category', '2')
-            ->where('letter_recipients.to_position_id', $currentPosition->id)
-            ->where(function(Builder $query) {
-                $search = FacadesRequest::input('search');
-                if ($search) {
-                    $query->whereLike('agenda','%'.$search.'%')
-                        ->orWhereLike('sender','%'.$search.'%')
-                        ->orWhereLike('subject','%'.$search.'%')
-                        ->orWhereLike('number','%'.$search.'%');
-                }
+        $undangan = LetterRecipient::query()
+            ->select('id', 'letter_id', 'received_at', 'read_at')
+            ->where('to_position_id', $currentPosition->id)
+            ->with(['letter' => function($query) {
+                $query->select('id', 'letter_id', 'agenda', 'sender', 'number', 'subject');
+            }])
+            ->whereHas('letter', function(Builder $query) {
+                $query->where('type', 'in')
+                    ->where('category', '2');
             })
-            ->where(function(Builder $query) {
-                $filter = FacadesRequest::input('filter');
+            ->when(FacadesRequest::input('search'), function(Builder $query, $search) {
+                $query->whereHas('letter', function($subQuery) use ($search) {
+                    $subQuery->whereLike('agenda', '%'.$search.'%')
+                        ->orWhereLike('sender', '%'.$search.'%')
+                        ->orWhereLike('subject', '%'.$search.'%')
+                        ->orWhereLike('number', '%'.$search.'%');
+                });
+            })
+            ->when(FacadesRequest::input('filter'), function (Builder $query, $filter) {
                 if ($filter == 'read') {
                     $query->whereNotNull('read_at');
-                }
-                if ($filter == 'unread') {
+                } elseif ($filter == 'unread') {
                     $query->whereNull('read_at');
                 }
             })
             ->orderBy('received_at', 'desc')
             ->paginate(15);
-
+        
+        
         return inertia('app/undangan/Index', [
             'breadcrumbItems' => [
                 [
@@ -65,19 +65,37 @@ class UndanganController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $letter_recipient_id, string $letter_id): Response
+    public function show(LetterRecipient $recipient, string $letter_id): Response | RedirectResponse
     {
-        $letter = Letter::where('letter_id', $letter_id)
-            ->where('type', 'in')
-            ->where('category', '2')
-            ->with([
-                'senderUser:id,name',
-                'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
-                'docs:id,letter_id,name,url'])
-            ->whereHas('recipients', function($query) use ($letter_recipient_id) {
-                $query->where('id', $letter_recipient_id);
-            })
-            ->firstOrFail();
+        $user = User::find(Auth::user()->id);
+        $currentPosition = $user->currentPosition()->first();
+
+        if ($recipient->to_position_id !== $currentPosition->id) {
+            return redirect()->back()->withErrors(['confirm' => 'Anda tidak memiliki akses ke surat ini.']);
+        }
+
+        if ($recipient->letter()->where('letter_id', $letter_id)->doesntExist()) {
+            return redirect()->back()->withErrors(['confirm' => 'Surat tidak ditemukan atau tidak sesuai dengan penerima surat.']);
+        }
+
+        if (FacadesRequest::isMethod('patch')) {
+            DB::beginTransaction();
+
+            try {
+                $recipient->update(['read_at' => now()]);
+
+                DB::commit();
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            }
+        }
+
+        $letter = $recipient->letter()->with([
+            'senderUser:id,name',
+            'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
+            'docs:id,letter_id,name,url'
+        ])->firstOrFail();
         
         return inertia('app/undangan/Show', [
             'breadcrumbItems' => [
@@ -91,32 +109,7 @@ class UndanganController extends Controller
                 ],
             ],
             'letter' => fn() => $letter,
-            'recipient_id' => fn() => $letter_recipient_id,
+            'recipient' => fn() => $recipient->id,
         ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(string $letter_recipient_id, string $letter_id): RedirectResponse
-    {
-        $letterRecipient = LetterRecipient::find($letter_recipient_id);
-        if (!$letterRecipient) {
-            return redirect()->back()->withErrors(['field' => 'Field not found.']);
-        }
-        
-        DB::beginTransaction();
-
-        try {
-            $letterRecipient->update(['read_at' => now()]);
-
-            DB::commit();
-
-            return redirect()->route('inbox.undangan.show', (['letter_recipient_id' => $letter_recipient_id, 'letter_id' => $letter_id]));
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
-        }
     }
 }
