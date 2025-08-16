@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
@@ -18,11 +17,6 @@ const props = defineProps<{
     letter: any;
     recipient: number;
 }>();
-
-function getCategoryName(value: number) {
-    const found = categoryInbox.find((cat) => cat.value === value);
-    return found ? found.name : '-';
-}
 
 const createDisposition = (letter_id: string) => {
     const key = btoa(String(now().toPrecision(21)) + letter_id);
@@ -168,16 +162,6 @@ const createDisposition = (letter_id: string) => {
 
                     <div class="flex-1">
                         <h6 class="text-sm dark:text-gray-300">{{ useDateFormat(letter.receipt_date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}</h6>
-                    </div>
-                </div>
-
-                <div class="flex space-x-4 lg:space-x-12">
-                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                        <h6 class="text-sm font-medium">Kategori</h6>
-                    </aside>
-
-                    <div class="flex-1">
-                        <h6 class="text-sm dark:text-gray-300">{{ getCategoryName(Number(letter.category)) }}</h6>
                     </div>
                 </div>
 
