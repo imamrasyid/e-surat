@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
 import SmartPagination from '@/components/SmartPagination.vue';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { toRef, watchDebounced } from '@vueuse/core';
-import { Filter, Info, Search } from 'lucide-vue-next';
+import { BadgeInfo, Filter, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const { toast } = useToast();
@@ -152,7 +154,17 @@ function goToDetailPatch(disposition: number, letter_id: string) {
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
-                                <TableHead class="min-w-[175px]">Agenda</TableHead>
+                                <TableHead class="flex min-w-[175px] items-center gap-1">
+                                    Agenda
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger><BadgeInfo class="size-4" /></TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Silahkan hover nomor agenda untuk informasi surat</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </TableHead>
                                 <TableHead class="min-w-[175px]">Dari</TableHead>
                                 <TableHead class="min-w-[260px]">Catatan</TableHead>
                                 <TableHead class="min-w-[180px]">Followup</TableHead>
@@ -168,12 +180,21 @@ function goToDetailPatch(disposition: number, letter_id: string) {
                                 :class="{ 'font-semibold': !item.read_at }"
                             >
                                 <TableCell class="align-top">
-                                    <div class="flex items-center gap-1">
-                                        {{ item.letter.agenda }}
-                                        <button type="button">
-                                            <Info class="h-4 w-4" />
-                                        </button>
-                                    </div>
+                                    <HoverCard :open-delay="0">
+                                        <HoverCardTrigger as-child>
+                                            <button type="button" class="cursor-pointer">
+                                                {{ item.letter.agenda }}
+                                            </button>
+                                        </HoverCardTrigger>
+                                        <HoverCardContent class="w-80">
+                                            <div class="space-y-1">
+                                                <span class="text-xs text-muted-foreground">Asal Surat</span>
+                                                <h4 class="text-sm font-semibold">{{ item.letter.sender }}</h4>
+                                                <p class="text-sm">{{ item.letter.number }}</p>
+                                                <p class="text-sm">{{ item.letter.subject }}</p>
+                                            </div>
+                                        </HoverCardContent>
+                                    </HoverCard>
                                 </TableCell>
                                 <TableCell class="align-top">
                                     <p v-if="item.is_cc === 1" class="text-xs text-muted-foreground">CC Dari:</p>

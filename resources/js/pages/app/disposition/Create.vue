@@ -199,120 +199,116 @@ onUnmounted(() => {
         <div class="px-4 py-6 xl:px-12">
             <Heading title="Tambah Baru" description="Buat disposisi surat" />
 
-            <div>
-                <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger class="cursor-pointer text-sm">Detail Surat:</AccordionTrigger>
-                        <AccordionContent>
-                            <div class="space-y-2">
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Nomor Agenda</h6>
-                                    </aside>
+            <Accordion type="single" collapsible>
+                <AccordionItem value="item-1">
+                    <AccordionTrigger class="cursor-pointer text-sm">Detail Surat:</AccordionTrigger>
+                    <AccordionContent>
+                        <div class="space-y-2">
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Nomor Agenda</h6>
+                                </aside>
 
-                                    <div class="flex-1">
-                                        <h6 class="text-sm dark:text-gray-300">{{ letter.agenda }}</h6>
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Pengirim</h6>
-                                    </aside>
-
-                                    <div class="flex-1">
-                                        <h6 class="text-sm dark:text-gray-300">{{ letter.sender }}</h6>
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Nomor Surat</h6>
-                                    </aside>
-
-                                    <div class="flex-1">
-                                        <h6 class="text-sm dark:text-gray-300">{{ letter.number }}</h6>
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Perihal</h6>
-                                    </aside>
-
-                                    <div class="flex-1 sm:max-w-md">
-                                        <h6 class="text-sm dark:text-gray-300">{{ letter.subject }}</h6>
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Tanggal Surat</h6>
-                                    </aside>
-
-                                    <div class="flex-1">
-                                        <h6 class="text-sm dark:text-gray-300">
-                                            {{ useDateFormat(letter.date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}
-                                        </h6>
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Tanggal Diterima</h6>
-                                    </aside>
-
-                                    <div class="flex-1">
-                                        <h6 class="text-sm dark:text-gray-300">
-                                            {{ useDateFormat(letter.receipt_date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}
-                                        </h6>
-                                    </div>
-                                </div>
-
-                                <div class="flex space-x-4 lg:space-x-12">
-                                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                                        <h6 class="text-sm font-medium">Kategori</h6>
-                                    </aside>
-
-                                    <div class="flex-1">
-                                        <h6 class="text-sm dark:text-gray-300">{{ getCategoryName(Number(letter.category)) }}</h6>
-                                    </div>
+                                <div class="flex-1">
+                                    <h6 class="text-sm dark:text-gray-300">{{ letter.agenda }}</h6>
                                 </div>
                             </div>
-                            <div class="mt-4 rounded-md border">
-                                <Table>
-                                    <TableHeader class="bg-muted/30">
-                                        <TableRow class="hover:bg-transparent">
-                                            <TableHead class="min-w-[75px]">Tgl Kirim</TableHead>
-                                            <TableHead class="min-w-[175px]">Dari</TableHead>
-                                            <TableHead class="min-w-[175px]">Kepada</TableHead>
-                                            <TableHead class="min-w-[250px]">Catatan</TableHead>
-                                            <TableHead class="min-w-[175px]">Followup</TableHead>
-                                            <TableHead class="min-w-[75px]">Tgl Baca</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        <TableRow v-for="item in recipients" :key="item.id">
-                                            <TableCell class="align-top">
-                                                {{ useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) }}
-                                            </TableCell>
-                                            <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
-                                            <TableCell class="align-top">
-                                                {{ item.is_cc === 1 ? 'cc: ' : '' }} {{ item.to_position.name }}
-                                            </TableCell>
-                                            <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
-                                            <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
-                                            <TableCell class="align-top">
-                                                {{ item.read_at ? useDateFormat(item.read_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) : '-' }}
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
+
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Pengirim</h6>
+                                </aside>
+
+                                <div class="flex-1">
+                                    <h6 class="text-sm dark:text-gray-300">{{ letter.sender }}</h6>
+                                </div>
                             </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </div>
+
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Nomor Surat</h6>
+                                </aside>
+
+                                <div class="flex-1">
+                                    <h6 class="text-sm dark:text-gray-300">{{ letter.number }}</h6>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Perihal</h6>
+                                </aside>
+
+                                <div class="flex-1 sm:max-w-md">
+                                    <h6 class="text-sm dark:text-gray-300">{{ letter.subject }}</h6>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Tanggal Surat</h6>
+                                </aside>
+
+                                <div class="flex-1">
+                                    <h6 class="text-sm dark:text-gray-300">
+                                        {{ useDateFormat(letter.date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}
+                                    </h6>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Tanggal Diterima</h6>
+                                </aside>
+
+                                <div class="flex-1">
+                                    <h6 class="text-sm dark:text-gray-300">
+                                        {{ useDateFormat(letter.receipt_date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}
+                                    </h6>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-4 lg:space-x-12">
+                                <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
+                                    <h6 class="text-sm font-medium">Kategori</h6>
+                                </aside>
+
+                                <div class="flex-1">
+                                    <h6 class="text-sm dark:text-gray-300">{{ getCategoryName(Number(letter.category)) }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 rounded-md border">
+                            <Table>
+                                <TableHeader class="bg-muted/30">
+                                    <TableRow class="hover:bg-transparent">
+                                        <TableHead class="min-w-[75px]">Tgl Kirim</TableHead>
+                                        <TableHead class="min-w-[175px]">Dari</TableHead>
+                                        <TableHead class="min-w-[175px]">Kepada</TableHead>
+                                        <TableHead class="min-w-[250px]">Catatan</TableHead>
+                                        <TableHead class="min-w-[175px]">Followup</TableHead>
+                                        <TableHead class="min-w-[75px]">Tgl Baca</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow v-for="item in recipients" :key="item.id">
+                                        <TableCell class="align-top">
+                                            {{ useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) }}
+                                        </TableCell>
+                                        <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
+                                        <TableCell class="align-top"> {{ item.is_cc === 1 ? 'cc: ' : '' }} {{ item.to_position.name }} </TableCell>
+                                        <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
+                                        <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
+                                        <TableCell class="align-top">
+                                            {{ item.read_at ? useDateFormat(item.read_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) : '-' }}
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
 
             <form class="my-12 space-y-8" @submit.prevent="onSubmit">
                 <div class="flex flex-col lg:flex-row lg:space-x-12">
@@ -390,7 +386,7 @@ onUnmounted(() => {
 
                                             <ComboboxInput v-model="searchPenerimacc" as-child>
                                                 <TagsInputInput
-                                                    :tabindex="1"
+                                                    :tabindex="2"
                                                     placeholder="CC Penerima disposisi..."
                                                     class="h-auto w-full min-w-[200px] border-none p-0 shadow-none focus-visible:ring-0"
                                                     @keydown.enter.prevent
@@ -438,7 +434,7 @@ onUnmounted(() => {
                                 <Label for="catatan">Catatan</Label>
                                 <Textarea
                                     id="catatan"
-                                    :tabindex="2"
+                                    :tabindex="3"
                                     v-model="form.catatan"
                                     placeholder="Masukkan catatan disposisi (Opsional)"
                                     class="dark:bg-input/30"
@@ -463,7 +459,7 @@ onUnmounted(() => {
 
                                             <ComboboxInput v-model="searchFollowup" as-child>
                                                 <TagsInputInput
-                                                    :tabindex="1"
+                                                    :tabindex="4"
                                                     placeholder="Pilih tindaklanjut..."
                                                     class="h-auto w-full min-w-[200px] border-none p-0 shadow-none focus-visible:ring-0"
                                                     @keydown.enter.prevent
@@ -514,7 +510,7 @@ onUnmounted(() => {
                                 </div>
                                 <Button
                                     id="lampiran"
-                                    :tabindex="4"
+                                    :tabindex="5"
                                     type="button"
                                     size="icon"
                                     class="rounded-full"
