@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use App\Models\Disposition;
 use App\Models\Letter;
+use App\Models\Memo;
+use App\Models\Position;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -45,31 +47,54 @@ class HandleInertiaRequests extends Middleware
         $primary = 0;
         $undangan = 0;
         $disposisi = 0;
+        $memo = 0;
 
         if ($request->user()) {
             $currentPositionId = $request->user()->currentPosition()->pluck('positions.id')->first();
 
             if ($currentPositionId) {
-                // Gunakan cache per user + posisi
-                $cacheKey = "inbox_counts_user_{$request->user()->id}_pos_{$currentPositionId}";
+                $counts = Cache::remember(
+                    "inbox_counts_user_{$request->user()->id}_pos_{$currentPositionId}",
+                    now()->addSeconds(30), // TTL cache
+                    function () use ($currentPositionId) {
+                        $position = Position::where('id', $currentPositionId)
+                            ->withCount([
+                                'recipients as primary_count' => function ($q) {
+                                    $q->whereNull('read_at')
+                                    ->whereHas('letter', function ($q2) {
+                                        $q2->where('type', 'in')
+                                            ->where('category', 1);
+                                    });
+                                },
+                                'recipients as undangan_count' => function ($q) {
+                                    $q->whereNull('read_at')
+                                    ->whereHas('letter', function ($q2) {
+                                        $q2->where('type', 'in')
+                                            ->where('category', 2);
+                                    });
+                                },
+                                'dispositions as disposisi_count' => function ($q) {
+                                    $q->whereNull('read_at');
+                                },
+                                'memos as memo_count' => function ($q) {
+                                    $q->whereNull('read_at');
+                                },
+                            ])
+                            ->first();
 
-                [$primary, $undangan, $disposisi] = Cache::remember($cacheKey, now()->addSeconds(15), function () use ($currentPositionId) {
-                    $baseQuery = Letter::query()
-                        ->leftJoin('letter_recipients', 'letters.id', '=', 'letter_recipients.letter_id')
-                        ->where('type', 'in')
-                        ->where('letter_recipients.to_position_id', $currentPositionId)
-                        ->whereNull('letter_recipients.read_at');
-
-                    $primary = (clone $baseQuery)->where('category', '1')->count();
-                    $undangan = (clone $baseQuery)->where('category', '2')->count();
-
-                    $disposisi = Disposition::query()
-                        ->where('to_position_id', $currentPositionId)
-                        ->whereNull('read_at')
-                        ->count();
-
-                    return [$primary, $undangan, $disposisi];
-                });
+                        return [
+                            'primary'   => $position->primary_count ?? 0,
+                            'undangan'  => $position->undangan_count ?? 0,
+                            'disposisi' => $position->disposisi_count ?? 0,
+                            'memo'      => $position->memo_count ?? 0,
+                        ];
+                    }
+                );
+                
+                $primary   = $counts['primary'];
+                $undangan  = $counts['undangan'];
+                $disposisi = $counts['disposisi'];
+                $memo      = $counts['memo'];
             }
         }
 
@@ -84,6 +109,7 @@ class HandleInertiaRequests extends Middleware
                 'primary' => fn() => $primary,
                 'undangan' => fn() => $undangan,
                 'disposisi' => fn() => $disposisi,
+                'memo' => fn() => $memo,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

@@ -34,6 +34,13 @@ class LetterRecipient extends Model
             ->orderBy('received_at');
     }
 
+    public function memos()
+    {
+        return $this->hasMany(Memo::class)
+            ->with(['fromPosition:id,name', 'toPosition:id,name'])
+            ->orderBy('received_at');
+    }
+
     public function fromPosition()
     {
         return $this->belongsTo(Position::class, 'from_position_id');

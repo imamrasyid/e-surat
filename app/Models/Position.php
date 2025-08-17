@@ -37,4 +37,19 @@ class Position extends Model
                     ->withPivot(['start_date', 'end_date', 'is_active'])
                     ->withTimestamps();
     }
+
+    public function recipients()
+    {
+        return $this->hasMany(LetterRecipient::class, 'to_position_id');
+    }
+
+    public function dispositions()
+    {
+        return $this->hasMany(Disposition::class, 'to_position_id');
+    }
+
+    public function memos()
+    {
+        return $this->hasMany(Memo::class, 'to_position_id');
+    }
 }

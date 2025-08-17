@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('sent.show');
 });
 
+require __DIR__.'/memo.php';
 require __DIR__.'/disposition.php';
 require __DIR__.'/inbox.php';
 require __DIR__.'/master.php';

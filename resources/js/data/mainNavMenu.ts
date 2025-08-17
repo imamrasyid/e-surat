@@ -46,9 +46,9 @@ const inboxItems: NavItem[] = [
     },
     {
         title: 'Nota Dinas',
-        href: 'dashboard',
+        href: 'memo.index',
         icon: StickyNote,
-        current: '',
+        current: 'memo.*',
         notif: 9,
     },
 ];

@@ -18,6 +18,20 @@ const props = defineProps<{
     recipient: number;
 }>();
 
+const createMemo = (letter_id: string) => {
+    const key = btoa(String(now().toPrecision(21)) + letter_id);
+    router.get(
+        route('memo.create', [props.recipient, key]),
+        {},
+        {
+            onSuccess: () => {
+                sessionStorage.setItem('dsp_c_helper', 'memo');
+            },
+            preserveState: true,
+        },
+    );
+};
+
 const createDisposition = (letter_id: string) => {
     const key = btoa(String(now().toPrecision(21)) + letter_id);
     router.get(
@@ -73,7 +87,14 @@ const createDisposition = (letter_id: string) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button type="button" variant="ghost" size="icon" class="cursor-pointer" :disabled="letter.status === 'close'">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="cursor-pointer"
+                                    :disabled="letter.status === 'close'"
+                                    @click="createMemo(letter.letter_id)"
+                                >
                                     <Reply class="size-5" />
                                 </Button>
                             </TooltipTrigger>

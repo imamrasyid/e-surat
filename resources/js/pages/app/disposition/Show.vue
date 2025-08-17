@@ -26,6 +26,20 @@ function getCategoryName(value: number) {
     return found ? found.name : '-';
 }
 
+const createMemo = (letter_id: string) => {
+    const key = btoa(String(now().toPrecision(21)) + letter_id);
+    router.get(
+        route('memo.create', [props.disposition.letter_recipient_id, key]),
+        {},
+        {
+            onSuccess: () => {
+                sessionStorage.setItem('dsp_c_helper', 'memo');
+            },
+            preserveState: true,
+        },
+    );
+};
+
 const createDisposition = (letter_id: string) => {
     const key = btoa(String(now().toPrecision(21)) + letter_id);
     router.get(
@@ -84,6 +98,7 @@ const createDisposition = (letter_id: string) => {
                                     size="icon"
                                     class="cursor-pointer"
                                     :disabled="disposition.is_cc === 1 || letter.status === 'close'"
+                                    @click="createMemo(letter.letter_id)"
                                 >
                                     <Reply class="size-5" />
                                 </Button>
