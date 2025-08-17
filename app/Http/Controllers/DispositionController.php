@@ -162,7 +162,7 @@ class DispositionController extends Controller
                     Disposition::create([
                         'letter_id'           => $request->letter_id_primary,
                         'letter_recipient_id' => $request->letter_recipient_id,
-                        'ic_cc'               => 1,
+                        'is_cc'               => 1,
                         'from_user_id'        => $user->id,
                         'from_position_id'    => $currentPosition->id,
                         'to_position_id'      => $penerima['id'],
@@ -190,16 +190,29 @@ class DispositionController extends Controller
             DB::commit();
 
             $routes = [
-                'primary' => 'inbox.primary.show',
-                'undangan' => 'inbox.undangan.show',
-                'disposisi' => 'dispo.show',
+                'primary' => [
+                    'route' => 'inbox.primary.show',
+                    'params' => fn ($req) => [
+                        'recipient' => $req->letter_recipient_id,
+                        'letter_id' => $req->letter_id,
+                    ]
+                ],
+                'undangan' => [
+                    'route' => 'inbox.undangan.show',
+                    'params' => fn ($req) => [
+                        'recipient' => $req->letter_recipient_id,
+                        'letter_id' => $req->letter_id,
+                    ]
+                ],
+                'disposisi' => [
+                    'route' => 'dispo.index',
+                    'params' => fn () => []
+                ],
             ];
 
-            if (array_key_exists($request->type, $routes)) {
-                return redirect()->route($routes[$request->type], [
-                    'recipient' => $request->letter_recipient_id,
-                    'letter_id' => $request->letter_id,
-                ]);
+            if (isset($routes[$request->type])) {
+                $route = $routes[$request->type];
+                return redirect()->route($route['route'], $route['params']($request));
             }
 
             return redirect()->back()->withErrors(['confirm' => 'Terjadi kesalahan, tipe surat tidak dikenali.']);
