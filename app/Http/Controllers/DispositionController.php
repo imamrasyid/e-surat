@@ -74,10 +74,24 @@ class DispositionController extends Controller
 
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
+
+        // --- Ambil posisi normal (hirarki bawahan) ---
         $positions = Position::query()
             ->select('id', 'name')
             ->where('parent_id', $currentPosition->id)
             ->where('is_active', 1)
+            ->orderBy('name');
+
+        // --- Ambil hak khusus dari pivot model_has_special_dispositions ---
+        $specialPositions = Position::query()
+            ->select('positions.id', 'positions.name')
+            ->join('model_has_special_dispositions as mh', 'mh.to_position_id', '=', 'positions.id')
+            ->where('mh.model_id', $user->id)
+            ->where('mh.is_active', 1);
+
+        // --- Gabungkan hasilnya ---
+        $positions = $positions
+            ->union($specialPositions)
             ->orderBy('name')
             ->get();
 

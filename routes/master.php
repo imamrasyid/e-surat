@@ -29,8 +29,8 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.user.update');
         Route::get('edit/jabatan/{user}', [UserController::class, 'editPosition'])
             ->name('ref.user.editPosition');
-        Route::post('update/jabatan/{user}', [UserController::class, 'updatePosition'])
-            ->name('ref.user.updatePosition');
+        Route::post('update/spesial-jabatan-disposisi/{user}', [UserController::class, 'updateSpecialDisposition'])
+            ->name('ref.user.updateDisposition');
     });
 
     Route::prefix('jabatan')->group(function () {

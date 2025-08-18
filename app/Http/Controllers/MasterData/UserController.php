@@ -135,7 +135,8 @@ class UserController extends Controller
             ],
             'data' => $user,
             'currentPosition' => fn() => $currentPosition,
-            'positions' => fn() => $positions
+            'positions' => fn() => $positions,
+            'specialDispositions' => fn() => $user->specialDispositions()->get(),
         ]);
     }
 
@@ -200,6 +201,27 @@ class UserController extends Controller
                 'start_date' => now(),
                 'is_active' => true
             ]);
+
+            DB::commit();
+
+            return redirect()->route('ref.user.index');
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+        }
+    }
+    public function updateSpecialDisposition(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'position_ids' => 'required|array',
+            'position_ids.*' => 'exists:'.Position::class.',id',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+           $user->updateSpecialDispositions($validated['position_ids']);
 
             DB::commit();
 

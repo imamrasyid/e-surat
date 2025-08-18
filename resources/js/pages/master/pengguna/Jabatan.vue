@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { type BreadcrumbItem } from '@/types';
-
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
+import SpecialDisposition from './partials/SpecialDisposition.vue';
 
 const { toast } = useToast();
 
@@ -21,6 +21,7 @@ const props = defineProps<{
     data: any;
     currentPosition: any;
     positions: any[];
+    specialDispositions: any[];
 }>();
 
 const form = useForm({
@@ -59,7 +60,7 @@ const submit = () => {
     <AppLayout :breadcrumbs="breadcrumbItems">
         <Head title="Referensi Jabatan Pengguna" />
 
-        <MasterLayout>
+        <MasterLayout class="mb-10">
             <div class="flex flex-col space-y-6">
                 <HeadingSmall title="Jabatan Pengguna" description="Referensi jabatan pengguna" />
 
@@ -105,6 +106,10 @@ const submit = () => {
                     </div>
                 </form>
             </div>
+
+            <Separator class="my-6" />
+
+            <SpecialDisposition :user_id="data.id" :special-dispositions="specialDispositions" :positions="positions" />
         </MasterLayout>
     </AppLayout>
 </template>
