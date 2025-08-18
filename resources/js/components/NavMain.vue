@@ -41,7 +41,7 @@ const { props } = usePage();
                             <span>{{ item.title }}</span>
                         </Link>
                     </SidebarMenuButton>
-                    <SidebarMenuAction>
+                    <SidebarMenuAction class="hover:bg-transparent">
                         <div v-if="item.notif === 1 && props.inbox.primary > 0">
                             <span class="text-xs font-semibold">{{ props.inbox.primary }}</span>
                         </div>

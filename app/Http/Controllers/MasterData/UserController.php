@@ -214,7 +214,7 @@ class UserController extends Controller
     public function updateSpecialDisposition(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'position_ids' => 'required|array',
+            'position_ids' => 'nullable|array',
             'position_ids.*' => 'exists:'.Position::class.',id',
         ]);
 
