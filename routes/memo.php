@@ -9,7 +9,13 @@ Route::prefix('nota-dinas')->middleware('auth')->group(function () {
     
     Route::post('/store', [MemoController::class, 'store'])
             ->name('memo.store');
-        
+    
+    Route::post('/create/to-close/store', [MemoController::class, 'storeClose'])
+        ->name('memo.store.close');
+
+    Route::get('/create/to-close/{memo}/{letter_id}', [MemoController::class, 'createClose'])
+        ->name('memo.create.close');
+    
     Route::get('/create/{recipient}/{key}', [MemoController::class, 'create'])
         ->name('memo.create');
 

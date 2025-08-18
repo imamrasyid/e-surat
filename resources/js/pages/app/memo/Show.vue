@@ -11,7 +11,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { now, useDateFormat } from '@vueuse/core';
-import { ChevronLeft, Printer, Reply } from 'lucide-vue-next';
+import { BookOpenCheck, ChevronLeft, Reply } from 'lucide-vue-next';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -35,6 +35,16 @@ const createMemo = (letter_id: string) => {
             onSuccess: () => {
                 sessionStorage.setItem('dsp_c_helper', 'memo');
             },
+            preserveState: true,
+        },
+    );
+};
+
+const createMemoClose = (letter_id: string) => {
+    router.get(
+        route('memo.create.close', [props.memo.id, letter_id]),
+        {},
+        {
             preserveState: true,
         },
     );
@@ -72,9 +82,6 @@ const createMemo = (letter_id: string) => {
                     </Tooltip>
                 </TooltipProvider>
                 <div class="flex gap-2">
-                    <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
-                        <Printer class="size-5" />
-                    </Button>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
@@ -91,6 +98,25 @@ const createMemo = (letter_id: string) => {
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Buat Nota Dinas</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="cursor-pointer"
+                                    :disabled="memo.is_cc === 1 || letter.status === 'close'"
+                                    @click="createMemoClose(letter.letter_id)"
+                                >
+                                    <BookOpenCheck class="size-5" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Tandai Sebagai Selesai</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>

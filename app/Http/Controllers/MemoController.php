@@ -93,6 +93,28 @@ class MemoController extends Controller
             'positions' => fn() => $positions,
         ]);
     }
+    public function createClose(Memo $memo, string $letter_id): Response
+    {
+        $letter = $memo->letter()->where('status', 'open')->firstOrFail();
+
+        $recipients = $this->getTimeline($letter->id);
+        
+        return inertia('app/memo/CreateClose', [
+            'breadcrumbItems' => [
+                [
+                    'title' => 'Nota Dinas',
+                    'href' => '/nota-dinas',
+                ],
+                [
+                    'title' => 'Penutupan Surat',
+                    'href' => '',
+                ],
+            ],
+            'letter' => fn() => $letter,
+            'recipients' => fn() => $recipients,
+            'memo' => fn() => $memo,
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -197,6 +219,47 @@ class MemoController extends Controller
             }
 
             return redirect()->back()->withErrors(['confirm' => 'Terjadi kesalahan, tipe surat tidak dikenali.']);
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+        }        
+    }
+    public function storeClose(Request $request): RedirectResponse
+    {
+        $user = User::find(Auth::user()->id);
+        $currentPosition = $user->currentPosition()->first();
+
+        $request->validate([
+            'letter_id_primary'   => 'required|integer',
+            'letter_recipient_id' => 'required|integer',
+            'to_position_id'      => 'required|integer',
+            'catatan'             => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            //INSERT MEMO
+            Memo::create([
+                'letter_id'           => $request->letter_id_primary,
+                'letter_recipient_id' => $request->letter_recipient_id,
+                'from_user_id'        => $user->id,
+                'from_position_id'    => $currentPosition->id,
+                'to_position_id'      => $request->to_position_id,
+                'instruction'         => $request->catatan,
+                'received_at'         => now(),
+            ]);
+
+            //UPDATE LETTER STATUS
+            $letter = Letter::findOrFail($request->letter_id_primary);
+            $letter->update([
+                'status' => 'close',
+            ]);
+            
+            DB::commit();
+
+            return redirect()->route('memo.index');
 
         } catch (\Throwable $th) {
             DB::rollBack();
