@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { now, useDateFormat } from '@vueuse/core';
-import { ChevronLeft, Forward, Printer, Reply } from 'lucide-vue-next';
+import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -81,9 +81,6 @@ const createDisposition = (letter_id: string) => {
                     </Tooltip>
                 </TooltipProvider>
                 <div class="flex gap-2">
-                    <Button type="button" variant="ghost" size="icon" class="cursor-pointer">
-                        <Printer class="size-5" />
-                    </Button>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
@@ -242,7 +239,7 @@ const createDisposition = (letter_id: string) => {
             </div>
 
             <div class="mt-4">
-                <Accordion type="single" collapsible>
+                <Accordion type="single" collapsible default-value="item-1">
                     <AccordionItem value="item-1">
                         <AccordionTrigger class="cursor-pointer text-sm">Lampiran:</AccordionTrigger>
                         <AccordionContent>
