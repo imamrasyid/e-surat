@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Award, Inbox, LayoutGrid, Mails, SendHorizonal, SquarePen, StickyNote } from 'lucide-vue-next';
+import { Inbox, LayoutGrid, Mails, Radio, SendHorizonal, SquarePen, StickyNote } from 'lucide-vue-next';
 
 const platformItems: NavItem[] = [
     {
@@ -33,7 +33,7 @@ const inboxItems: NavItem[] = [
     {
         title: 'Undangan',
         href: 'inbox.undangan.index',
-        icon: Award,
+        icon: Radio,
         current: 'inbox.undangan.*',
         notif: 2,
     },

@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Folder, HardDrive } from 'lucide-vue-next';
+import { Archive, HardDrive } from 'lucide-vue-next';
 
 const footerNavItems: NavItem[] = [
     {
@@ -11,7 +11,7 @@ const footerNavItems: NavItem[] = [
     {
         title: 'Arsip Surat',
         href: 'dashboard',
-        icon: Folder,
+        icon: Archive,
         current: '',
     },
 ];

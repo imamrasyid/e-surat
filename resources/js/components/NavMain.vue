@@ -4,7 +4,7 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarMenu,
-    SidebarMenuAction,
+    SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
@@ -41,20 +41,18 @@ const { props } = usePage();
                             <span>{{ item.title }}</span>
                         </Link>
                     </SidebarMenuButton>
-                    <SidebarMenuAction class="hover:bg-transparent">
-                        <div v-if="item.notif === 1 && props.inbox.primary > 0">
-                            <span class="text-xs font-semibold">{{ props.inbox.primary }}</span>
-                        </div>
-                        <div v-if="item.notif === 2 && props.inbox.undangan > 0">
-                            <span class="text-xs font-semibold">{{ props.inbox.undangan }}</span>
-                        </div>
-                        <div v-if="item.notif === 8 && props.inbox.disposisi > 0">
-                            <span class="text-xs font-semibold">{{ props.inbox.disposisi }}</span>
-                        </div>
-                        <div v-if="item.notif === 9 && props.inbox.memo > 0">
-                            <span class="text-xs font-semibold">{{ props.inbox.memo }}</span>
-                        </div>
-                    </SidebarMenuAction>
+                    <SidebarMenuBadge v-if="item.notif === 1 && props.inbox.primary > 0">
+                        {{ props.inbox.primary }}
+                    </SidebarMenuBadge>
+                    <SidebarMenuBadge v-if="item.notif === 2 && props.inbox.undangan > 0">
+                        {{ props.inbox.undangan }}
+                    </SidebarMenuBadge>
+                    <SidebarMenuBadge v-if="item.notif === 8 && props.inbox.disposisi > 0">
+                        {{ props.inbox.disposisi }}
+                    </SidebarMenuBadge>
+                    <SidebarMenuBadge v-if="item.notif === 9 && props.inbox.memo > 0">
+                        {{ props.inbox.memo }}
+                    </SidebarMenuBadge>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarGroupContent>
