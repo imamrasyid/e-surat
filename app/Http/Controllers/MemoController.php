@@ -24,7 +24,20 @@ class MemoController extends Controller
     public function index(): Response
     {
         $user = User::find(Auth::user()->id);
-        $currentPosition = $user->currentPosition()->first();
+        $currentPosition = $user?->currentPosition()?->first();
+
+        // Kalau user tidak punya currentPosition
+        if (!$currentPosition) {
+            return inertia('app/memo/Index', [
+                'breadcrumbItems' => [
+                    [
+                        'title' => 'Nota Dinas',
+                        'href' => '/nota-dinas',
+                    ],
+                ],
+                'memo' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+            ]);
+        }
 
         $memo = Memo::query()
             ->where('to_position_id', $currentPosition->id)

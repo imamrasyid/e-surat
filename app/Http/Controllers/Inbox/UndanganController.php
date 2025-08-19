@@ -20,7 +20,20 @@ class UndanganController extends Controller
     public function index(): Response
     {
         $user = User::find(Auth::user()->id);
-        $currentPosition = $user->currentPosition()->first();
+        $currentPosition = $user?->currentPosition()?->first();
+
+        // Kalau user tidak punya currentPosition
+        if (!$currentPosition) {
+            return inertia('app/undangan/Index', [
+                'breadcrumbItems' => [
+                    [
+                        'title' => 'Undangan',
+                        'href' => '/inbox/undangan',
+                    ],
+                ],
+                'undangan' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+            ]);
+        }
 
         $undangan = LetterRecipient::query()
             ->select('id', 'letter_id', 'received_at', 'read_at')

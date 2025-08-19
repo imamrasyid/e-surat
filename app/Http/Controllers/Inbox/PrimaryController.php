@@ -20,7 +20,20 @@ class PrimaryController extends Controller
     public function index(): Response
     {
         $user = User::find(Auth::user()->id);
-        $currentPosition = $user->currentPosition()->first();
+        $currentPosition = $user?->currentPosition()?->first();
+
+        // Kalau user tidak punya currentPosition
+        if (!$currentPosition) {
+            return inertia('app/primary/Index', [
+                'breadcrumbItems' => [
+                    [
+                        'title' => 'Primary',
+                        'href' => '/inbox/primary',
+                    ],
+                ],
+                'primary' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+            ]);
+        }
 
         $primary = LetterRecipient::query()
             ->select('id', 'letter_id', 'received_at', 'read_at')

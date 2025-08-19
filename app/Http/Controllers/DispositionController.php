@@ -26,7 +26,20 @@ class DispositionController extends Controller
     public function index(): Response
     {
         $user = User::find(Auth::user()->id);
-        $currentPosition = $user->currentPosition()->first();
+        $currentPosition = $user?->currentPosition()?->first();
+
+        // Kalau user tidak punya currentPosition
+        if (!$currentPosition) {
+            return inertia('app/disposition/Index', [
+                'breadcrumbItems' => [
+                    [
+                        'title' => 'Disposisi',
+                        'href' => '/disposition',
+                    ],
+                ],
+                'dispo' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+            ]);
+        }
 
         $dispo = Disposition::query()
             ->where('to_position_id', $currentPosition->id)
