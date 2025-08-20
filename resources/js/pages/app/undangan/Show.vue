@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DialogTimeline from '@/components/DialogTimeline.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { now, useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -45,6 +47,20 @@ const createDisposition = (letter_id: string) => {
         },
     );
 };
+
+const dialogTimeline = ref(false);
+const timelineData = ref();
+
+async function handleRowClick(itemId: number) {
+    try {
+        const response = await fetch(route('api.timeline.recipient', itemId));
+        timelineData.value = await response.json();
+
+        dialogTimeline.value = true;
+    } catch (err) {
+        console.error('Gagal fetch data:', err);
+    }
+}
 </script>
 
 <template>
@@ -219,7 +235,12 @@ const createDisposition = (letter_id: string) => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        <TableRow v-for="item in letter.recipients" :key="item.id" class="cursor-pointer">
+                                        <TableRow
+                                            v-for="item in letter.recipients"
+                                            :key="item.id"
+                                            class="cursor-pointer"
+                                            @click="handleRowClick(item.id)"
+                                        >
                                             <TableCell>
                                                 {{ useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) }}
                                             </TableCell>
@@ -261,5 +282,7 @@ const createDisposition = (letter_id: string) => {
                 </Accordion>
             </div>
         </div>
+
+        <DialogTimeline v-model:open-dialog="dialogTimeline" :data="timelineData" />
     </AppLayout>
 </template>

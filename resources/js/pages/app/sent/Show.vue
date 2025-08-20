@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DialogTimeline from '@/components/DialogTimeline.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +12,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { ChevronLeft, FilePenLine, Printer } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -20,6 +22,20 @@ defineProps<{
 function getCategoryName(value: number) {
     const found = categoryInbox.find((cat) => cat.value === value);
     return found ? found.name : '-';
+}
+
+const dialogTimeline = ref(false);
+const timelineData = ref();
+
+async function handleRowClick(itemId: number) {
+    try {
+        const response = await fetch(route('api.timeline.recipient', itemId));
+        timelineData.value = await response.json();
+
+        dialogTimeline.value = true;
+    } catch (err) {
+        console.error('Gagal fetch data:', err);
+    }
 }
 </script>
 
@@ -181,7 +197,7 @@ function getCategoryName(value: number) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="item in letter.recipients" :key="item.id" class="cursor-pointer">
+                            <TableRow v-for="item in letter.recipients" :key="item.id" class="cursor-pointer" @click="handleRowClick(item.id)">
                                 <TableCell>
                                     {{ useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) }}
                                 </TableCell>
@@ -221,5 +237,7 @@ function getCategoryName(value: number) {
                 </div>
             </div>
         </div>
+
+        <DialogTimeline v-model:open-dialog="dialogTimeline" :data="timelineData" />
     </AppLayout>
 </template>

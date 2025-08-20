@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ComposeController;
 use App\Http\Controllers\SentController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('sent.index');
     Route::get('sent/{letter_id}', [SentController::class, 'show'])
         ->name('sent.show');
+});
+
+Route::prefix('api')->group(function () {
+    Route::get('timeline/recipient/{recipient}', [ApiController::class, 'recipientTimeline'])
+        ->name('api.timeline.recipient');
 });
 
 require __DIR__.'/memo.php';
