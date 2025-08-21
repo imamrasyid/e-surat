@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useDateFormat } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
@@ -54,7 +55,9 @@ watch(dialogTimeline, (val) => {
                                         <p class="text-sm text-muted-foreground">Dikirim dari</p>
                                         <h6 class="text-sm/6 font-medium">{{ item.from_position.name }}</h6>
                                     </div>
-                                    <p class="text-xs">{{ item.received_at }}</p>
+                                    <p class="text-xs">
+                                        {{ item.received_at ? useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
+                                    </p>
                                 </div>
                             </div>
                         </li>
@@ -71,10 +74,12 @@ watch(dialogTimeline, (val) => {
                             <div class="w-full">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm text-muted-foreground">Diterima oleh</p>
+                                        <p class="text-sm text-muted-foreground">Penerima</p>
                                         <h6 class="text-sm/6 font-medium"><span v-if="item.is_cc == 1">cc: </span>{{ item.to_position.name }}</h6>
                                     </div>
-                                    <p class="text-xs">{{ item.read_at ?? '-' }}</p>
+                                    <p class="text-xs">
+                                        {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
+                                    </p>
                                 </div>
                             </div>
                         </li>
