@@ -19,18 +19,31 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
     Route::prefix('pengguna')->group(function () {
         Route::get('/', [UserController::class, 'index'])
             ->name('ref.user.index');
+
         Route::get('create', [UserController::class, 'create'])
             ->name('ref.user.create');
+
         Route::post('store', [UserController::class, 'store'])
             ->name('ref.user.store');
+
         Route::get('edit/{user}', [UserController::class, 'edit'])
             ->name('ref.user.edit');
+
         Route::patch('update/{user}', [UserController::class, 'update'])
             ->name('ref.user.update');
+
         Route::get('edit/jabatan/{user}', [UserController::class, 'editPosition'])
             ->name('ref.user.editPosition');
+
         Route::post('update/jabatan/{user}', [UserController::class, 'updatePosition'])
             ->name('ref.user.updatePosition');
+
+        Route::get('edit/role/{user_id}', [UserController::class, 'editRole'])
+            ->name('ref.user.editRole');
+        
+        Route::post('update/role/{user}', [UserController::class, 'updateRole'])
+            ->name('ref.user.updateRole');
+
         Route::post('update/spesial-jabatan-disposisi/{user}', [UserController::class, 'updateSpecialDisposition'])
             ->name('ref.user.updateDisposition');
     });
@@ -38,12 +51,16 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
     Route::prefix('jabatan')->group(function () {
         Route::get('/', [PositionController::class, 'index'])
             ->name('ref.position.index');
+
         Route::get('create', [PositionController::class, 'create'])
             ->name('ref.position.create');
+
         Route::post('store', [PositionController::class, 'store'])
             ->name('ref.position.store');
+
         Route::get('edit/{position}', [PositionController::class, 'edit'])
             ->name('ref.position.edit');
+
         Route::patch('update/{position}', [PositionController::class, 'update'])
             ->name('ref.position.update');
     });
@@ -51,12 +68,16 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
     Route::prefix('klasifikasi-arsip')->group(function () {
         Route::get('/', [KodeKlasifikasiController::class, 'index'])
             ->name('ref.klasifikasi.index');
+
         Route::get('create', [KodeKlasifikasiController::class, 'create'])
             ->name('ref.klasifikasi.create');
+
         Route::post('store', [KodeKlasifikasiController::class, 'store'])
             ->name('ref.klasifikasi.store');
+
         Route::get('edit/{kode}', [KodeKlasifikasiController::class, 'edit'])
             ->name('ref.klasifikasi.edit');
+
         Route::patch('update/{kode}', [KodeKlasifikasiController::class, 'update'])
             ->name('ref.klasifikasi.update');
     });
@@ -64,12 +85,16 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
     Route::prefix('followup')->group(function () {
         Route::get('/', [FollowupController::class, 'index'])
             ->name('ref.followup.index');
+
         Route::get('create', [FollowupController::class, 'create'])
             ->name('ref.followup.create');
+
         Route::post('store', [FollowupController::class, 'store'])
             ->name('ref.followup.store');
+
         Route::get('edit/{followup}', [FollowupController::class, 'edit'])
             ->name('ref.followup.edit');
+
         Route::patch('update/{followup}', [FollowupController::class, 'update'])
             ->name('ref.followup.update');
     });

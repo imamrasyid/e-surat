@@ -120,7 +120,7 @@ watchDebounced(
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem :as-child="true">
-                                                                <Link class="block w-full" :href="route('profile.edit')">
+                                                                <Link class="block w-full" :href="route('ref.user.editRole', value.id)">
                                                                     <KeyRound class="mr-2 h-4 w-4" />
                                                                     Role
                                                                 </Link>

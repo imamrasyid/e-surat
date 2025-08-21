@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Inertia\Response;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -139,6 +140,25 @@ class UserController extends Controller
             'specialDispositions' => fn() => $user->specialDispositions()->get(),
         ]);
     }
+    public function editRole(string $user_id): Response
+    {
+        $user = User::with('roles')->select('id', 'email', 'name')->findOrFail($user_id);
+        $roles = Role::all();
+
+        return inertia('master/pengguna/Role', [
+            'breadcrumbItems' => [
+                [
+                    'title' => 'Pengguna',
+                    'href' => '/master-data/pengguna',
+                ],
+                [
+                    'title' => 'Role',
+                ],
+            ],
+            'data' => $user,
+            'roles' => fn() => $roles,
+        ]);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -223,6 +243,27 @@ class UserController extends Controller
         try {
            $user->updateSpecialDispositions($validated['position_ids']);
 
+            DB::commit();
+
+            return redirect()->route('ref.user.index');
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+        }
+    }
+    public function updateRole(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:'.Role::class.',id',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user->syncRoles($validated['roles']);
+            
             DB::commit();
 
             return redirect()->route('ref.user.index');
