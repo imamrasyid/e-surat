@@ -2,8 +2,11 @@
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { usePermissions } from '@/composables/usePermissions';
 import masterNavItems from '@/data/masterDataMenu';
 import { Link } from '@inertiajs/vue3';
+
+const { can } = usePermissions();
 </script>
 
 <template>
@@ -20,7 +23,7 @@ import { Link } from '@inertiajs/vue3';
                         :class="['w-full justify-start', { 'bg-muted': item.current && route().current(item.current) }]"
                         as-child
                     >
-                        <Link :href="route(item.href)">
+                        <Link v-if="(item.permission && can(item.permission)) || item.permission == '*'" :href="route(item.href)">
                             {{ item.title }}
                         </Link>
                     </Button>

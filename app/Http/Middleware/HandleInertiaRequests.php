@@ -10,6 +10,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
+use Spatie\Permission\Models\Permission;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -104,6 +105,16 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
+                'can' => fn () => $request->user()
+                    ? Cache::remember(
+                        "user_permissions:{$request->user()->id}",
+                        now()->addMinutes(15),
+                        fn () => $request->user()
+                            ->getPermissionsViaRoles()
+                            ->pluck('name')
+                            ->toArray()
+                    )
+                    : [],
             ],
             'inbox' => [
                 'primary' => fn() => $primary,

@@ -7,18 +7,21 @@ const platformItems: NavItem[] = [
         href: 'dashboard',
         icon: LayoutGrid,
         current: 'dashboard',
+        permission: '*',
     },
     {
         title: 'Compose',
         href: 'app.compose.create',
         icon: SquarePen,
         current: 'app.compose.*',
+        permission: 'compose.index',
     },
     {
         title: 'Terkirim',
         href: 'sent.index',
         icon: SendHorizonal,
         current: 'sent.*',
+        permission: 'sent.index',
     },
 ];
 
@@ -29,6 +32,7 @@ const inboxItems: NavItem[] = [
         icon: Inbox,
         current: 'inbox.primary.*',
         notif: 1,
+        permission: 'primary.index',
     },
     {
         title: 'Undangan',
@@ -36,6 +40,7 @@ const inboxItems: NavItem[] = [
         icon: Radio,
         current: 'inbox.undangan.*',
         notif: 2,
+        permission: 'undangan.index',
     },
     {
         title: 'Disposisi',
@@ -43,6 +48,7 @@ const inboxItems: NavItem[] = [
         icon: Mails,
         current: 'dispo.*',
         notif: 8,
+        permission: 'disposition.index',
     },
     {
         title: 'Nota Dinas',
@@ -50,6 +56,7 @@ const inboxItems: NavItem[] = [
         icon: StickyNote,
         current: 'memo.*',
         notif: 9,
+        permission: 'memo.index',
     },
 ];
 

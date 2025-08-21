@@ -15,9 +15,11 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
                 ['title' => 'Master Data'],
             ],
         ]);
-    })->name('ref.master-data');
+    })
+    ->middleware('wpermission:master.*')
+    ->name('ref.master-data');
 
-    Route::prefix('pengguna')->group(function () {
+    Route::prefix('pengguna')->middleware('permission:master.pengguna')->group(function () {
         Route::get('/', [UserController::class, 'index'])
             ->name('ref.user.index');
 
@@ -49,7 +51,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.user.updateDisposition');
     });
 
-    Route::prefix('jabatan')->group(function () {
+    Route::prefix('jabatan')->middleware('permission:master.jabatan')->group(function () {
         Route::get('/', [PositionController::class, 'index'])
             ->name('ref.position.index');
 
@@ -66,7 +68,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.position.update');
     });
 
-    Route::prefix('klasifikasi-arsip')->group(function () {
+    Route::prefix('klasifikasi-arsip')->middleware('permission:master.klasifikasi')->group(function () {
         Route::get('/', [KodeKlasifikasiController::class, 'index'])
             ->name('ref.klasifikasi.index');
 
@@ -83,7 +85,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.klasifikasi.update');
     });
 
-    Route::prefix('followup')->group(function () {
+    Route::prefix('followup')->middleware('permission:master.followup')->group(function () {
         Route::get('/', [FollowupController::class, 'index'])
             ->name('ref.followup.index');
 
@@ -100,7 +102,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.followup.update');
     });
 
-    Route::prefix('roles')->group(function () {
+    Route::prefix('roles')->middleware('permission:master.pengguna')->group(function () {
         Route::get('/', [RoleController::class, 'index'])
             ->name('ref.role.index');
 

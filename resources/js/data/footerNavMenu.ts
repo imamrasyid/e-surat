@@ -7,12 +7,14 @@ const footerNavItems: NavItem[] = [
         href: 'ref.master-data',
         icon: HardDrive,
         current: 'ref.*',
+        permission: 'master.*',
     },
     {
         title: 'Arsip Surat',
         href: 'dashboard',
         icon: Archive,
         current: '',
+        permission: 'arsip',
     },
 ];
 
