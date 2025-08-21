@@ -5,8 +5,26 @@ import { Separator } from '@/components/ui/separator';
 import { usePermissions } from '@/composables/usePermissions';
 import masterNavItems from '@/data/masterDataMenu';
 import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const { can } = usePermissions();
+
+function hasPermission(permission?: string): boolean {
+    if (!permission) return false;
+    if (permission === '*') return true;
+    return can(permission);
+}
+
+function filterMenu(menu: any[]): any[] {
+    return menu
+        .filter((item) => hasPermission(item.permission))
+        .map((item) => {
+            const newItem = { ...item };
+            return newItem;
+        });
+}
+
+const filteredItems = computed(() => filterMenu(masterNavItems));
 </script>
 
 <template>
@@ -17,13 +35,13 @@ const { can } = usePermissions();
             <aside class="w-full max-w-xl lg:w-48">
                 <nav class="flex flex-col space-y-1 space-x-0">
                     <Button
-                        v-for="item in masterNavItems"
+                        v-for="item in filteredItems"
                         :key="item.href"
                         variant="ghost"
                         :class="['w-full justify-start', { 'bg-muted': item.current && route().current(item.current) }]"
                         as-child
                     >
-                        <Link v-if="(item.permission && can(item.permission)) || item.permission == '*'" :href="route(item.href)">
+                        <Link :href="route(item.href)">
                             {{ item.title }}
                         </Link>
                     </Button>

@@ -16,6 +16,27 @@ import { computed } from 'vue';
 const { props } = usePage();
 const { can } = usePermissions();
 
+function hasPermission(permission?: string): boolean {
+    if (!permission) return false;
+    if (permission === '*') return true;
+    return can(permission);
+}
+
+function filterMenu(menu: any[]): any[] {
+    return menu
+        .filter((item) => hasPermission(item.permission))
+        .map((item) => {
+            const newItem = { ...item };
+            return newItem;
+        });
+}
+
+const filteredPlatformItems = computed(() => filterMenu(platformItems));
+const filteredInboxItems = computed(() => filterMenu(inboxItems));
+
+const visibleItemsInbox = computed(() => inboxItems.filter((item) => hasPermission(item.permission)));
+const visibleItemsPlatform = computed(() => platformItems.filter((item) => hasPermission(item.permission)));
+
 const notifMap: Record<number, keyof typeof props.inbox> = {
     1: 'primary',
     2: 'undangan',
@@ -23,20 +44,11 @@ const notifMap: Record<number, keyof typeof props.inbox> = {
     9: 'memo',
 };
 
-function hasPermission(permission?: string): boolean {
-    if (!permission) return false;
-    if (permission === '*') return true;
-    return can(permission);
-}
-
 function getNotifCount(notif?: number): number {
     if (!notif) return 0;
     const key = notifMap[notif];
     return key ? props.inbox[key] : 0;
 }
-
-const visibleItemsInbox = computed(() => inboxItems.filter((item) => hasPermission(item.permission)));
-const visibleItemsPlatform = computed(() => platformItems.filter((item) => hasPermission(item.permission)));
 </script>
 
 <template>
@@ -44,13 +56,8 @@ const visibleItemsPlatform = computed(() => platformItems.filter((item) => hasPe
         <SidebarGroupLabel>Platform</SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
-                <SidebarMenuItem v-for="item in platformItems" :key="item.title">
-                    <SidebarMenuButton
-                        v-if="hasPermission(item.permission)"
-                        as-child
-                        :is-active="item.current ? route().current(item.current) : false"
-                        :tooltip="item.title"
-                    >
+                <SidebarMenuItem v-for="item in filteredPlatformItems" :key="item.title">
+                    <SidebarMenuButton as-child :is-active="item.current ? route().current(item.current) : false" :tooltip="item.title">
                         <Link :href="route(item.href)">
                             <component :is="item.icon" />
                             <span>{{ item.title }}</span>
@@ -64,19 +71,14 @@ const visibleItemsPlatform = computed(() => platformItems.filter((item) => hasPe
         <SidebarGroupLabel>Surat Masuk</SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
-                <SidebarMenuItem v-for="item in inboxItems" :key="item.title">
-                    <SidebarMenuButton
-                        v-if="hasPermission(item.permission)"
-                        as-child
-                        :is-active="item.current ? route().current(item.current) : false"
-                        :tooltip="item.title"
-                    >
+                <SidebarMenuItem v-for="item in filteredInboxItems" :key="item.title">
+                    <SidebarMenuButton as-child :is-active="item.current ? route().current(item.current) : false" :tooltip="item.title">
                         <Link :href="route(item.href)">
                             <component :is="item.icon" />
                             <span>{{ item.title }}</span>
                         </Link>
                     </SidebarMenuButton>
-                    <SidebarMenuBadge v-if="hasPermission(item.permission) && getNotifCount(item.notif) > 0">
+                    <SidebarMenuBadge v-if="getNotifCount(item.notif) > 0">
                         {{ getNotifCount(item.notif) }}
                     </SidebarMenuBadge>
                 </SidebarMenuItem>

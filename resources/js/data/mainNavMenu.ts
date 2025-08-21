@@ -14,7 +14,7 @@ const platformItems: NavItem[] = [
         href: 'app.compose.create',
         icon: SquarePen,
         current: 'app.compose.*',
-        permission: 'compose.index',
+        permission: 'compose.create',
     },
     {
         title: 'Terkirim',
