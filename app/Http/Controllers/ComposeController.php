@@ -80,7 +80,7 @@ class ComposeController extends Controller
 
             $nomorUrutBaru = $nomorUrutTerakhir ? $nomorUrutTerakhir + 1 : 1;
             $nomorAgenda = "{$nomorUrutBaru}/{$klasifikasi->kode}/{$request->agendaTahun}";
-            RefAgendaSurat::create([
+            $agenda = RefAgendaSurat::create([
                 'klasifikasi_id' => $klasifikasi->id,
                 'nomor_urut' => $nomorUrutBaru,
                 'tahun' => $request->agendaTahun,
@@ -120,6 +120,7 @@ class ComposeController extends Controller
                 
                 $storeUrl = "/storage/{$path}/{$filename}";
                 LetterDoc::create([
+                    'agenda_id' => $agenda->id,
                     'letter_id' => $letter->id,
                     'name'      => $filename,
                     'url'       => $storeUrl,

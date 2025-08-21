@@ -11,9 +11,9 @@ const footerNavItems: NavItem[] = [
     },
     {
         title: 'Arsip Surat',
-        href: 'dashboard',
+        href: 'arsip.index',
         icon: Archive,
-        current: '',
+        current: 'arsip.*',
         permission: 'arsip',
     },
 ];
