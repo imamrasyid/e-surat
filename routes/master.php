@@ -3,6 +3,7 @@
 use App\Http\Controllers\MasterData\FollowupController;
 use App\Http\Controllers\MasterData\KodeKlasifikasiController;
 use App\Http\Controllers\MasterData\PositionController;
+use App\Http\Controllers\masterData\RoleController;
 use App\Http\Controllers\MasterData\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -97,5 +98,25 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
 
         Route::patch('update/{followup}', [FollowupController::class, 'update'])
             ->name('ref.followup.update');
+    });
+
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])
+            ->name('ref.role.index');
+
+        Route::get('create', [RoleController::class, 'create'])
+            ->name('ref.role.create');
+
+        Route::post('store', [RoleController::class, 'store'])
+            ->name('ref.role.store');
+
+        Route::get('edit/{role}', [RoleController::class, 'edit'])
+            ->name('ref.role.edit');
+
+        Route::patch('update/{role}', [RoleController::class, 'update'])
+            ->name('ref.role.update');
+
+        Route::patch('update/permissions/{role}', [RoleController::class, 'updatePermission'])
+            ->name('ref.role.updatePermission');
     });
 });

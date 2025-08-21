@@ -21,6 +21,11 @@ const masterNavItems: NavItem[] = [
         href: 'ref.user.index',
         current: 'ref.user.*',
     },
+    {
+        title: 'Roles',
+        href: 'ref.role.index',
+        current: 'ref.role.*',
+    },
 ];
 
 export default masterNavItems;
