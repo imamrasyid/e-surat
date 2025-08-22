@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+
+const { toast } = useToast();
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -31,7 +35,31 @@ const form = useForm({
 });
 
 const submit = () => {
-    console.log('Submitting form with data:');
+    form.patch(route('profile.update'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast({
+                title: 'Success! Data submitted.',
+                description: 'Data berhasil tersimpan',
+                variant: 'success',
+            });
+        },
+        onError: (errors: any) => {
+            if (errors.confirm) {
+                toast({
+                    title: 'Uh oh! Something went wrong.',
+                    description: errors.confirm,
+                    variant: 'destructive',
+                });
+            } else {
+                toast({
+                    title: 'Uh oh! Something went wrong.',
+                    description: 'Sepertinya data tidak sesuai',
+                    variant: 'warning',
+                });
+            }
+        },
+    });
 };
 </script>
 
@@ -46,13 +74,13 @@ const submit = () => {
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="name">Name</Label>
-                        <Input id="name" class="mt-1 block w-full" v-model="form.name" readonly />
+                        <Input id="name" class="mt-1 block w-full" v-model="form.name" autocomplete="off" />
                         <InputError class="mt-2" :message="form.errors.name" />
                     </div>
 
                     <div class="grid gap-2">
                         <Label for="username">Username</Label>
-                        <Input id="username" type="text" class="mt-1 block w-full" v-model="form.email" readonly />
+                        <Input id="username" type="text" class="mt-1 block w-full" v-model="form.email" autocomplete="off" />
                         <InputError class="mt-2" :message="form.errors.email" />
                     </div>
 
@@ -72,6 +100,19 @@ const submit = () => {
                         <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
                             A new verification link has been sent to your email address.
                         </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <Button :disabled="form.processing">Save Profile</Button>
+
+                        <Transition
+                            enter-active-class="transition ease-in-out"
+                            enter-from-class="opacity-0"
+                            leave-active-class="transition ease-in-out"
+                            leave-to-class="opacity-0"
+                        >
+                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
+                        </Transition>
                     </div>
                 </form>
             </div>
