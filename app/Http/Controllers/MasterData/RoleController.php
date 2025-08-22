@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\masterData;
+namespace App\Http\Controllers\MasterData;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;

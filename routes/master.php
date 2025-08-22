@@ -3,7 +3,7 @@
 use App\Http\Controllers\MasterData\FollowupController;
 use App\Http\Controllers\MasterData\KodeKlasifikasiController;
 use App\Http\Controllers\MasterData\PositionController;
-use App\Http\Controllers\masterData\RoleController;
+use App\Http\Controllers\MasterData\RoleController;
 use App\Http\Controllers\MasterData\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
