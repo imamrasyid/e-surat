@@ -109,7 +109,7 @@ const createMemoClose = (letter_id: string) => {
                                     variant="ghost"
                                     size="icon"
                                     class="cursor-pointer"
-                                    :disabled="memo.is_cc === 1 || letter.status === 'close'"
+                                    :disabled="!$page.props.auth?.can.includes('memo.close') || memo.is_cc === 1 || letter.status === 'close'"
                                     @click="createMemoClose(letter.letter_id)"
                                 >
                                     <BookOpenCheck class="size-5" />
