@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('letter_docs', function (Blueprint $table) {
-            $table->unsignedBigInteger('agenda_id')->after('id');
-
-            $table->foreign('agenda_id')->references('id')->on('ref_agenda_surat')->onDelete('cascade');
+            $table->bigInteger('agenda_id')->nullable()->after('id');
         });
     }
 

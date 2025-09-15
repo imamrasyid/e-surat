@@ -12,6 +12,7 @@ class LetterDoc extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'agenda_id',
         'letter_id',
         'name',
         'url',
