@@ -33,7 +33,7 @@ const createMemo = (letter_id: string) => {
         {},
         {
             onSuccess: () => {
-                sessionStorage.setItem('dsp_c_helper', 'memo');
+                sessionStorage.setItem('dsp_c_helper', 'disposisi');
             },
             preserveState: true,
         },
