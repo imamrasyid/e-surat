@@ -29,39 +29,49 @@ const submit = () => {
 
 <template>
     <AuthBase title="Log in to your account" description="Enter your username and password below to log in">
-
         <Head title="Log in" />
 
         <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
             {{ status }}
         </div>
 
-        <div class="bg-red-50 p-2 flex text-sm text-red-400 rounded-md"
-            v-if="form.errors.email || form.errors.password">
+        <div class="flex rounded-md bg-red-50 p-2 text-sm text-red-400" v-if="form.errors.email || form.errors.password">
             <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
-            <p class="ml-1">
-                <strong class="font-medium">Whoops!</strong> Username or Password is incorrect.
-            </p>
+            <p class="ml-1"><strong class="font-medium">Whoops!</strong> Username or Password is incorrect.</p>
         </div>
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="username">Username</Label>
-                    <Input id="username" type="text" required autofocus :tabindex="1" autocomplete="off"
-                        v-model="form.email" placeholder="Enter username" />
+                    <Input
+                        id="username"
+                        type="text"
+                        required
+                        autofocus
+                        :tabindex="1"
+                        autocomplete="off"
+                        v-model="form.email"
+                        placeholder="Enter username"
+                    />
                 </div>
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
-                            :tabindex="5">
+                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
                             Forgot password?
                         </TextLink>
                     </div>
-                    <Input id="password" type="password" required :tabindex="2" autocomplete="current-password"
-                        v-model="form.password" placeholder="Password" />
+                    <Input
+                        id="password"
+                        type="password"
+                        required
+                        :tabindex="2"
+                        autocomplete="current-password"
+                        v-model="form.password"
+                        placeholder="Password"
+                    />
                 </div>
 
                 <div class="flex items-center justify-between">

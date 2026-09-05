@@ -2,8 +2,9 @@
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { usePermissions } from '@/composables/usePermissions';
 import footerNavItems from '@/data/footerNavMenu';
+import type { NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, type ComputedRef } from 'vue';
 
 const { can } = usePermissions();
 
@@ -13,7 +14,7 @@ function hasPermission(permission?: string): boolean {
     return can(permission);
 }
 
-function filterMenu(menu: any[]): any[] {
+function filterMenu(menu: NavItem[]): NavItem[] {
     return menu
         .filter((item) => hasPermission(item.permission))
         .map((item) => {
@@ -22,12 +23,12 @@ function filterMenu(menu: any[]): any[] {
         });
 }
 
-const filteredItems = computed(() => filterMenu(footerNavItems));
+const filteredItems: ComputedRef<NavItem[]> = computed(() => filterMenu(footerNavItems));
 const visibleItems = computed(() => footerNavItems.filter((item) => hasPermission(item.permission)));
 </script>
 
 <template>
-    <SidebarGroup v-if="visibleItems.length > 0" :class="`group-data-[collapsible=icon]:p-0 ${$props.class || ''}`">
+    <SidebarGroup v-if="visibleItems.length > 0" :class="`group-data-[collapsible=icon]:p-0`">
         <SidebarGroupContent>
             <SidebarMenu>
                 <SidebarMenuItem v-for="item in filteredItems" :key="item.title">

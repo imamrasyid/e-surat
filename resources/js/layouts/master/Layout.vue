@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { usePermissions } from '@/composables/usePermissions';
 import masterNavItems from '@/data/masterDataMenu';
+import type { NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, type ComputedRef } from 'vue';
 
 const { can } = usePermissions();
 
@@ -15,7 +16,7 @@ function hasPermission(permission?: string): boolean {
     return can(permission);
 }
 
-function filterMenu(menu: any[]): any[] {
+function filterMenu(menu: NavItem[]): NavItem[] {
     return menu
         .filter((item) => hasPermission(item.permission))
         .map((item) => {
@@ -24,7 +25,7 @@ function filterMenu(menu: any[]): any[] {
         });
 }
 
-const filteredItems = computed(() => filterMenu(masterNavItems));
+const filteredItems: ComputedRef<NavItem[]> = computed(() => filterMenu(masterNavItems));
 </script>
 
 <template>

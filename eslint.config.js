@@ -1,6 +1,6 @@
 import prettier from 'eslint-config-prettier';
-import vue from 'eslint-plugin-vue';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
+import vue from 'eslint-plugin-vue';
 
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
