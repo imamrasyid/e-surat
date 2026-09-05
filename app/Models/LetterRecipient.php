@@ -40,6 +40,20 @@ class LetterRecipient extends Model
         return $this->belongsTo(Letter::class);
     }
 
+    public function activityDispo(): HasMany
+    {
+        return $this->hasMany(Disposition::class)
+            ->select('id', 'letter_recipient_id')
+            ->orderBy('received_at');
+    }
+
+    public function activityMemo(): HasMany
+    {
+        return $this->hasMany(Memo::class)
+            ->select('id', 'letter_recipient_id')
+            ->orderBy('received_at');
+    }
+
     public function dispositions(): HasMany
     {
         return $this->hasMany(Disposition::class)

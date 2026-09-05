@@ -5,13 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { toRef, watchDebounced } from '@vueuse/core';
-import { Filter, Search } from 'lucide-vue-next';
+import { BadgeInfo, Filter, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const { toast } = useToast();
@@ -155,6 +156,17 @@ function goToDetailPatch(recipient: number, letter_id: string) {
                                 <TableHead class="min-w-[100px]">Agenda</TableHead>
                                 <TableHead class="min-w-[170px]">Nomor Surat</TableHead>
                                 <TableHead class="min-w-[250px]">Perihal</TableHead>
+                                <TableHead class="flex min-w-[150px] items-center gap-1">
+                                    Tindak Lanjut
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger><BadgeInfo class="size-4" /></TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>D mewakili Disposisi; ND mewakili Nota Dinas.</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </TableHead>
                                 <TableHead class="w-[100px] text-right"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -174,12 +186,31 @@ function goToDetailPatch(recipient: number, letter_id: string) {
                                         {{ item.letter.subject }}
                                     </p>
                                 </TableCell>
+                                <TableCell class="align-top">
+                                    <div class="flex -space-x-2">
+                                        <div v-for="dispo in item.activity_dispo" class="flex" :key="dispo.id">
+                                            <span
+                                                class="relative inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs leading-none text-gray-100 ring-1 ring-background hover:z-5"
+                                            >
+                                                D
+                                            </span>
+                                        </div>
+                                        <div v-for="memo in item.activity_memo" class="flex" :key="memo.id">
+                                            <span
+                                                class="relative inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-warning text-xs leading-none text-gray-100 ring-1 ring-background hover:z-5"
+                                            >
+                                                ND
+                                            </span>
+                                        </div>
+                                        <span v-if="item.activity_dispo.length === 0 && item.activity_memo.length === 0">-</span>
+                                    </div>
+                                </TableCell>
                                 <TableCell class="text-right align-top">
                                     {{ formatCreate(item.received_at) }}
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="primary.data.length === 0">
-                                <TableCell colspan="4" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
+                                <TableCell colspan="5" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

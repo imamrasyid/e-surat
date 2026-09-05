@@ -41,6 +41,7 @@ class UndanganController extends Controller
             ->with(['letter' => function($query) {
                 $query->select('id', 'letter_id', 'agenda', 'sender', 'number', 'subject');
             }])
+            ->with(['activityDispo', 'activityMemo'])
             ->whereHas('letter', function(Builder $query) {
                 $query->where('type', 'in')
                     ->where('category', '2');
