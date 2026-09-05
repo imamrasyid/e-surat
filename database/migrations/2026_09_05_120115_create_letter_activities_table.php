@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('letter_activities', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('letter_id');
+            $table->unsignedBigInteger('user_id');
+            $table->string('action', 50);
+            $table->text('description');
+            $table->json('changes')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->foreign('letter_id')->references('id')->on('letters')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index(['letter_id', 'created_at']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('letter_activities');
+    }
+};

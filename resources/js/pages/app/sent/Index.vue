@@ -94,7 +94,7 @@ function goToDetail(letter_id: string) {
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="sent.data.length === 0">
-                                <TableCell colspan="4" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
+                                <TableCell colspan="5" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

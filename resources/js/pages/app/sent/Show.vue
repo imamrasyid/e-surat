@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { ChevronLeft, FilePenLine, Printer } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -74,7 +74,13 @@ async function handleRowClick(itemId: number) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button variant="ghost" size="icon" class="cursor-pointer">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    class="cursor-pointer"
+                                    :disabled="letter.status !== 'open'"
+                                    @click="$inertia.get(route('sent.editletter', letter.letter_id))"
+                                >
                                     <FilePenLine class="size-5" />
                                 </Button>
                             </TooltipTrigger>
@@ -179,9 +185,11 @@ async function handleRowClick(itemId: number) {
             <div class="mt-6">
                 <div class="flex items-center justify-between">
                     <h6 class="text-sm font-medium">Penerima:</h6>
-                    <Button size="sm">
-                        <FilePenLine />
-                        Edit
+                    <Button size="sm" :disabled="letter.status !== 'open'">
+                        <Link :href="route('sent.editrecipients', letter.letter_id)" class="flex items-center gap-1 text-xs">
+                            <FilePenLine class="size-4" />
+                            Perbarui Penerima
+                        </Link>
                     </Button>
                 </div>
                 <Separator class="mt-4" />
@@ -216,9 +224,11 @@ async function handleRowClick(itemId: number) {
             <div class="mt-6">
                 <div class="flex items-center justify-between">
                     <h6 class="text-sm font-medium">Lampiran:</h6>
-                    <Button size="sm">
-                        <FilePenLine />
-                        Edit
+                    <Button size="sm" :disabled="letter.status !== 'open'">
+                        <Link :href="route('sent.editdocs', letter.letter_id)" class="flex items-center gap-1 text-xs">
+                            <FilePenLine class="size-4" />
+                            Perbarui Lampiran
+                        </Link>
                     </Button>
                 </div>
                 <Separator class="mt-4" />
