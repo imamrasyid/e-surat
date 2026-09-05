@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -45,41 +46,42 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
-    public function positions()
+    public function positions(): MorphToMany
     {
         return $this->morphToMany(Position::class, 'model', 'model_has_position')
-                    ->withPivot(['start_date', 'end_date', 'is_active'])
-                    ->withTimestamps();
+            ->withPivot(['start_date', 'end_date', 'is_active'])
+            ->withTimestamps();
     }
 
     // Ambil jabatan aktif saat ini
-    public function currentPosition()
+    public function currentPosition(): MorphToMany
     {
         return $this->positions()->wherePivot('is_active', true);
     }
 
     // Hak khusus disposisi aktif
-    public function specialDispositions()
+    public function specialDispositions(): MorphToMany
     {
         return $this->morphToMany(Position::class, 'model', 'model_has_special_dispositions', 'model_id', 'to_position_id')
-                    ->withPivot(['is_active', 'granted_at', 'revoked_at'])
-                    ->wherePivot('is_active', true)
-                    ->withTimestamps();
+            ->withPivot(['is_active', 'granted_at', 'revoked_at'])
+            ->wherePivot('is_active', true)
+            ->withTimestamps();
     }
 
     // Semua hak disposisi (termasuk nonaktif)
-    public function allSpecialDispositions()
+    public function allSpecialDispositions(): MorphToMany
     {
         return $this->morphToMany(Position::class, 'model', 'model_has_special_dispositions', 'model_id', 'to_position_id')
-                    ->withPivot(['is_active', 'granted_at', 'revoked_at'])
-                    ->withTimestamps();
+            ->withPivot(['is_active', 'granted_at', 'revoked_at'])
+            ->withTimestamps();
     }
 
     // Update hak khusus (tanpa menghapus row lama, hanya aktif/nonaktif)
-    public function updateSpecialDispositions(array $positionIds)
+    public function updateSpecialDispositions(array $positionIds): void
     {
         $existing = ModelHasSpecialDisposition::where('model_type', self::class)
             ->where('model_id', $this->id)

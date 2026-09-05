@@ -24,7 +24,17 @@ class RefKdKlasifikasi extends Model
         'is_active',
     ];
 
-    public function agendaSurats()
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function agendaSurats(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(RefAgendaSurat::class);
     }

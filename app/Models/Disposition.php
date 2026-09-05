@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Disposition extends Model
 {
@@ -24,27 +25,39 @@ class Disposition extends Model
         'read_at',
     ];
 
-    public function letter()
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_cc' => 'boolean',
+            'received_at' => 'datetime',
+            'read_at' => 'datetime',
+        ];
+    }
+
+    public function letter(): BelongsTo
     {
         return $this->belongsTo(Letter::class);
     }
 
-    public function recipient()
+    public function recipient(): BelongsTo
     {
         return $this->belongsTo(LetterRecipient::class, 'letter_recipient_id');
     }
 
-    public function fromPosition()
+    public function fromPosition(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'from_position_id');
     }
 
-    public function toPosition()
+    public function toPosition(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'to_position_id');
     }
 
-    public function senderUser()
+    public function senderUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'from_user_id');
     }

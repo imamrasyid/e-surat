@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RefAgendaSurat extends Model
 {
@@ -19,10 +20,13 @@ class RefAgendaSurat extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'klasifikasi_id', 'nomor_urut', 'tahun', 'nomor_agenda'
+        'klasifikasi_id',
+        'nomor_urut',
+        'tahun',
+        'nomor_agenda'
     ];
 
-    public function klasifikasi()
+    public function klasifikasi(): BelongsTo
     {
         return $this->belongsTo(RefKdKlasifikasi::class);
     }

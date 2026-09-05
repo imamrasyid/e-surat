@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LetterRecipient extends Model
 {
@@ -22,31 +24,42 @@ class LetterRecipient extends Model
         'read_at',
     ];
 
-    public function letter()
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'received_at' => 'datetime',
+            'read_at' => 'datetime',
+        ];
+    }
+
+    public function letter(): BelongsTo
     {
         return $this->belongsTo(Letter::class);
     }
 
-    public function dispositions()
+    public function dispositions(): HasMany
     {
         return $this->hasMany(Disposition::class)
             ->with(['fromPosition:id,name', 'toPosition:id,name'])
             ->orderBy('received_at');
     }
 
-    public function memos()
+    public function memos(): HasMany
     {
         return $this->hasMany(Memo::class)
             ->with(['fromPosition:id,name', 'toPosition:id,name'])
             ->orderBy('received_at');
     }
 
-    public function fromPosition()
+    public function fromPosition(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'from_position_id');
     }
 
-    public function toPosition()
+    public function toPosition(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'to_position_id');
     }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LetterDoc extends Model
 {
@@ -19,7 +20,17 @@ class LetterDoc extends Model
         'is_active',
     ];
 
-    public function letter()
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function letter(): BelongsTo
     {
         return $this->belongsTo(Letter::class);
     }

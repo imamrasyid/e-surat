@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ModelHasSpecialDisposition extends Model
 {
@@ -15,18 +16,24 @@ class ModelHasSpecialDisposition extends Model
         'revoked_at',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-        'granted_at' => 'datetime',
-        'revoked_at' => 'datetime',
-    ];
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'granted_at' => 'datetime',
+            'revoked_at' => 'datetime',
+        ];
+    }
 
-    public function model()
+    public function model(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
     }
 
-    public function position()
+    public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'to_position_id');
     }
