@@ -56,7 +56,7 @@ class PositionController extends Controller
     {
         $positions = Position::query()
             ->select('id', 'name')
-            ->where('is_active', 1)
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
@@ -121,7 +121,7 @@ class PositionController extends Controller
             'data' => fn() => $position,
             'positions' => fn() => Position::query()
                 ->select('id', 'name')
-                ->where('is_active', 1)
+                ->where('is_active', true)
                 ->orderBy('name')
                 ->get()
         ]);
@@ -135,7 +135,7 @@ class PositionController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:positions,id',
-            'is_active' => 'required|digits:1'
+            'is_active' => 'required|boolean'
         ]);
 
         DB::beginTransaction();

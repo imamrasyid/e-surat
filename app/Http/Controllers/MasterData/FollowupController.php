@@ -109,7 +109,7 @@ class FollowupController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'is_active' => 'required|digits:1'
+            'is_active' => 'required|boolean'
         ]);
 
         DB::beginTransaction();

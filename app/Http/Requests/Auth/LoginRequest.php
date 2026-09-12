@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'max:10'],
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ];
     }
@@ -44,7 +44,7 @@ class LoginRequest extends FormRequest
         $credentials = $this->only('email', 'password');
 
         // Tambahkan kondisi 'is_active' ke dalam kredensial
-        $credentials['is_active'] = 1;
+        $credentials['is_active'] = true;
 
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());

@@ -120,7 +120,7 @@ class UserController extends Controller
 
         $positions = Position::query()
                 ->select('id', 'name')
-                ->where('is_active', 1)
+                ->where('is_active', true)
                 ->orderBy('name')
                 ->get();
 
@@ -169,7 +169,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|max:255|unique:'.User::class.',email,'.$user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'is_active' => 'required|digits:1',
+            'is_active' => 'required|boolean',
         ]);
 
         DB::beginTransaction();

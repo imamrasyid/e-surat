@@ -92,7 +92,7 @@ class DispositionController extends Controller
         $positions = Position::query()
             ->select('id', 'name')
             ->where('parent_id', $currentPosition->id)
-            ->where('is_active', 1)
+            ->where('is_active', true)
             ->orderBy('name');
 
         // --- Ambil hak khusus dari pivot model_has_special_dispositions ---
@@ -100,7 +100,7 @@ class DispositionController extends Controller
             ->select('positions.id', 'positions.name')
             ->join('model_has_special_dispositions as mh', 'mh.to_position_id', '=', 'positions.id')
             ->where('mh.model_id', $user->id)
-            ->where('mh.is_active', 1);
+            ->where('mh.is_active', true);
 
         // --- Gabungkan hasilnya ---
         $positions = $positions
@@ -110,7 +110,7 @@ class DispositionController extends Controller
 
         $followup = Followup::query()
             ->select('id', 'name')
-            ->where('is_active', 1)
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
         

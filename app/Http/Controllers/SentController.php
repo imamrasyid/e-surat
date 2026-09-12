@@ -175,7 +175,7 @@ class SentController extends Controller
 
         $positions = Position::query()
             ->select('id', 'name')
-            ->where('is_active', 1)
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 

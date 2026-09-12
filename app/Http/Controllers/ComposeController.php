@@ -27,13 +27,13 @@ class ComposeController extends Controller
     {
         $kdKlasifikasi = RefKdKlasifikasi::query()
             ->select('id', 'kode', 'nama', 'is_active')
-            ->where('is_active', 1)
+            ->where('is_active', true)
             ->orderBy('nama')
             ->get();
 
         $positions = Position::query()
             ->select('id', 'name')
-            ->where('is_active', 1)
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
         

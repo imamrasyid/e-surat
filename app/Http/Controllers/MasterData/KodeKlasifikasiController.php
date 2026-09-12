@@ -113,7 +113,7 @@ class KodeKlasifikasiController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'is_active' => 'required|digits:1'
+            'is_active' => 'required|boolean'
         ]);
 
         DB::beginTransaction();
