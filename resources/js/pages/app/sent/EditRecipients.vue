@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter, Position } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Loader2, Save } from 'lucide-vue-next';
@@ -20,8 +20,8 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    letter: any;
-    positions: any[];
+    letter: Letter;
+    positions: Position[];
 }>();
 
 type RecipientRow = {
@@ -31,12 +31,13 @@ type RecipientRow = {
     instruction: string;
 };
 
-const existingRecipients: RecipientRow[] = props.letter.recipients.map((r: any) => ({
-    id: r.id,
-    to_position_id: r.to_position_id,
-    name: r.to_position?.name ?? '',
-    instruction: r.instruction ?? '',
-}));
+const existingRecipients: RecipientRow[] =
+    props.letter.recipients?.map((r) => ({
+        id: r.id,
+        to_position_id: r.to_position_id,
+        name: r.to_position?.name ?? '',
+        instruction: r.instruction ?? '',
+    })) ?? [];
 
 const form = useForm({
     recipients: [...existingRecipients] as RecipientRow[],
@@ -60,10 +61,10 @@ const penerimaSelect = (item: any) => {
 
 const filteredPenerima = computed(() => {
     const selectedIds = form.recipients.map((r) => r.to_position_id);
-    const options = props.positions.filter((p: any) => !selectedIds.includes(p.id));
+    const options = props.positions.filter((p) => !selectedIds.includes(p.id));
     if (searchPenerima.value) {
         const keyword = searchPenerima.value.toLowerCase();
-        return options.filter((p: any) => p.name.toLowerCase().includes(keyword));
+        return options.filter((p) => p.name.toLowerCase().includes(keyword));
     }
     return options;
 });

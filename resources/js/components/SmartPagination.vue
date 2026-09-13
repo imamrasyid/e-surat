@@ -1,27 +1,3 @@
-<template>
-    <Pagination :items-per-page="itemsPerPage" :total="total" :default-page="1">
-        <PaginationContent>
-            <template v-for="(item, index) in filteredLinks" :key="index">
-                <!-- Numbered Page -->
-                <PaginationItem v-if="item.type === 'page' && item.url" :value="index" :is-active="item.active">
-                    <Link :href="item.url">{{ item.label }}</Link>
-                </PaginationItem>
-
-                <!-- Arrows -->
-                <PaginationItem v-else-if="item.type === 'arrow'" :value="index">
-                    <Link v-if="item.url" :href="item.url">
-                        <Icon :name="arrowIcon(item.label)" class="size-5" />
-                    </Link>
-                    <Icon v-else :name="arrowIcon(item.label)" class="size-5" />
-                </PaginationItem>
-
-                <!-- Ellipsis -->
-                <PaginationEllipsis v-else-if="item.type === 'ellipsis'" />
-            </template>
-        </PaginationContent>
-    </Pagination>
-</template>
-
 <script lang="ts" setup>
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from '@/components/ui/pagination';
 import { Link } from '@inertiajs/vue3';
@@ -93,3 +69,27 @@ const filteredLinks = computed<PaginationDisplayItem[]>(() => {
     return [{ ...arrows[0], type: 'arrow' as const }, ...visiblePages, { ...arrows[1], type: 'arrow' as const }];
 });
 </script>
+
+<template>
+    <Pagination :items-per-page="itemsPerPage" :total="total" :default-page="1">
+        <PaginationContent>
+            <template v-for="(item, index) in filteredLinks" :key="index">
+                <!-- Numbered Page -->
+                <PaginationItem v-if="item.type === 'page' && item.url" :value="index" :is-active="item.active">
+                    <Link :href="item.url">{{ item.label }}</Link>
+                </PaginationItem>
+
+                <!-- Arrows -->
+                <PaginationItem v-else-if="item.type === 'arrow'" :value="index">
+                    <Link v-if="item.url" :href="item.url">
+                        <Icon :name="arrowIcon(item.label)" class="size-5" />
+                    </Link>
+                    <Icon v-else :name="arrowIcon(item.label)" class="size-5" />
+                </PaginationItem>
+
+                <!-- Ellipsis -->
+                <PaginationEllipsis v-else-if="item.type === 'ellipsis'" />
+            </template>
+        </PaginationContent>
+    </Pagination>
+</template>

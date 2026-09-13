@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { now, useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
@@ -16,7 +16,7 @@ import { ref } from 'vue';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    letter: any;
+    letter: Letter;
     recipient: number;
 }>();
 
@@ -48,8 +48,8 @@ const createDisposition = (letter_id: string) => {
     );
 };
 
-const dialogTimeline = ref(false);
-const timelineData = ref();
+const dialogTimeline = ref<boolean>(false);
+const timelineData = ref<TimelineRecipient[]>([]);
 
 async function handleRowClick(itemId: number) {
     try {
@@ -72,7 +72,7 @@ async function handleRowClick(itemId: number) {
                 <HeadingSmall title="Surat Masuk" description="Detail data surat masuk primary" />
                 <div class="sm:text-end">
                     <p class="text-xs text-gray-500">{{ useDateFormat(letter.created_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' }) }}</p>
-                    <h6 class="text-sm">Oleh {{ letter.sender_user.name }}</h6>
+                    <h6 class="text-sm">Oleh {{ letter.sender_user?.name }}</h6>
                 </div>
             </div>
 
@@ -242,10 +242,14 @@ async function handleRowClick(itemId: number) {
                                             @click="handleRowClick(item.id)"
                                         >
                                             <TableCell>
-                                                {{ useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) }}
+                                                {{
+                                                    item.received_at
+                                                        ? useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' })
+                                                        : '-'
+                                                }}
                                             </TableCell>
-                                            <TableCell>{{ item.from_position.name }}</TableCell>
-                                            <TableCell>{{ item.to_position.name }}</TableCell>
+                                            <TableCell>{{ item.from_position?.name }}</TableCell>
+                                            <TableCell>{{ item.to_position?.name }}</TableCell>
                                             <TableCell>{{ item.instruction ?? '-' }}</TableCell>
                                             <TableCell>
                                                 {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}

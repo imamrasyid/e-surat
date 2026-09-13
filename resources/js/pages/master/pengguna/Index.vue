@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-
 import HeadingSmall from '@/components/HeadingSmall.vue';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { type BreadcrumbItem } from '@/types';
-
 import SmartPagination from '@/components/SmartPagination.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,16 +12,19 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
+import type { BreadcrumbItem, PaginatedData, User } from '@/types';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { watchDebounced } from '@vueuse/core';
 import { Award, CircleEllipsis, CirclePlus, KeyRound, Search, UserRoundPen } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    data: any;
+    data: PaginatedData<User>;
 }>();
 
 const search = ref<string>('');
@@ -85,10 +83,7 @@ watchDebounced(
                                 <TableCell>{{ value.name }}</TableCell>
                                 <TableCell>{{ value.email }}</TableCell>
                                 <TableCell>
-                                    <div
-                                        v-if="value.is_active === 1"
-                                        class="inline rounded-full bg-sky-50 px-3 py-1 text-xs text-sky-500 dark:bg-gray-800"
-                                    >
+                                    <div v-if="value.is_active" class="inline rounded-full bg-sky-50 px-3 py-1 text-xs text-sky-500 dark:bg-gray-800">
                                         Aktif
                                     </div>
                                     <div v-else class="inline rounded-full bg-red-50 px-3 py-1 text-xs text-red-500 dark:bg-gray-800">Non Aktif</div>

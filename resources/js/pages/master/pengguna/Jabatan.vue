@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Position, User } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
 import SpecialDisposition from './partials/SpecialDisposition.vue';
@@ -18,10 +18,10 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    data: any;
-    currentPosition: any;
-    positions: any[];
-    specialDispositions: any[];
+    data: User;
+    currentPosition: Position;
+    positions: Position[];
+    specialDispositions: Position[];
 }>();
 
 const form = useForm({

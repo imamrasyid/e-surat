@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { ChevronLeft, FilePenLine, Printer } from 'lucide-vue-next';
@@ -16,7 +16,7 @@ import { ref } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    letter: any;
+    letter: Letter;
 }>();
 
 function getCategoryName(value: number) {
@@ -25,7 +25,7 @@ function getCategoryName(value: number) {
 }
 
 const dialogTimeline = ref(false);
-const timelineData = ref();
+const timelineData = ref<TimelineRecipient[]>([]);
 
 async function handleRowClick(itemId: number) {
     try {
@@ -48,7 +48,7 @@ async function handleRowClick(itemId: number) {
                 <HeadingSmall title="Surat Terkirim" description="Detail data surat terkirim" />
                 <div class="sm:text-end">
                     <p class="text-xs text-gray-500">{{ useDateFormat(letter.created_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' }) }}</p>
-                    <h6 class="text-sm">Oleh {{ letter.sender_user.name }}</h6>
+                    <h6 class="text-sm">Oleh {{ letter.sender_user?.name ?? '-' }}</h6>
                 </div>
             </div>
 
@@ -207,10 +207,10 @@ async function handleRowClick(itemId: number) {
                         <TableBody>
                             <TableRow v-for="item in letter.recipients" :key="item.id" class="cursor-pointer" @click="handleRowClick(item.id)">
                                 <TableCell>
-                                    {{ useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) }}
+                                    {{ item.received_at ? useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
                                 </TableCell>
-                                <TableCell>{{ item.from_position.name }}</TableCell>
-                                <TableCell>{{ item.to_position.name }}</TableCell>
+                                <TableCell>{{ item.from_position?.name ?? '-' }}</TableCell>
+                                <TableCell>{{ item.to_position?.name ?? '-' }}</TableCell>
                                 <TableCell>{{ item.instruction ?? '-' }}</TableCell>
                                 <TableCell>
                                     {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}

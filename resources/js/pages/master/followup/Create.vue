@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { type BreadcrumbItem } from '@/types';
-
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
+import type { BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
 
 const { toast } = useToast();

@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PaginatedData, Role } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { watchDebounced } from '@vueuse/core';
 import { CirclePlus, FilePenLine, Search } from 'lucide-vue-next';
@@ -15,7 +15,7 @@ import { ref } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    data: any;
+    data: PaginatedData<Role>;
 }>();
 
 const search = ref<string>('');

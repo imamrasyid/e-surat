@@ -15,7 +15,7 @@ import { useToast } from '@/components/ui/toast';
 import { useClearErrorsOnChange } from '@/composables/useClearErrorsOnChange';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter, Position, TimelineRecipient } from '@/types';
 import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { Loader2, Plus, Send, Trash2, XCircle } from 'lucide-vue-next';
@@ -25,10 +25,10 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    letter: any;
-    recipients: any;
+    letter: Letter;
+    recipients: TimelineRecipient[];
     recipient_id: string;
-    positions: any;
+    positions: Position[];
 }>();
 
 type FormInput = {
@@ -61,8 +61,8 @@ function getCategoryName(value: number) {
     return found ? found.name : '-';
 }
 
-const openPenerima = ref(false);
-const searchPenerima = ref();
+const openPenerima = ref<boolean>(false);
+const searchPenerima = ref<string>('');
 const penerimaSelect = (item: any) => {
     form.penerima.push({ id: item.value.id, name: item.value.name });
     searchPenerima.value = '';
@@ -72,16 +72,16 @@ const penerimaSelect = (item: any) => {
 };
 const filteredPenerima = computed(() => {
     const selectedIds = form.penerima.map((p) => p.id);
-    const options = props.positions.filter((i: any) => !selectedIds.includes(i.id));
+    const options = props.positions.filter((i) => !selectedIds.includes(i.id));
     if (searchPenerima.value) {
         const keyword = searchPenerima.value.toLowerCase();
-        return options.filter((option: any) => option.name.toLowerCase().includes(keyword));
+        return options.filter((option) => option.name.toLowerCase().includes(keyword));
     }
     return options;
 });
 
-const openPenerimacc = ref(false);
-const searchPenerimacc = ref();
+const openPenerimacc = ref<boolean>(false);
+const searchPenerimacc = ref<string>('');
 const penerimaSelectcc = (item: any) => {
     form.penerima_cc.push({ id: item.value.id, name: item.value.name });
     searchPenerimacc.value = '';
@@ -91,10 +91,10 @@ const penerimaSelectcc = (item: any) => {
 };
 const filteredPenerimacc = computed(() => {
     const selectedIds = form.penerima_cc.map((p) => p.id);
-    const options = props.positions.filter((i: any) => !selectedIds.includes(i.id));
+    const options = props.positions.filter((i) => !selectedIds.includes(i.id));
     if (searchPenerimacc.value) {
         const keyword = searchPenerimacc.value.toLowerCase();
-        return options.filter((option: any) => option.name.toLowerCase().includes(keyword));
+        return options.filter((option) => option.name.toLowerCase().includes(keyword));
     }
     return options;
 });
@@ -268,12 +268,12 @@ onUnmounted(() => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    <TableRow v-for="item in recipients" :key="item.id">
+                                    <TableRow v-for="(item, index) in recipients" :key="index">
                                         <TableCell class="align-top">
-                                            {{ useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) }}
+                                            {{ item.received_at ? useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) : '' }}
                                         </TableCell>
                                         <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
-                                        <TableCell class="align-top"> {{ item.is_cc === 1 ? 'cc: ' : '' }} {{ item.to_position.name }} </TableCell>
+                                        <TableCell class="align-top"> {{ item.is_cc ? 'cc: ' : '' }} {{ item.to_position.name }} </TableCell>
                                         <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
                                         <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
                                         <TableCell class="align-top">

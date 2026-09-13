@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Disposition, PaginatedData } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { toRef, watchDebounced } from '@vueuse/core';
 import { BadgeInfo, Filter, Search } from 'lucide-vue-next';
@@ -21,7 +21,7 @@ const { formatCreate } = useFormattedDate();
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    dispo: any;
+    dispo: PaginatedData<Disposition>;
 }>();
 
 const status = [
@@ -107,6 +107,16 @@ function goToDetailPatch(disposition: number, letter_id: string) {
         },
     );
 }
+
+function handleClick(item: Disposition) {
+    if (!item.letter) return;
+
+    if (item.read_at) {
+        goToDetail(item.id, item.letter.letter_id);
+    } else {
+        goToDetailPatch(item.id, item.letter.letter_id);
+    }
+}
 </script>
 
 <template>
@@ -167,7 +177,7 @@ function goToDetailPatch(disposition: number, letter_id: string) {
                                 </TableHead>
                                 <TableHead class="min-w-[175px]">Dari</TableHead>
                                 <TableHead class="min-w-[260px]">Catatan</TableHead>
-                                <TableHead class="min-w-[180px]">Followup</TableHead>
+                                <TableHead class="min-w-[180px]">Followup </TableHead>
                                 <TableHead class="w-[100px] text-right"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -176,34 +186,34 @@ function goToDetailPatch(disposition: number, letter_id: string) {
                                 v-for="(item, index) in dispo.data"
                                 :key="index"
                                 class="cursor-pointer"
-                                @click="item.read_at ? goToDetail(item.id, item.letter.letter_id) : goToDetailPatch(item.id, item.letter.letter_id)"
+                                @click="handleClick(item)"
                                 :class="{ 'font-semibold': !item.read_at }"
                             >
                                 <TableCell class="align-top">
                                     <HoverCard :open-delay="0">
                                         <HoverCardTrigger as-child>
                                             <button type="button" class="cursor-pointer">
-                                                {{ item.letter.agenda }}
+                                                {{ item.letter?.agenda }}
                                             </button>
                                         </HoverCardTrigger>
                                         <HoverCardContent class="w-80">
                                             <div class="space-y-1">
                                                 <span class="text-xs text-muted-foreground">Asal Surat</span>
-                                                <h4 class="text-sm font-semibold">{{ item.letter.sender }}</h4>
-                                                <p class="text-sm">{{ item.letter.number }}</p>
-                                                <p class="text-sm">{{ item.letter.subject }}</p>
+                                                <h4 class="text-sm font-semibold">{{ item.letter?.sender }}</h4>
+                                                <p class="text-sm">{{ item.letter?.number }}</p>
+                                                <p class="text-sm">{{ item.letter?.subject }}</p>
                                             </div>
                                         </HoverCardContent>
                                     </HoverCard>
                                 </TableCell>
                                 <TableCell class="align-top">
-                                    <p v-if="item.is_cc === 1" class="text-xs text-muted-foreground">CC Dari:</p>
-                                    {{ item.from_position.name }}
+                                    <p v-if="item.is_cc" class="text-xs text-muted-foreground">CC Dari:</p>
+                                    {{ item.from_position?.name }}
                                 </TableCell>
                                 <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
                                 <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
                                 <TableCell class="text-right align-top">
-                                    {{ formatCreate(item.received_at) }}
+                                    {{ formatCreate(item.received_at ?? '') }}
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="dispo.data.length === 0">

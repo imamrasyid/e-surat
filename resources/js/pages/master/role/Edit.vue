@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Permission, Role } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
 
@@ -17,12 +17,12 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    data: any;
-    rolePermissions: any[];
-    permissions: any[];
+    data: Role;
+    rolePermissions: Permission[];
+    permissions: Permission[];
 }>();
 
-const getRowCount = (cols: any) => {
+const getRowCount = (cols: number) => {
     return Math.ceil(props.permissions.length / cols);
 };
 
@@ -58,7 +58,7 @@ const submit = () => {
 };
 
 const formPermission = useForm({
-    permissions: props.rolePermissions.map((permision: any) => permision.id),
+    permissions: props.rolePermissions.map((permision) => permision.id),
 });
 
 const submitPermission = () => {

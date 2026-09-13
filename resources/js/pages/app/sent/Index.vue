@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter, PaginatedData } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { watchDebounced } from '@vueuse/core';
 import { Search } from 'lucide-vue-next';
@@ -15,7 +15,7 @@ const { formatCreate } = useFormattedDate();
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    sent: any;
+    sent: PaginatedData<Letter>;
 }>();
 
 const search = ref<string>('');

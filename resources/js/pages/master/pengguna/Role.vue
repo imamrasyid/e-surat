@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Role, User } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
 
@@ -13,12 +13,12 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    data: any;
-    roles: any[];
+    data: User;
+    roles: Role[];
 }>();
 
 const form = useForm({
-    roles: props.data.roles.map((roles: any) => roles.id),
+    roles: props.data.roles?.map((roles) => roles.id) ?? [],
 });
 
 const submit = () => {

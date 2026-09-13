@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, LetterRecipient, PaginatedData } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { toRef, watchDebounced } from '@vueuse/core';
 import { BadgeInfo, Filter, Search } from 'lucide-vue-next';
@@ -20,7 +20,7 @@ const { formatCreate } = useFormattedDate();
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    primary: any;
+    primary: PaginatedData<LetterRecipient>;
 }>();
 
 const status = [
@@ -39,7 +39,7 @@ const status = [
 ];
 
 const search = ref<string>('');
-const filter = ref<string>();
+const filter = ref<string>('');
 watchDebounced(
     [toRef(search, 'value'), toRef(filter, 'value')],
     () => {
@@ -105,6 +105,16 @@ function goToDetailPatch(recipient: number, letter_id: string) {
             preserveState: true,
         },
     );
+}
+
+function handleClick(item: LetterRecipient) {
+    if (!item.letter) return;
+
+    if (item.read_at) {
+        goToDetail(item.id, item.letter.letter_id);
+    } else {
+        goToDetailPatch(item.id, item.letter.letter_id);
+    }
 }
 </script>
 
@@ -175,15 +185,15 @@ function goToDetailPatch(recipient: number, letter_id: string) {
                                 v-for="(item, index) in primary.data"
                                 :key="index"
                                 class="cursor-pointer"
-                                @click="item.read_at ? goToDetail(item.id, item.letter.letter_id) : goToDetailPatch(item.id, item.letter.letter_id)"
+                                @click="handleClick(item)"
                                 :class="{ 'font-semibold': !item.read_at }"
                             >
-                                <TableCell class="align-top">{{ item.letter.agenda }}</TableCell>
-                                <TableCell class="align-top">{{ item.letter.number }}</TableCell>
+                                <TableCell class="align-top">{{ item.letter?.agenda }}</TableCell>
+                                <TableCell class="align-top">{{ item.letter?.number }}</TableCell>
                                 <TableCell class="align-top">
-                                    {{ item.letter.sender }}
+                                    {{ item.letter?.sender }}
                                     <p class="line-clamp-1 text-muted-foreground">
-                                        {{ item.letter.subject }}
+                                        {{ item.letter?.subject }}
                                     </p>
                                 </TableCell>
                                 <TableCell class="align-top">
@@ -202,11 +212,11 @@ function goToDetailPatch(recipient: number, letter_id: string) {
                                                 ND
                                             </span>
                                         </div>
-                                        <span v-if="item.activity_dispo.length === 0 && item.activity_memo.length === 0">-</span>
+                                        <span v-if="item.activity_dispo?.length === 0 && item.activity_memo?.length === 0">-</span>
                                     </div>
                                 </TableCell>
                                 <TableCell class="text-right align-top">
-                                    {{ formatCreate(item.received_at) }}
+                                    {{ item.received_at ? formatCreate(item.received_at) : '-' }}
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="primary.data.length === 0">

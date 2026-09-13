@@ -15,7 +15,7 @@ import { useClearErrorsOnChange } from '@/composables/useClearErrorsOnChange';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import type { DateValue } from '@internationalized/date';
 import { DateFormatter, getLocalTimeZone, parseDate, today } from '@internationalized/date';
@@ -27,7 +27,7 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    letter: any;
+    letter: Letter;
 }>();
 
 const df = new DateFormatter('en-US', {

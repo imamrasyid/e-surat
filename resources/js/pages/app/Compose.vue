@@ -19,7 +19,7 @@ import { createDecadae } from '@/composables/useDecadae';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Position, RefKdKlasifikasi } from '@/types';
 import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
 import type { DateValue } from '@internationalized/date';
 import { DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
@@ -36,8 +36,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const props = defineProps<{
-    kdKlasifikasi: any;
-    positions: any;
+    kdKlasifikasi: RefKdKlasifikasi[];
+    positions: Position[];
 }>();
 
 const df = new DateFormatter('en-US', {
@@ -92,7 +92,7 @@ watch(
 useClearErrorsOnChange(form, { debounceMs: 120 });
 
 const openPenerima = ref(false);
-const searchPenerima = ref();
+const searchPenerima = ref('');
 const penerimaSelect = (item: any) => {
     form.penerima.push({ id: item.value.id, name: item.value.name });
     searchPenerima.value = '';
@@ -102,10 +102,10 @@ const penerimaSelect = (item: any) => {
 };
 const filteredPenerima = computed(() => {
     const selectedIds = form.penerima.map((p) => p.id);
-    const options = props.positions.filter((i: any) => !selectedIds.includes(i.id));
+    const options = props.positions.filter((i) => !selectedIds.includes(i.id));
     if (searchPenerima.value) {
         const keyword = searchPenerima.value.toLowerCase();
-        return options.filter((option: any) => option.name.toLowerCase().includes(keyword));
+        return options.filter((option) => option.name.toLowerCase().includes(keyword));
     }
     return options;
 });

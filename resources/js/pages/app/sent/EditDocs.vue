@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Letter } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Loader2, Plus, Save, Trash2 } from 'lucide-vue-next';
@@ -19,7 +19,7 @@ const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    letter: any;
+    letter: Letter;
 }>();
 
 const form = useForm({
@@ -28,7 +28,7 @@ const form = useForm({
 });
 
 // Daftar lampiran yang sudah ada (reaktif, untuk tampilan)
-const existingDocs = ref<{ id: number; name: string; url: string }[]>(props.letter.docs.map((d: any) => ({ id: d.id, name: d.name, url: d.url })));
+const existingDocs = ref<Letter['docs']>(props.letter.docs);
 
 // Dialog konfirmasi hapus
 const showDeleteDialog = ref(false);
@@ -40,7 +40,7 @@ const openDeleteDialog = (doc: { id: number; name: string }, index: number) => {
 };
 
 const confirmDelete = () => {
-    if (deleteTarget.value) {
+    if (deleteTarget.value && existingDocs.value) {
         form.hapus.push(deleteTarget.value.id);
         existingDocs.value.splice(deleteTarget.value.index, 1);
         deleteTarget.value = null;
@@ -196,7 +196,7 @@ const onSubmit = () => {
                         <div class="flex-1 md:max-w-2xl">
                             <section class="max-w-2xl">
                                 <!-- Lampiran yang sudah ada -->
-                                <div v-if="existingDocs.length > 0" class="mb-6">
+                                <div v-if="existingDocs && existingDocs.length > 0" class="mb-6">
                                     <Label class="mb-2 block">Lampiran Saat Ini</Label>
                                     <Card>
                                         <CardContent>

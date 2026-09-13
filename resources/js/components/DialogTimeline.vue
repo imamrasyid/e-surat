@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import type { TimelineRecipient } from '@/types';
 import { useDateFormat } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { ScrollArea } from './ui/scroll-area';
@@ -7,7 +8,7 @@ import { Separator } from './ui/separator';
 
 const props = defineProps<{
     openDialog: boolean;
-    data: any;
+    data: TimelineRecipient[];
 }>();
 
 const emit = defineEmits<{
@@ -75,7 +76,7 @@ watch(dialogTimeline, (val) => {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm text-muted-foreground">Penerima</p>
-                                        <h6 class="text-sm/6 font-medium"><span v-if="item.is_cc == 1">cc: </span>{{ item.to_position.name }}</h6>
+                                        <h6 class="text-sm/6 font-medium"><span v-if="item.is_cc">cc: </span>{{ item.to_position.name }}</h6>
                                     </div>
                                     <p class="text-xs">
                                         {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}

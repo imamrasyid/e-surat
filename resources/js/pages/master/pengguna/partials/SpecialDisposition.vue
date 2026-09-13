@@ -3,6 +3,7 @@ import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
+import type { Position } from '@/types';
 import { useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
 
@@ -10,8 +11,8 @@ const { toast } = useToast();
 
 const props = defineProps<{
     user_id: number;
-    specialDispositions: any[];
-    positions: any[];
+    specialDispositions: Position[];
+    positions: Position[];
 }>();
 
 // form inertia
@@ -20,7 +21,7 @@ const form = useForm({
 });
 
 // inisialisasi: tandai yang sudah punya hak khusus
-form.position_ids = props.specialDispositions.map((d: any) => d.id);
+form.position_ids = props.specialDispositions.map((d) => d.id);
 
 const submit = () => {
     form.post(route('ref.user.updateDisposition', props.user_id), {

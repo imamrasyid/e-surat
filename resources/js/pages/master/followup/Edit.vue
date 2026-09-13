@@ -1,35 +1,22 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { type BreadcrumbItem } from '@/types';
-
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
+import type { BreadcrumbItem, Followup } from '@/types';
+import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from 'lucide-vue-next';
 
 const { toast } = useToast();
 
-const status = [
-    {
-        value: 1,
-        name: 'Aktif',
-    },
-    {
-        value: 0,
-        name: 'Non Aktif',
-    },
-];
-
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    data: any;
+    data: Followup;
 }>();
 
 const form = useForm({
@@ -88,17 +75,10 @@ const submit = () => {
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="status">Status</Label>
-                        <Select id="status" v-model="form.is_active">
-                            <SelectTrigger class="mt-1 w-full sm:w-[350px]">
-                                <SelectValue placeholder="Select a status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup class="w-full sm:w-[350px]">
-                                    <SelectItem v-for="item in status" :key="item.value" :value="item.value">{{ item.name }}</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                        <Label for="status" class="flex items-center space-x-3">
+                            <Checkbox id="status" v-model="form.is_active" />
+                            <span>Aktifkan</span>
+                        </Label>
                         <InputError class="mt-1" :message="form.errors.is_active" />
                     </div>
 

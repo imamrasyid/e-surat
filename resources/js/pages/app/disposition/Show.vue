@@ -8,17 +8,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Disposition, Letter, TimelineRecipient } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { now, useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
-    from: any;
-    disposition: any;
-    recipients: any;
-    letter: any;
+    from: { id: number; name: string };
+    disposition: Disposition;
+    recipients: TimelineRecipient[];
+    letter: Letter;
 }>();
 
 function getCategoryName(value: number) {
@@ -64,7 +64,7 @@ const createDisposition = (letter_id: string) => {
                 <HeadingSmall title="Disposisi" description="Detail data disposisi masuk" />
                 <div class="sm:text-end">
                     <p class="text-xs text-gray-500">
-                        {{ useDateFormat(disposition.received_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' }) }}
+                        {{ disposition.received_at ? useDateFormat(disposition.received_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' }) : '-' }}
                     </p>
                     <h6 class="text-sm">Oleh {{ from.name }}</h6>
                 </div>
@@ -94,7 +94,7 @@ const createDisposition = (letter_id: string) => {
                                     variant="ghost"
                                     size="icon"
                                     class="cursor-pointer"
-                                    :disabled="disposition.is_cc === 1 || letter.status === 'close'"
+                                    :disabled="disposition.is_cc || letter.status === 'close'"
                                     @click="createMemo(letter.letter_id)"
                                 >
                                     <Reply class="size-5" />
@@ -113,7 +113,7 @@ const createDisposition = (letter_id: string) => {
                                     variant="ghost"
                                     size="icon"
                                     class="cursor-pointer"
-                                    :disabled="disposition.is_cc === 1 || letter.status === 'close'"
+                                    :disabled="disposition.is_cc || letter.status === 'close'"
                                     @click="createDisposition(letter.letter_id)"
                                 >
                                     <Forward class="size-5" />
@@ -251,14 +251,14 @@ const createDisposition = (letter_id: string) => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        <TableRow v-for="item in recipients" :key="item.id">
+                                        <TableRow v-for="(item, index) in recipients" :key="index">
                                             <TableCell class="align-top">
-                                                {{ useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) }}
+                                                {{
+                                                    item.received_at ? useDateFormat(item.received_at, 'DD/MM/YY, HH:mm', { locales: 'id-ID' }) : '-'
+                                                }}
                                             </TableCell>
                                             <TableCell class="align-top">{{ item.from_position.name }}</TableCell>
-                                            <TableCell class="align-top">
-                                                {{ item.is_cc === 1 ? 'cc: ' : '' }} {{ item.to_position.name }}
-                                            </TableCell>
+                                            <TableCell class="align-top"> {{ item.is_cc ? 'cc: ' : '' }} {{ item.to_position.name }} </TableCell>
                                             <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
                                             <TableCell class="align-top">{{ item.followup ?? '-' }}</TableCell>
                                             <TableCell class="align-top">

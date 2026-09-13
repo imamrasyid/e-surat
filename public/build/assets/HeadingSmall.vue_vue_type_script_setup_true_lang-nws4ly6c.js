@@ -1,0 +1,1 @@
+import{d as a,o as t,c as s,b as n,t as o,x as r}from"./app-BDR_RmYn.js";const i={class:"mb-0.5 text-base font-medium"},c={key:0,class:"text-sm text-muted-foreground"},l=a({__name:"HeadingSmall",props:{title:{},description:{}},setup(d){return(e,m)=>(t(),s("header",null,[n("h3",i,o(e.title),1),e.description?(t(),s("p",c,o(e.description),1)):r("",!0)]))}});export{l as _};
