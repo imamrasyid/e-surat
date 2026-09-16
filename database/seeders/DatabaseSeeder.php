@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([ Permissions::class ]);
+        $this->call([Permissions::class]);
 
         $admin = User::factory()->create([
             'name' => 'Administrator',

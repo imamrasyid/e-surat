@@ -6,17 +6,17 @@ use App\Models\Disposition;
 use App\Models\Followup;
 use App\Models\Letter;
 use App\Models\LetterDoc;
-use App\Models\LetterRecipient;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
-use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class DispositionController extends Controller
 {
@@ -29,7 +29,7 @@ class DispositionController extends Controller
         $currentPosition = $user?->currentPosition()?->first();
 
         // Kalau user tidak punya currentPosition
-        if (!$currentPosition) {
+        if (! $currentPosition) {
             return inertia('app/disposition/Index', [
                 'breadcrumbItems' => [
                     [
@@ -37,7 +37,7 @@ class DispositionController extends Controller
                         'href' => '/disposition',
                     ],
                 ],
-                'dispo' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+                'dispo' => fn () => new LengthAwarePaginator([], 0, 15),
             ]);
         }
 
@@ -45,11 +45,11 @@ class DispositionController extends Controller
             ->where('to_position_id', $currentPosition->id)
             ->with([
                 'fromPosition:id,name',
-                'letter:id,letter_id,agenda,sender,number,subject'
+                'letter:id,letter_id,agenda,sender,number,subject',
             ])
             ->when(FacadesRequest::input('search'), function (Builder $query, $search) {
                 $query->whereHas('letter', function (Builder $query) use ($search) {
-                    $query->where('agenda', 'like', '%' . $search . '%');
+                    $query->where('agenda', 'like', '%'.$search.'%');
                 });
             })
             ->when(FacadesRequest::input('filter'), function (Builder $query, $filter) {
@@ -69,7 +69,7 @@ class DispositionController extends Controller
                     'href' => '/disposition',
                 ],
             ],
-            'dispo' => fn() => $dispo,
+            'dispo' => fn () => $dispo,
         ]);
     }
 
@@ -113,7 +113,7 @@ class DispositionController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
-        
+
         return inertia('app/disposition/Create', [
             'breadcrumbItems' => [
                 [
@@ -125,11 +125,11 @@ class DispositionController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
-            'recipients' => fn() => $recipients,
-            'recipient_id' => fn() => $recipient,
-            'positions' => fn() => $positions,
-            'followup' => fn() => $followup,
+            'letter' => fn () => $letter,
+            'recipients' => fn () => $recipients,
+            'recipient_id' => fn () => $recipient,
+            'positions' => fn () => $positions,
+            'followup' => fn () => $followup,
         ]);
     }
 
@@ -142,78 +142,78 @@ class DispositionController extends Controller
         $currentPosition = $user->currentPosition()->first();
 
         $request->validate([
-            'type'                => 'required|string',
-            'letter_id_primary'   => 'required|integer',
-            'letter_id'           => 'required|string',
+            'type' => 'required|string',
+            'letter_id_primary' => 'required|integer',
+            'letter_id' => 'required|string',
             'letter_recipient_id' => 'required|integer',
             'letter_receipt_date' => 'required|string',
-            'penerima'            => 'required|array|min:1',
-            'penerima.*.id'       => 'required|integer',
-            'penerima.*.name'     => 'required|string',
-            'penerima_cc'         => 'nullable|array',
-            'penerima_cc.*.id'    => 'nullable|integer',
-            'penerima_cc.*.name'  => 'nullable|string',
-            'catatan'             => 'nullable|string',
-            'followup'            => 'nullable|array',
-            'followup.*.id'       => 'nullable|integer',
-            'followup.*.name'     => 'nullable|string',
-            'lampiran'            => 'nullable|array',
-            'lampiran.*'          => 'nullable|file|mimes:pdf'
+            'penerima' => 'required|array|min:1',
+            'penerima.*.id' => 'required|integer',
+            'penerima.*.name' => 'required|string',
+            'penerima_cc' => 'nullable|array',
+            'penerima_cc.*.id' => 'nullable|integer',
+            'penerima_cc.*.name' => 'nullable|string',
+            'catatan' => 'nullable|string',
+            'followup' => 'nullable|array',
+            'followup.*.id' => 'nullable|integer',
+            'followup.*.name' => 'nullable|string',
+            'lampiran' => 'nullable|array',
+            'lampiran.*' => 'nullable|file|mimes:pdf',
         ]);
 
         $followups = null;
         if ($request->followup) {
             $followups = implode('; ', array_map(function ($entry) {
-                    return ($entry['name']);
-                }, $request->followup));
+                return $entry['name'];
+            }, $request->followup));
         }
 
         DB::beginTransaction();
 
         try {
-            //INSERT PENERIMA
+            // INSERT PENERIMA
             foreach ($request->penerima as $penerima) {
                 Disposition::create([
-                    'letter_id'           => $request->letter_id_primary,
+                    'letter_id' => $request->letter_id_primary,
                     'letter_recipient_id' => $request->letter_recipient_id,
-                    'from_user_id'        => $user->id,
-                    'from_position_id'    => $currentPosition->id,
-                    'to_position_id'      => $penerima['id'],
-                    'instruction'         => $request->catatan,
-                    'followup'            => $followups,
-                    'received_at'         => now(),
+                    'from_user_id' => $user->id,
+                    'from_position_id' => $currentPosition->id,
+                    'to_position_id' => $penerima['id'],
+                    'instruction' => $request->catatan,
+                    'followup' => $followups,
+                    'received_at' => now(),
                 ]);
             }
             if ($request->penerima_cc) {
                 foreach ($request->penerima_cc as $penerima) {
                     Disposition::create([
-                        'letter_id'           => $request->letter_id_primary,
+                        'letter_id' => $request->letter_id_primary,
                         'letter_recipient_id' => $request->letter_recipient_id,
-                        'is_cc'               => 1,
-                        'from_user_id'        => $user->id,
-                        'from_position_id'    => $currentPosition->id,
-                        'to_position_id'      => $penerima['id'],
-                        'received_at'         => now(),
+                        'is_cc' => 1,
+                        'from_user_id' => $user->id,
+                        'from_position_id' => $currentPosition->id,
+                        'to_position_id' => $penerima['id'],
+                        'received_at' => now(),
                     ]);
                 }
             }
 
-            //INSERT LAMPIRAN
+            // INSERT LAMPIRAN
             if ($request->HasFile('lampiran')) {
                 foreach ($request->lampiran as $lampiran) {
-                    $path = 'attachment/' . $request->letter_receipt_date;
-                    $filename = 'DSP' . now()->format('His') . '_' . $lampiran->getClientOriginalName();
+                    $path = 'attachment/'.$request->letter_receipt_date;
+                    $filename = 'DSP'.now()->format('His').'_'.$lampiran->getClientOriginalName();
                     Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-                    
+
                     $storeUrl = "/storage/{$path}/{$filename}";
                     LetterDoc::create([
                         'letter_id' => $request->letter_id_primary,
-                        'name'      => $filename,
-                        'url'       => $storeUrl,
+                        'name' => $filename,
+                        'url' => $storeUrl,
                     ]);
                 }
             }
-            
+
             DB::commit();
 
             $routes = [
@@ -222,23 +222,24 @@ class DispositionController extends Controller
                     'params' => fn ($req) => [
                         'recipient' => $req->letter_recipient_id,
                         'letter_id' => $req->letter_id,
-                    ]
+                    ],
                 ],
                 'undangan' => [
                     'route' => 'inbox.undangan.show',
                     'params' => fn ($req) => [
                         'recipient' => $req->letter_recipient_id,
                         'letter_id' => $req->letter_id,
-                    ]
+                    ],
                 ],
                 'disposisi' => [
                     'route' => 'dispo.index',
-                    'params' => fn () => []
+                    'params' => fn () => [],
                 ],
             ];
 
             if (isset($routes[$request->type])) {
                 $route = $routes[$request->type];
+
                 return redirect()->route($route['route'], $route['params']($request));
             }
 
@@ -246,14 +247,15 @@ class DispositionController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
-        }        
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Disposition $recipient, string $letter_id): Response | RedirectResponse
+    public function show(Disposition $recipient, string $letter_id): Response|RedirectResponse
     {
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
@@ -271,7 +273,7 @@ class DispositionController extends Controller
         $recipients = $this->getTimeline($recipient->letter_id);
 
         $letter = $recipient->letter()->with([
-            'docs:id,letter_id,name,url'
+            'docs:id,letter_id,name,url',
         ])->firstOrFail();
 
         return inertia('app/disposition/Show', [
@@ -285,16 +287,16 @@ class DispositionController extends Controller
                     'href' => '',
                 ],
             ],
-            'from' => fn() => $from,
-            'disposition' => fn() => $recipient->only(
+            'from' => fn () => $from,
+            'disposition' => fn () => $recipient->only(
                 'id',
                 'letter_id',
                 'letter_recipient_id',
                 'is_cc',
                 'received_at'
             ),
-            'recipients' => fn() => $recipients,
-            'letter' => fn() => $letter,
+            'recipients' => fn () => $recipients,
+            'letter' => fn () => $letter,
         ]);
     }
 
@@ -314,6 +316,7 @@ class DispositionController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

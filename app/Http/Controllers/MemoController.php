@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Memo;
 use App\Models\Letter;
 use App\Models\LetterDoc;
+use App\Models\Memo;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
-use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class MemoController extends Controller
 {
@@ -27,7 +28,7 @@ class MemoController extends Controller
         $currentPosition = $user?->currentPosition()?->first();
 
         // Kalau user tidak punya currentPosition
-        if (!$currentPosition) {
+        if (! $currentPosition) {
             return inertia('app/memo/Index', [
                 'breadcrumbItems' => [
                     [
@@ -35,7 +36,7 @@ class MemoController extends Controller
                         'href' => '/nota-dinas',
                     ],
                 ],
-                'memo' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+                'memo' => fn () => new LengthAwarePaginator([], 0, 15),
             ]);
         }
 
@@ -43,11 +44,11 @@ class MemoController extends Controller
             ->where('to_position_id', $currentPosition->id)
             ->with([
                 'fromPosition:id,name',
-                'letter:id,letter_id,agenda,sender,number,subject'
+                'letter:id,letter_id,agenda,sender,number,subject',
             ])
             ->when(FacadesRequest::input('search'), function (Builder $query, $search) {
                 $query->whereHas('letter', function (Builder $query) use ($search) {
-                    $query->where('agenda', 'like', '%' . $search . '%');
+                    $query->where('agenda', 'like', '%'.$search.'%');
                 });
             })
             ->when(FacadesRequest::input('filter'), function (Builder $query, $filter) {
@@ -67,7 +68,7 @@ class MemoController extends Controller
                     'href' => '/nota-dinas',
                 ],
             ],
-            'memo' => fn() => $memo,
+            'memo' => fn () => $memo,
         ]);
     }
 
@@ -88,7 +89,7 @@ class MemoController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
-        
+
         return inertia('app/memo/Create', [
             'breadcrumbItems' => [
                 [
@@ -100,18 +101,19 @@ class MemoController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
-            'recipients' => fn() => $recipients,
-            'recipient_id' => fn() => $recipient,
-            'positions' => fn() => $positions,
+            'letter' => fn () => $letter,
+            'recipients' => fn () => $recipients,
+            'recipient_id' => fn () => $recipient,
+            'positions' => fn () => $positions,
         ]);
     }
+
     public function createClose(Memo $memo, string $letter_id): Response
     {
         $letter = $memo->letter()->where('status', 'open')->firstOrFail();
 
         $recipients = $this->getTimeline($letter->id);
-        
+
         return inertia('app/memo/CreateClose', [
             'breadcrumbItems' => [
                 [
@@ -123,9 +125,9 @@ class MemoController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
-            'recipients' => fn() => $recipients,
-            'memo' => fn() => $memo,
+            'letter' => fn () => $letter,
+            'recipients' => fn () => $recipients,
+            'memo' => fn () => $memo,
         ]);
     }
 
@@ -138,67 +140,67 @@ class MemoController extends Controller
         $currentPosition = $user->currentPosition()->first();
 
         $request->validate([
-            'type'                => 'required|string',
-            'letter_id_primary'   => 'required|integer',
-            'letter_id'           => 'required|string',
+            'type' => 'required|string',
+            'letter_id_primary' => 'required|integer',
+            'letter_id' => 'required|string',
             'letter_recipient_id' => 'required|integer',
             'letter_receipt_date' => 'required|string',
-            'penerima'            => 'required|array|min:1',
-            'penerima.*.id'       => 'required|integer',
-            'penerima.*.name'     => 'required|string',
-            'penerima_cc'         => 'nullable|array',
-            'penerima_cc.*.id'    => 'nullable|integer',
-            'penerima_cc.*.name'  => 'nullable|string',
-            'catatan'             => 'nullable|string',
-            'lampiran'            => 'nullable|array',
-            'lampiran.*'          => 'nullable|file|mimes:pdf'
+            'penerima' => 'required|array|min:1',
+            'penerima.*.id' => 'required|integer',
+            'penerima.*.name' => 'required|string',
+            'penerima_cc' => 'nullable|array',
+            'penerima_cc.*.id' => 'nullable|integer',
+            'penerima_cc.*.name' => 'nullable|string',
+            'catatan' => 'nullable|string',
+            'lampiran' => 'nullable|array',
+            'lampiran.*' => 'nullable|file|mimes:pdf',
         ]);
 
         DB::beginTransaction();
 
         try {
-            //INSERT PENERIMA
+            // INSERT PENERIMA
             foreach ($request->penerima as $penerima) {
                 Memo::create([
-                    'letter_id'           => $request->letter_id_primary,
+                    'letter_id' => $request->letter_id_primary,
                     'letter_recipient_id' => $request->letter_recipient_id,
-                    'from_user_id'        => $user->id,
-                    'from_position_id'    => $currentPosition->id,
-                    'to_position_id'      => $penerima['id'],
-                    'instruction'         => $request->catatan,
-                    'received_at'         => now(),
+                    'from_user_id' => $user->id,
+                    'from_position_id' => $currentPosition->id,
+                    'to_position_id' => $penerima['id'],
+                    'instruction' => $request->catatan,
+                    'received_at' => now(),
                 ]);
             }
             if ($request->penerima_cc) {
                 foreach ($request->penerima_cc as $penerima) {
                     Memo::create([
-                        'letter_id'           => $request->letter_id_primary,
+                        'letter_id' => $request->letter_id_primary,
                         'letter_recipient_id' => $request->letter_recipient_id,
-                        'is_cc'               => 1,
-                        'from_user_id'        => $user->id,
-                        'from_position_id'    => $currentPosition->id,
-                        'to_position_id'      => $penerima['id'],
-                        'received_at'         => now(),
+                        'is_cc' => 1,
+                        'from_user_id' => $user->id,
+                        'from_position_id' => $currentPosition->id,
+                        'to_position_id' => $penerima['id'],
+                        'received_at' => now(),
                     ]);
                 }
             }
 
-            //INSERT LAMPIRAN
+            // INSERT LAMPIRAN
             if ($request->HasFile('lampiran')) {
                 foreach ($request->lampiran as $lampiran) {
-                    $path = 'attachment/' . $request->letter_receipt_date;
-                    $filename = 'MMO' . now()->format('His') . '_' . $lampiran->getClientOriginalName();
+                    $path = 'attachment/'.$request->letter_receipt_date;
+                    $filename = 'MMO'.now()->format('His').'_'.$lampiran->getClientOriginalName();
                     Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-                    
+
                     $storeUrl = "/storage/{$path}/{$filename}";
                     LetterDoc::create([
                         'letter_id' => $request->letter_id_primary,
-                        'name'      => $filename,
-                        'url'       => $storeUrl,
+                        'name' => $filename,
+                        'url' => $storeUrl,
                     ]);
                 }
             }
-            
+
             DB::commit();
 
             $routes = [
@@ -207,27 +209,28 @@ class MemoController extends Controller
                     'params' => fn ($req) => [
                         'recipient' => $req->letter_recipient_id,
                         'letter_id' => $req->letter_id,
-                    ]
+                    ],
                 ],
                 'undangan' => [
                     'route' => 'inbox.undangan.show',
                     'params' => fn ($req) => [
                         'recipient' => $req->letter_recipient_id,
                         'letter_id' => $req->letter_id,
-                    ]
+                    ],
                 ],
                 'disposisi' => [
                     'route' => 'dispo.index',
-                    'params' => fn () => []
+                    'params' => fn () => [],
                 ],
                 'memo' => [
                     'route' => 'memo.index',
-                    'params' => fn () => []
+                    'params' => fn () => [],
                 ],
             ];
 
             if (isset($routes[$request->type])) {
                 $route = $routes[$request->type];
+
                 return redirect()->route($route['route'], $route['params']($request));
             }
 
@@ -235,55 +238,58 @@ class MemoController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
-        }        
+        }
     }
+
     public function storeClose(Request $request): RedirectResponse
     {
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
 
         $request->validate([
-            'letter_id_primary'   => 'required|integer',
+            'letter_id_primary' => 'required|integer',
             'letter_recipient_id' => 'required|integer',
-            'to_position_id'      => 'required|integer',
-            'catatan'             => 'nullable|string',
+            'to_position_id' => 'required|integer',
+            'catatan' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
 
         try {
-            //INSERT MEMO
+            // INSERT MEMO
             Memo::create([
-                'letter_id'           => $request->letter_id_primary,
+                'letter_id' => $request->letter_id_primary,
                 'letter_recipient_id' => $request->letter_recipient_id,
-                'from_user_id'        => $user->id,
-                'from_position_id'    => $currentPosition->id,
-                'to_position_id'      => $request->to_position_id,
-                'instruction'         => $request->catatan,
-                'received_at'         => now(),
+                'from_user_id' => $user->id,
+                'from_position_id' => $currentPosition->id,
+                'to_position_id' => $request->to_position_id,
+                'instruction' => $request->catatan,
+                'received_at' => now(),
             ]);
 
-            //UPDATE LETTER STATUS
+            // UPDATE LETTER STATUS
             $letter = Letter::findOrFail($request->letter_id_primary);
             $letter->update([
                 'status' => 'close',
             ]);
-            
+
             DB::commit();
 
             return redirect()->route('memo.index');
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
-        }        
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Memo $recipient, string $letter_id): Response | RedirectResponse
+    public function show(Memo $recipient, string $letter_id): Response|RedirectResponse
     {
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
@@ -301,7 +307,7 @@ class MemoController extends Controller
         $recipients = $this->getTimeline($recipient->letter_id);
 
         $letter = $recipient->letter()->with([
-            'docs:id,letter_id,name,url'
+            'docs:id,letter_id,name,url',
         ])->firstOrFail();
 
         return inertia('app/memo/Show', [
@@ -315,16 +321,16 @@ class MemoController extends Controller
                     'href' => '',
                 ],
             ],
-            'from' => fn() => $from,
-            'memo' => fn() => $recipient->only(
+            'from' => fn () => $from,
+            'memo' => fn () => $recipient->only(
                 'id',
                 'letter_id',
                 'letter_recipient_id',
                 'is_cc',
                 'received_at'
             ),
-            'recipients' => fn() => $recipients,
-            'letter' => fn() => $letter,
+            'recipients' => fn () => $recipients,
+            'letter' => fn () => $letter,
         ]);
     }
 
@@ -344,6 +350,7 @@ class MemoController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

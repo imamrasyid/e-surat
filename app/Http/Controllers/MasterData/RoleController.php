@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Response;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Response;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -21,10 +21,10 @@ class RoleController extends Controller
     {
         $data = Role::query()
             ->select('id', 'name')
-            ->where(function(Builder $query) {
+            ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
-                    $query->whereLike('name','%'.$search.'%');
+                    $query->whereLike('name', '%'.$search.'%');
                 }
             })
             ->paginate(10);
@@ -36,7 +36,7 @@ class RoleController extends Controller
                     'href' => '/master-data/roles',
                 ],
             ],
-            'data' => fn() => $data,
+            'data' => fn () => $data,
         ]);
     }
 
@@ -80,6 +80,7 @@ class RoleController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
@@ -101,9 +102,9 @@ class RoleController extends Controller
                     'title' => 'Perbarui',
                 ],
             ],
-            'data' => fn() => $role,
-            'rolePermissions' => fn() => $role->permissions()->select('id', 'name')->get(),
-            'permissions' => fn() => $permissions,
+            'data' => fn () => $role,
+            'rolePermissions' => fn () => $role->permissions()->select('id', 'name')->get(),
+            'permissions' => fn () => $permissions,
         ]);
     }
 
@@ -129,9 +130,11 @@ class RoleController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
+
     public function updatePermission(Request $request, Role $role): RedirectResponse
     {
         $validated = $request->validate([
@@ -143,13 +146,14 @@ class RoleController extends Controller
 
         try {
             $role->syncPermissions($validated['permissions']);
-            
+
             DB::commit();
 
             return redirect()->route('ref.role.index');
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

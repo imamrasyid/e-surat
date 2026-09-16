@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             ClearUserPermissionsCache::class,
         ],
     ];
-    
+
     /**
      * Register any application services.
      */

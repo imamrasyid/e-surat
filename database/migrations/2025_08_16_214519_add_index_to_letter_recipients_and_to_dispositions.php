@@ -36,7 +36,7 @@ return new class extends Migration
             $table->dropIndex('letter_recipients_letter_id_received_at_index');
             $table->dropIndex('letter_recipients_letter_id_to_read_at_index');
         });
-        
+
         Schema::table('dispositions', function (Blueprint $table) {
             $table->dropIndex('dispositions_letter_id_from_to_received_at_index');
             $table->dropIndex('dispositions_letter_id_received_at_index');

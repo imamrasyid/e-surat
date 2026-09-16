@@ -14,7 +14,7 @@ abstract class Controller
         $recipients = LetterRecipient::where('letter_id', $letter_id)
             ->select(
                 'letter_id',
-                DB::raw("0 as is_cc"),
+                DB::raw('0 as is_cc'),
                 'from_position_id',
                 'to_position_id',
                 'instruction',

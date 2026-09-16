@@ -2,15 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Disposition;
-use App\Models\Letter;
-use App\Models\Memo;
 use App\Models\Position;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
-use Spatie\Permission\Models\Permission;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -62,17 +58,17 @@ class HandleInertiaRequests extends Middleware
                             ->withCount([
                                 'recipients as primary_count' => function ($q) {
                                     $q->whereNull('read_at')
-                                    ->whereHas('letter', function ($q2) {
-                                        $q2->where('type', 'in')
-                                            ->where('category', 1);
-                                    });
+                                        ->whereHas('letter', function ($q2) {
+                                            $q2->where('type', 'in')
+                                                ->where('category', 1);
+                                        });
                                 },
                                 'recipients as undangan_count' => function ($q) {
                                     $q->whereNull('read_at')
-                                    ->whereHas('letter', function ($q2) {
-                                        $q2->where('type', 'in')
-                                            ->where('category', 2);
-                                    });
+                                        ->whereHas('letter', function ($q2) {
+                                            $q2->where('type', 'in')
+                                                ->where('category', 2);
+                                        });
                                 },
                                 'dispositions as disposisi_count' => function ($q) {
                                     $q->whereNull('read_at');
@@ -84,18 +80,18 @@ class HandleInertiaRequests extends Middleware
                             ->first();
 
                         return [
-                            'primary'   => $position->primary_count ?? 0,
-                            'undangan'  => $position->undangan_count ?? 0,
+                            'primary' => $position->primary_count ?? 0,
+                            'undangan' => $position->undangan_count ?? 0,
                             'disposisi' => $position->disposisi_count ?? 0,
-                            'memo'      => $position->memo_count ?? 0,
+                            'memo' => $position->memo_count ?? 0,
                         ];
                     }
                 );
-                
-                $primary   = $counts['primary'];
-                $undangan  = $counts['undangan'];
+
+                $primary = $counts['primary'];
+                $undangan = $counts['undangan'];
                 $disposisi = $counts['disposisi'];
-                $memo      = $counts['memo'];
+                $memo = $counts['memo'];
             }
         }
 
@@ -117,10 +113,10 @@ class HandleInertiaRequests extends Middleware
                     : [],
             ],
             'inbox' => [
-                'primary' => fn() => $primary,
-                'undangan' => fn() => $undangan,
-                'disposisi' => fn() => $disposisi,
-                'memo' => fn() => $memo,
+                'primary' => fn () => $primary,
+                'undangan' => fn () => $undangan,
+                'disposisi' => fn () => $disposisi,
+                'memo' => fn () => $memo,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

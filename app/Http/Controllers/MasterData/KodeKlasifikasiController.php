@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Response;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Response;
 
 class KodeKlasifikasiController extends Controller
 {
@@ -20,11 +20,11 @@ class KodeKlasifikasiController extends Controller
     {
         $data = RefKdKlasifikasi::query()
             ->select('id', 'kode', 'nama', 'is_active')
-            ->where(function(Builder $query) {
+            ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
-                    $query->whereLike('kode','%'.$search.'%')
-                        ->orWhereLike('nama','%'.$search.'%');
+                    $query->whereLike('kode', '%'.$search.'%')
+                        ->orWhereLike('nama', '%'.$search.'%');
                 }
             })
             ->paginate(10);
@@ -36,7 +36,7 @@ class KodeKlasifikasiController extends Controller
                     'href' => '/master-data/klasifikasi-arsip',
                 ],
             ],
-            'data' => fn() => $data,
+            'data' => fn () => $data,
         ]);
     }
 
@@ -82,6 +82,7 @@ class KodeKlasifikasiController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
@@ -102,7 +103,7 @@ class KodeKlasifikasiController extends Controller
                     'href' => '/master-data/klasifikasi-arsip/edit',
                 ],
             ],
-            'data' => fn() => $kode
+            'data' => fn () => $kode,
         ]);
     }
 
@@ -113,7 +114,7 @@ class KodeKlasifikasiController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'is_active' => 'required|boolean'
+            'is_active' => 'required|boolean',
         ]);
 
         DB::beginTransaction();
@@ -121,7 +122,7 @@ class KodeKlasifikasiController extends Controller
         try {
             $kode->update([
                 'nama' => $request->nama,
-                'is_active' => $request->is_active
+                'is_active' => $request->is_active,
             ]);
 
             DB::commit();
@@ -130,6 +131,7 @@ class KodeKlasifikasiController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

@@ -11,10 +11,10 @@ use App\Models\RefKdKlasifikasi;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,10 +36,10 @@ class ComposeController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
-        
+
         return Inertia::render('app/Compose', [
-            'kdKlasifikasi' => fn() => $kdKlasifikasi,
-            'positions' => fn() => $positions
+            'kdKlasifikasi' => fn () => $kdKlasifikasi,
+            'positions' => fn () => $positions,
         ]);
     }
 
@@ -53,26 +53,26 @@ class ComposeController extends Controller
         $customUlid = $this->customUlid();
 
         $request->validate([
-            'pengirim'        => 'required|string|max:150',
-            'nomor'           => 'nullable|string|max:100',
-            'tglSuratStr'     => 'required|date_format:Y-m-d',
-            'tglDiterimaStr'  => 'required|date_format:Y-m-d',
-            'perihal'         => 'required|string|max:255',
-            'kategori'        => 'required|digits:1',
-            'agenda'          => 'required|exists:ref_kode_klasifikasi_arsip,kode',
-            'agendaTahun'     => 'required|digits:4',
-            'penerima'        => 'required|array|min:1',
-            'penerima.*.id'   => 'required|integer',
+            'pengirim' => 'required|string|max:150',
+            'nomor' => 'nullable|string|max:100',
+            'tglSuratStr' => 'required|date_format:Y-m-d',
+            'tglDiterimaStr' => 'required|date_format:Y-m-d',
+            'perihal' => 'required|string|max:255',
+            'kategori' => 'required|digits:1',
+            'agenda' => 'required|exists:ref_kode_klasifikasi_arsip,kode',
+            'agendaTahun' => 'required|digits:4',
+            'penerima' => 'required|array|min:1',
+            'penerima.*.id' => 'required|integer',
             'penerima.*.name' => 'required|string',
-            'catatan'         => 'nullable|string',
-            'lampiran'        => 'required|array|min:1',
-            'lampiran.*'      => 'required|file|mimes:pdf'
+            'catatan' => 'nullable|string',
+            'lampiran' => 'required|array|min:1',
+            'lampiran.*' => 'required|file|mimes:pdf',
         ]);
 
         DB::beginTransaction();
 
         try {
-            //MEMBUAT NOMOR AGENDA
+            // MEMBUAT NOMOR AGENDA
             $klasifikasi = RefKdKlasifikasi::where('kode', $request->agenda)->firstOrFail();
             $nomorUrutTerakhir = RefAgendaSurat::where('klasifikasi_id', $klasifikasi->id)
                 ->where('tahun', $request->agendaTahun)
@@ -87,52 +87,53 @@ class ComposeController extends Controller
                 'nomor_agenda' => $nomorAgenda,
             ]);
 
-            //INSERT SURAT
+            // INSERT SURAT
             $letter = Letter::create([
-                'letter_id'    => $customUlid,
-                'sender'       => $request->pengirim,
-                'number'       => $request->nomor,
-                'date'         => $request->tglSuratStr,
+                'letter_id' => $customUlid,
+                'sender' => $request->pengirim,
+                'number' => $request->nomor,
+                'date' => $request->tglSuratStr,
                 'receipt_date' => $request->tglDiterimaStr,
-                'subject'      => $request->perihal,
-                'category'     => $request->kategori,
-                'agenda'       => $nomorAgenda,
-                'created_by'   => $user->id,
+                'subject' => $request->perihal,
+                'category' => $request->kategori,
+                'agenda' => $nomorAgenda,
+                'created_by' => $user->id,
             ]);
 
-            //INSERT PENERIMA
+            // INSERT PENERIMA
             foreach ($request->penerima as $penerima) {
                 LetterRecipient::create([
-                    'letter_id'        => $letter->id,
-                    'from_user_id'     => $user->id,
+                    'letter_id' => $letter->id,
+                    'from_user_id' => $user->id,
                     'from_position_id' => $currentPosition->id,
-                    'to_position_id'   => $penerima['id'],
-                    'instruction'      => $request->catatan,
-                    'received_at'      => now(),
+                    'to_position_id' => $penerima['id'],
+                    'instruction' => $request->catatan,
+                    'received_at' => now(),
                 ]);
             }
 
-            //INSERT LAMPIRAN
+            // INSERT LAMPIRAN
             foreach ($request->lampiran as $lampiran) {
-                $path = 'attachment/' . $request->tglDiterimaStr;
-                $filename = $klasifikasi->kode.$nomorUrutBaru. '_' . $lampiran->getClientOriginalName();
+                $path = 'attachment/'.$request->tglDiterimaStr;
+                $filename = $klasifikasi->kode.$nomorUrutBaru.'_'.$lampiran->getClientOriginalName();
                 Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-                
+
                 $storeUrl = "/storage/{$path}/{$filename}";
                 LetterDoc::create([
                     'agenda_id' => $agenda->id,
                     'letter_id' => $letter->id,
-                    'name'      => $filename,
-                    'url'       => $storeUrl,
+                    'name' => $filename,
+                    'url' => $storeUrl,
                 ]);
             }
-            
+
             DB::commit();
 
             return redirect()->route('app.compose.create');
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
@@ -159,7 +160,7 @@ class ComposeController extends Controller
         $timestampBase58 = '';
         $maxIndex = strlen($alphabet) - 1;
         while ($value > 0) {
-            $timestampBase58 = $alphabet[$value % 58] . $timestampBase58;
+            $timestampBase58 = $alphabet[$value % 58].$timestampBase58;
             $value = intdiv($value, 58);
         }
 
@@ -179,6 +180,6 @@ class ComposeController extends Controller
             $randomPart .= $alphabet[random_int(0, $maxIndex)];
         }
 
-        return $timestampBase58 . $salt . $randomPart;
+        return $timestampBase58.$salt.$randomPart;
     }
 }

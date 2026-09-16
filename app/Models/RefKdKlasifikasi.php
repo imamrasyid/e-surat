@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RefKdKlasifikasi extends Model
 {
@@ -34,7 +35,7 @@ class RefKdKlasifikasi extends Model
         ];
     }
 
-    public function agendaSurats(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function agendaSurats(): HasMany
     {
         return $this->hasMany(RefAgendaSurat::class);
     }

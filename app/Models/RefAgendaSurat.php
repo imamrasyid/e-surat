@@ -23,7 +23,7 @@ class RefAgendaSurat extends Model
         'klasifikasi_id',
         'nomor_urut',
         'tahun',
-        'nomor_agenda'
+        'nomor_agenda',
     ];
 
     public function klasifikasi(): BelongsTo

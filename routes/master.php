@@ -16,8 +16,8 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ],
         ]);
     })
-    ->middleware('wpermission:master.*')
-    ->name('ref.master-data');
+        ->middleware('wpermission:master.*')
+        ->name('ref.master-data');
 
     Route::prefix('pengguna')->middleware('permission:master.pengguna')->group(function () {
         Route::get('/', [UserController::class, 'index'])
@@ -43,7 +43,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
 
         Route::get('edit/role/{user_id}', [UserController::class, 'editRole'])
             ->name('ref.user.editRole');
-        
+
         Route::post('update/role/{user}', [UserController::class, 'updateRole'])
             ->name('ref.user.updateRole');
 
