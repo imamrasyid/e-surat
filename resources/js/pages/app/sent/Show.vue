@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useHttp } from '@inertiajs/vue3';
 import { useDateFormat } from '@vueuse/core';
 import { ChevronLeft, FilePenLine, Printer } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -24,13 +24,14 @@ function getCategoryName(value: number) {
     return found ? found.name : '-';
 }
 
+const http = useHttp();
 const dialogTimeline = ref(false);
 const timelineData = ref<TimelineRecipient[]>([]);
 
 async function handleRowClick(itemId: number) {
     try {
-        const response = await fetch(route('api.timeline.recipient', itemId));
-        timelineData.value = await response.json();
+        const response = await http.get(route('api.timeline.recipient', itemId));
+        timelineData.value = response as TimelineRecipient[];
 
         dialogTimeline.value = true;
     } catch (err) {

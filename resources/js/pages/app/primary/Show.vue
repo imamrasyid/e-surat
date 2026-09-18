@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, useHttp } from '@inertiajs/vue3';
 import { now, useDateFormat } from '@vueuse/core';
 import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -48,13 +48,14 @@ const createDisposition = (letter_id: string) => {
     );
 };
 
+const http = useHttp();
 const dialogTimeline = ref<boolean>(false);
 const timelineData = ref<TimelineRecipient[]>([]);
 
 async function handleRowClick(itemId: number) {
     try {
-        const response = await fetch(route('api.timeline.recipient', itemId));
-        timelineData.value = await response.json();
+        const response = await http.get(route('api.timeline.recipient', itemId));
+        timelineData.value = response as TimelineRecipient[];
 
         dialogTimeline.value = true;
     } catch (err) {
