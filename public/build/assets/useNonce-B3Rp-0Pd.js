@@ -1,0 +1,1 @@
+import{S as e}from"./sticky-note-CUSC5OMX.js";import{Jn as t,K as n}from"./dist-D6u6ec0z.js";function r(r){let i=e({nonce:t()});return n(()=>r?.value||i.nonce?.value)}export{r as t};
