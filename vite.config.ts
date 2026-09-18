@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
+import path from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -20,4 +21,17 @@ export default defineConfig({
             },
         }),
     ],
+    resolve: {
+        alias: {
+            '@': path.resolve(import.meta.dirname, './resources/js'),
+        },
+    },
+    server: {
+        watch: {
+            ignored: ['**/storage/**', '**/vendor/**'],
+        },
+    },
+    build: {
+        target: 'esnext',
+    },
 });
