@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Response;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Response;
 
 class PositionController extends Controller
 {
@@ -20,10 +20,10 @@ class PositionController extends Controller
     {
         $data = Position::query()
             ->select('id', 'name', 'parent_id', 'is_active')
-            ->where(function(Builder $query) {
+            ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
-                    $query->whereLike('name','%'.$search.'%');
+                    $query->whereLike('name', '%'.$search.'%');
                 }
             })
             ->orderBy('name')
@@ -45,7 +45,7 @@ class PositionController extends Controller
                     'href' => '/master-data/jabatan',
                 ],
             ],
-            'data' => fn() => $data,
+            'data' => fn () => $data,
         ]);
     }
 
@@ -71,7 +71,7 @@ class PositionController extends Controller
                     'href' => '/master-data/jabatan/create',
                 ],
             ],
-            'positions' => fn() => $positions
+            'positions' => fn () => $positions,
         ]);
     }
 
@@ -98,6 +98,7 @@ class PositionController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
@@ -118,12 +119,12 @@ class PositionController extends Controller
                     'href' => '/master-data/jabatan/edit',
                 ],
             ],
-            'data' => fn() => $position,
-            'positions' => fn() => Position::query()
+            'data' => fn () => $position,
+            'positions' => fn () => Position::query()
                 ->select('id', 'name')
                 ->where('is_active', true)
                 ->orderBy('name')
-                ->get()
+                ->get(),
         ]);
     }
 
@@ -135,7 +136,7 @@ class PositionController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:positions,id',
-            'is_active' => 'required|boolean'
+            'is_active' => 'required|boolean',
         ]);
 
         DB::beginTransaction();
@@ -144,7 +145,7 @@ class PositionController extends Controller
             $position->update([
                 'name' => $request->name,
                 'parent_id' => $request->parent_id,
-                'is_active' => $request->is_active
+                'is_active' => $request->is_active,
             ]);
 
             DB::commit();
@@ -153,6 +154,7 @@ class PositionController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

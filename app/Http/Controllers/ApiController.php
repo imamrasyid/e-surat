@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Disposition;
 use App\Models\Memo;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller

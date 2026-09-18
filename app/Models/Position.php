@@ -34,10 +34,9 @@ class Position extends Model
     {
         return $this->belongsTo(Position::class, 'parent_id');
     }
+
     /**
      * Get the parent position's name.
-     *
-     * @return string|null
      */
     public function getParentNameAttribute(): ?string
     {

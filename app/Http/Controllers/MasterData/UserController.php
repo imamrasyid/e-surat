@@ -10,9 +10,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Inertia\Response;
-use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Illuminate\Validation\Rules;
+use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -24,11 +24,11 @@ class UserController extends Controller
     {
         $data = User::query()
             ->select('id', 'name', 'email', 'is_active')
-            ->where(function(Builder $query) {
+            ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
-                    $query->whereLike('name','%'.$search.'%')
-                        ->orWhereLike('email','%'.$search.'%');
+                    $query->whereLike('name', '%'.$search.'%')
+                        ->orWhereLike('email', '%'.$search.'%');
                 }
             })
             ->orderBy('name')
@@ -41,7 +41,7 @@ class UserController extends Controller
                     'href' => '/master-data/pengguna',
                 ],
             ],
-            'data' => fn() => $data,
+            'data' => fn () => $data,
         ]);
     }
 
@@ -89,6 +89,7 @@ class UserController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
@@ -111,6 +112,7 @@ class UserController extends Controller
             'data' => $user,
         ]);
     }
+
     public function editPosition(User $user): Response
     {
         $currentPosition = $user->currentPosition()->first();
@@ -119,10 +121,10 @@ class UserController extends Controller
         }
 
         $positions = Position::query()
-                ->select('id', 'name')
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->get();
+            ->select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
         return inertia('master/pengguna/Jabatan', [
             'breadcrumbItems' => [
@@ -135,11 +137,12 @@ class UserController extends Controller
                 ],
             ],
             'data' => $user,
-            'currentPosition' => fn() => $currentPosition,
-            'positions' => fn() => $positions,
-            'specialDispositions' => fn() => $user->specialDispositions()->get(),
+            'currentPosition' => fn () => $currentPosition,
+            'positions' => fn () => $positions,
+            'specialDispositions' => fn () => $user->specialDispositions()->get(),
         ]);
     }
+
     public function editRole(string $user_id): Response
     {
         $user = User::with('roles')->select('id', 'email', 'name')->findOrFail($user_id);
@@ -156,7 +159,7 @@ class UserController extends Controller
                 ],
             ],
             'data' => $user,
-            'roles' => fn() => $roles,
+            'roles' => fn () => $roles,
         ]);
     }
 
@@ -195,9 +198,11 @@ class UserController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
+
     public function updatePosition(Request $request, User $user): RedirectResponse
     {
         $request->validate([
@@ -213,13 +218,13 @@ class UserController extends Controller
             if ($currentPosition) {
                 $user->positions()->updateExistingPivot($currentPosition->id, [
                     'end_date' => now(),
-                    'is_active' => false
+                    'is_active' => false,
                 ]);
             }
 
             $user->positions()->attach($positionId, [
                 'start_date' => now(),
-                'is_active' => true
+                'is_active' => true,
             ]);
 
             DB::commit();
@@ -228,9 +233,11 @@ class UserController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
+
     public function updateSpecialDisposition(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
@@ -241,7 +248,7 @@ class UserController extends Controller
         DB::beginTransaction();
 
         try {
-           $user->updateSpecialDispositions($validated['position_ids']);
+            $user->updateSpecialDispositions($validated['position_ids']);
 
             DB::commit();
 
@@ -249,9 +256,11 @@ class UserController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
+
     public function updateRole(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
@@ -263,13 +272,14 @@ class UserController extends Controller
 
         try {
             $user->syncRoles($validated['roles']);
-            
+
             DB::commit();
 
             return redirect()->route('ref.user.index');
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

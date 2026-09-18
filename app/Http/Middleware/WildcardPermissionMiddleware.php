@@ -11,7 +11,7 @@ class WildcardPermissionMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, string $permissions): Response
     {
@@ -30,7 +30,8 @@ class WildcardPermissionMiddleware
             // kalau wildcard (misal: master.*)
             if (str_ends_with($permission, '.*')) {
                 $prefix = rtrim($permission, '.*');
-                return $userPermissions->contains(fn ($p) => str_starts_with($p, $prefix . '.'));
+
+                return $userPermissions->contains(fn ($p) => str_starts_with($p, $prefix.'.'));
             }
 
             // kalau exact

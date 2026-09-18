@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Response;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Response;
 
 class FollowupController extends Controller
 {
@@ -20,10 +20,10 @@ class FollowupController extends Controller
     {
         $data = Followup::query()
             ->select('id', 'name', 'is_active')
-            ->where(function(Builder $query) {
+            ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
-                    $query->whereLike('name','%'.$search.'%');
+                    $query->whereLike('name', '%'.$search.'%');
                 }
             })
             ->paginate(10);
@@ -35,7 +35,7 @@ class FollowupController extends Controller
                     'href' => '/master-data/followup',
                 ],
             ],
-            'data' => fn() => $data,
+            'data' => fn () => $data,
         ]);
     }
 
@@ -79,6 +79,7 @@ class FollowupController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }
@@ -98,7 +99,7 @@ class FollowupController extends Controller
                     'title' => 'Perbarui',
                 ],
             ],
-            'data' => fn() => $followup
+            'data' => fn () => $followup,
         ]);
     }
 
@@ -109,7 +110,7 @@ class FollowupController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'is_active' => 'required|boolean'
+            'is_active' => 'required|boolean',
         ]);
 
         DB::beginTransaction();
@@ -117,7 +118,7 @@ class FollowupController extends Controller
         try {
             $followup->update([
                 'name' => $request->name,
-                'is_active' => $request->is_active
+                'is_active' => $request->is_active,
             ]);
 
             DB::commit();
@@ -126,6 +127,7 @@ class FollowupController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
         }
     }

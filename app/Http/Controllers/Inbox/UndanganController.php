@@ -7,6 +7,7 @@ use App\Models\LetterRecipient;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request as FacadesRequest;
@@ -23,7 +24,7 @@ class UndanganController extends Controller
         $currentPosition = $user?->currentPosition()?->first();
 
         // Kalau user tidak punya currentPosition
-        if (!$currentPosition) {
+        if (! $currentPosition) {
             return inertia('app/undangan/Index', [
                 'breadcrumbItems' => [
                     [
@@ -31,23 +32,23 @@ class UndanganController extends Controller
                         'href' => '/inbox/undangan',
                     ],
                 ],
-                'undangan' => fn() => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15)
+                'undangan' => fn () => new LengthAwarePaginator([], 0, 15),
             ]);
         }
 
         $undangan = LetterRecipient::query()
             ->select('id', 'letter_id', 'received_at', 'read_at')
             ->where('to_position_id', $currentPosition->id)
-            ->with(['letter' => function($query) {
+            ->with(['letter' => function ($query) {
                 $query->select('id', 'letter_id', 'agenda', 'sender', 'number', 'subject');
             }])
             ->with(['activityDispo', 'activityMemo'])
-            ->whereHas('letter', function(Builder $query) {
+            ->whereHas('letter', function (Builder $query) {
                 $query->where('type', 'in')
                     ->where('category', '2');
             })
-            ->when(FacadesRequest::input('search'), function(Builder $query, $search) {
-                $query->whereHas('letter', function($subQuery) use ($search) {
+            ->when(FacadesRequest::input('search'), function (Builder $query, $search) {
+                $query->whereHas('letter', function ($subQuery) use ($search) {
                     $subQuery->whereLike('agenda', '%'.$search.'%')
                         ->orWhereLike('sender', '%'.$search.'%')
                         ->orWhereLike('subject', '%'.$search.'%')
@@ -63,8 +64,7 @@ class UndanganController extends Controller
             })
             ->orderBy('received_at', 'desc')
             ->paginate(15);
-        
-        
+
         return inertia('app/undangan/Index', [
             'breadcrumbItems' => [
                 [
@@ -72,14 +72,14 @@ class UndanganController extends Controller
                     'href' => '/inbox/undangan',
                 ],
             ],
-            'undangan' => fn() => $undangan,
+            'undangan' => fn () => $undangan,
         ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(LetterRecipient $recipient, string $letter_id): Response | RedirectResponse
+    public function show(LetterRecipient $recipient, string $letter_id): Response|RedirectResponse
     {
         $user = User::find(Auth::user()->id);
         $currentPosition = $user->currentPosition()->first();
@@ -101,6 +101,7 @@ class UndanganController extends Controller
                 DB::commit();
             } catch (\Throwable $th) {
                 DB::rollBack();
+
                 return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
             }
         }
@@ -108,9 +109,9 @@ class UndanganController extends Controller
         $letter = $recipient->letter()->with([
             'senderUser:id,name',
             'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
-            'docs:id,letter_id,name,url'
+            'docs:id,letter_id,name,url',
         ])->firstOrFail();
-        
+
         return inertia('app/undangan/Show', [
             'breadcrumbItems' => [
                 [
@@ -122,8 +123,8 @@ class UndanganController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
-            'recipient' => fn() => $recipient->id,
+            'letter' => fn () => $letter,
+            'recipient' => fn () => $recipient->id,
         ]);
     }
 }

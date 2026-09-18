@@ -25,8 +25,6 @@ class SentController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * 
-     * @return \Inertia\Response
      */
     public function index(): Response
     {
@@ -35,10 +33,10 @@ class SentController extends Controller
             ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
-                    $query->whereLike('agenda', '%' . $search . '%')
-                        ->orWhereLike('sender', '%' . $search . '%')
-                        ->orWhereLike('subject', '%' . $search . '%')
-                        ->orWhereLike('number', '%' . $search . '%');
+                    $query->whereLike('agenda', '%'.$search.'%')
+                        ->orWhereLike('sender', '%'.$search.'%')
+                        ->orWhereLike('subject', '%'.$search.'%')
+                        ->orWhereLike('number', '%'.$search.'%');
                 }
             })
             ->orderBy('created_at', 'desc')
@@ -51,15 +49,12 @@ class SentController extends Controller
                     'href' => '/sent',
                 ],
             ],
-            'sent' => fn() => $sent,
+            'sent' => fn () => $sent,
         ]);
     }
 
     /**
      * Display the specified resource.
-     * 
-     * @param  string  $letter_id
-     * @return \Inertia\Response
      */
     public function show(string $letter_id): Response
     {
@@ -68,7 +63,7 @@ class SentController extends Controller
             ->with([
                 'senderUser:id,name',
                 'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
-                'docs:id,letter_id,name,url'
+                'docs:id,letter_id,name,url',
             ])
             ->firstOrFail();
 
@@ -83,15 +78,12 @@ class SentController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
+            'letter' => fn () => $letter,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
-     * 
-     * @param  string  $letter_id
-     * @return \Inertia\Response
      */
     public function editLetter(string $letter_id): Response
     {
@@ -110,16 +102,12 @@ class SentController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
+            'letter' => fn () => $letter,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $letter_id
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateLetter(Request $request, string $letter_id): RedirectResponse
     {
@@ -152,9 +140,8 @@ class SentController extends Controller
 
     /**
      * Show the form for editing the recipients of the specified resource.
-     * 
-     * @param  string  $letter_id
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     *
+     * @return \Illuminate\Http\Response|RedirectResponse
      */
     public function editRecipients(string $letter_id): Response|RedirectResponse
     {
@@ -190,17 +177,13 @@ class SentController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
-            'positions' => fn() => $positions,
+            'letter' => fn () => $letter,
+            'positions' => fn () => $positions,
         ]);
     }
 
     /**
      * Update the recipients of the specified resource in storage.
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $letter_id
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateRecipients(Request $request, string $letter_id): RedirectResponse
     {
@@ -239,7 +222,7 @@ class SentController extends Controller
             // Soft delete penerima yang tidak ada di request
             LetterRecipient::where('letter_id', $letter->id)
                 ->whereNotIn('id', $existingIds)
-                ->each(fn($recipient) => $recipient->delete());
+                ->each(fn ($recipient) => $recipient->delete());
 
             $newRecipients = [];
 
@@ -276,13 +259,13 @@ class SentController extends Controller
 
             $changes = [];
             if ($removedIds->isNotEmpty()) {
-                $changes['removed'] = $removedIds->map(fn($r) => $r->toPosition->name ?? $r->to_position_id)->values()->toArray();
+                $changes['removed'] = $removedIds->map(fn ($r) => $r->toPosition->name ?? $r->to_position_id)->values()->toArray();
             }
-            if (!empty($newRecipients)) {
-                $changes['added'] = collect($newRecipients)->map(fn($r) => Position::find($r->to_position_id)?->name ?? $r->to_position_id)->values()->toArray();
+            if (! empty($newRecipients)) {
+                $changes['added'] = collect($newRecipients)->map(fn ($r) => Position::find($r->to_position_id)?->name ?? $r->to_position_id)->values()->toArray();
             }
 
-            if (!empty($changes)) {
+            if (! empty($changes)) {
                 LetterActivityService::log(
                     $letter->id,
                     'update_recipients',
@@ -310,16 +293,14 @@ class SentController extends Controller
             return redirect()->route('sent.show', $letter_id);
         } catch (\Throwable $th) {
             DB::rollBack();
-            Log::error('Error updating letter recipients: ' . $th->getMessage());
+            Log::error('Error updating letter recipients: '.$th->getMessage());
+
             return redirect()->back()->withErrors(['confirm' => 'Terjadi kesalahan saat memperbarui penerima surat.']);
         }
     }
 
     /**
      * Show the form for editing the documents of a sent letter.
-     *
-     * @param string $letter_id
-     * @return \Inertia\Response
      */
     public function editDocs(string $letter_id): Response
     {
@@ -339,16 +320,12 @@ class SentController extends Controller
                     'href' => '',
                 ],
             ],
-            'letter' => fn() => $letter,
+            'letter' => fn () => $letter,
         ]);
     }
 
     /**
      * Update the documents of a sent letter.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param string $letter_id
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateDocs(Request $request, string $letter_id): RedirectResponse
     {
@@ -394,16 +371,16 @@ class SentController extends Controller
                 $receiptDate = date('Y-m-d', strtotime($letter->receipt_date));
 
                 foreach ($request->file('lampiran') as $lampiran) {
-                    $path = 'attachment/' . $receiptDate;
-                    $filename = $klasifikasi->kode . $agenda->nomor_urut . '_' . $lampiran->getClientOriginalName();
+                    $path = 'attachment/'.$receiptDate;
+                    $filename = $klasifikasi->kode.$agenda->nomor_urut.'_'.$lampiran->getClientOriginalName();
                     Storage::disk('public')->putFileAs($path, $lampiran, $filename);
 
                     $storeUrl = "/storage/{$path}/{$filename}";
                     LetterDoc::create([
                         'agenda_id' => $agenda->id,
                         'letter_id' => $letter->id,
-                        'name'      => $filename,
-                        'url'       => $storeUrl,
+                        'name' => $filename,
+                        'url' => $storeUrl,
                     ]);
                 }
             }
@@ -415,11 +392,11 @@ class SentController extends Controller
             }
             if ($request->hasFile('lampiran')) {
                 $changes['added'] = collect($request->file('lampiran'))
-                    ->map(fn($f) => $f->getClientOriginalName())
+                    ->map(fn ($f) => $f->getClientOriginalName())
                     ->toArray();
             }
 
-            if (!empty($changes)) {
+            if (! empty($changes)) {
                 LetterActivityService::log(
                     $letter->id,
                     'update_docs',
@@ -433,7 +410,8 @@ class SentController extends Controller
             return redirect()->route('sent.show', $letter_id);
         } catch (\Throwable $th) {
             DB::rollBack();
-            Log::error('Error updating letter documents: ' . $th->getMessage());
+            Log::error('Error updating letter documents: '.$th->getMessage());
+
             return redirect()->back()->withErrors(['confirm' => 'Terjadi kesalahan saat memperbarui lampiran surat.']);
         }
     }

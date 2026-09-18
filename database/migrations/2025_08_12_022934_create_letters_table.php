@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('letters', function (Blueprint $table) {
             $table->id();
             $table->ulid('letter_id')->unique();
-            $table->string('sender',150);
-            $table->string('number',100)->nullable();
+            $table->string('sender', 150);
+            $table->string('number', 100)->nullable();
             $table->date('date');
             $table->date('receipt_date');
             $table->string('subject');

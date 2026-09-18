@@ -19,7 +19,7 @@ Route::prefix('inbox')->middleware('auth')->group(function () {
         Route::get('/', [UndanganController::class, 'index'])
             ->middleware('permission:undangan.index')
             ->name('inbox.undangan.index');
-        
+
         Route::match(['get', 'patch'], '/{recipient}/{letter_id}', [UndanganController::class, 'show'])
             ->middleware('permission:undangan.show')
             ->name('inbox.undangan.show');
