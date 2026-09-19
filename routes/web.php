@@ -63,9 +63,9 @@ Route::prefix('api')->group(function () {
         ->name('api.timeline.recipient');
 });
 
-require __DIR__ . '/arsip.php';
-require __DIR__ . '/memo.php';
-require __DIR__ . '/disposition.php';
-require __DIR__ . '/inbox.php';
-require __DIR__ . '/master.php';
-require __DIR__ . '/settings.php';
+require __DIR__.'/arsip.php';
+require __DIR__.'/memo.php';
+require __DIR__.'/disposition.php';
+require __DIR__.'/inbox.php';
+require __DIR__.'/master.php';
+require __DIR__.'/settings.php';
