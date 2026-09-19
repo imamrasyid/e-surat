@@ -27,10 +27,14 @@ export interface UserSpecialDispositionPivot {
 export interface User {
     id: number;
     name: string;
+    username: string;
     email: string;
-    is_active?: boolean;
+    is_active: boolean;
     email_verified_at: string | null;
     password?: string;
+    two_factor_secret?: string | null;
+    two_factor_recovery_codes?: string | null;
+    two_factor_confirmed_at?: string | null;
     remember_token?: string | null;
     avatar?: string;
     created_at: string;
