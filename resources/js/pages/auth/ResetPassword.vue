@@ -10,6 +10,7 @@ import { LoaderCircle } from 'lucide-vue-next';
 interface Props {
     token: string;
     email: string;
+    passwordRules: string;
 }
 
 const props = defineProps<Props>();
@@ -22,7 +23,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('password.store'), {
+    form.post(route('password.update'), {
         onFinish: () => {
             form.reset('password', 'password_confirmation');
         },
@@ -53,6 +54,7 @@ const submit = () => {
                         class="mt-1 block w-full"
                         autofocus
                         placeholder="Password"
+                        :passwordrules="passwordRules"
                     />
                     <InputError :message="form.errors.password" />
                 </div>
@@ -67,6 +69,7 @@ const submit = () => {
                         v-model="form.password_confirmation"
                         class="mt-1 block w-full"
                         placeholder="Confirm password"
+                        :passwordrules="passwordRules"
                     />
                     <InputError :message="form.errors.password_confirmation" />
                 </div>

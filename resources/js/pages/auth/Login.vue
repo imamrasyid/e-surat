@@ -15,7 +15,7 @@ defineProps<{
 }>();
 
 const form = useForm({
-    email: '',
+    username: '',
     password: '',
     remember: false,
 });
@@ -35,7 +35,7 @@ const submit = () => {
             {{ status }}
         </div>
 
-        <div class="flex rounded-md bg-red-50 p-2 text-sm text-red-400" v-if="form.errors.email || form.errors.password">
+        <div class="flex rounded-md bg-red-50 p-2 text-sm text-red-400" v-if="form.errors.username || form.errors.password">
             <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
             <p class="ml-1"><strong class="font-medium">Whoops!</strong> Username or Password is incorrect.</p>
         </div>
@@ -51,8 +51,8 @@ const submit = () => {
                         autofocus
                         :tabindex="1"
                         autocomplete="off"
-                        v-model="form.email"
-                        placeholder="Enter username"
+                        v-model="form.username"
+                        placeholder="Username"
                     />
                 </div>
 

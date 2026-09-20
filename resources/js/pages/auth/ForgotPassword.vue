@@ -26,7 +26,7 @@ const submit = () => {
         <Head title="Forgot password" />
 
         <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
-            {{ status }}
+            {{ status === 'passwords.sent' ? 'Password reset link sent to your email.' : 'Something went wrong. Please try again.' }}
         </div>
 
         <div class="space-y-6">
@@ -34,7 +34,7 @@ const submit = () => {
                 <div class="grid gap-2">
                     <Label for="email">Email address</Label>
                     <Input id="email" type="email" name="email" autocomplete="off" v-model="form.email" autofocus placeholder="email@example.com" />
-                    <InputError :message="form.errors.email" />
+                    <InputError :message="form.errors.email === 'passwords.user' ? 'Email address not recognized.' : form.errors.email" />
                 </div>
 
                 <div class="my-6 flex items-center justify-start">
