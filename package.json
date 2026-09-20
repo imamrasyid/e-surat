@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^3.7.1",
-        "@lucide/vue": "^1.41.0",
+        "@lucide/vue": "^1.47.0",
         "@tailwindcss/vite": "^4.3.3",
         "@vitejs/plugin-vue": "^6.0.9",
         "@vueuse/core": "^12.8.2",
@@ -43,6 +43,7 @@
         "typescript": "^6.0.3",
         "vite": "^8.3.0",
         "vue": "^3.5.43",
+        "vue-input-otp": "^0.4.0",
         "ziggy-js": "^2.4.2"
     },
     "optionalDependencies": {
