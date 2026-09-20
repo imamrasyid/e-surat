@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ComposeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,9 +11,11 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])->name('dashboard');
+
+Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])
+    ->middleware(['auth'])->name('dashboard.chart-data');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('compose', [ComposeController::class, 'create'])
