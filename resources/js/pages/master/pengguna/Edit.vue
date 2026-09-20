@@ -21,7 +21,7 @@ const props = defineProps<{
 
 const form = useForm({
     name: props.data.name,
-    email: props.data.email,
+    username: props.data.username,
     password: '',
     password_confirmation: '',
     is_active: props.data.is_active,
@@ -89,10 +89,10 @@ const submit = () => {
                             required
                             :tabindex="2"
                             autocomplete="off"
-                            v-model="form.email"
+                            v-model="form.username"
                             placeholder="Enter username"
                         />
-                        <InputError :message="form.errors.email" />
+                        <InputError :message="form.errors.username" />
                     </div>
 
                     <div class="grid gap-2">

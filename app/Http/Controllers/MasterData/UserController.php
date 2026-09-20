@@ -23,11 +23,12 @@ class UserController extends Controller
     public function index(): Response
     {
         $data = User::query()
-            ->select('id', 'name', 'email', 'is_active')
+            ->select('id', 'name', 'username', 'email', 'is_active')
             ->where(function (Builder $query) {
                 $search = FacadesRequest::input('search');
                 if ($search) {
                     $query->whereLike('name', '%'.$search.'%')
+                        ->orWhereLike('username', '%'.$search.'%')
                         ->orWhereLike('email', '%'.$search.'%');
                 }
             })
@@ -70,7 +71,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|max:255|unique:'.User::class,
+            'username' => 'required|string|lowercase|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -79,7 +80,7 @@ class UserController extends Controller
         try {
             User::create([
                 'name' => $request->name,
-                'email' => $request->email,
+                'username' => $request->username,
                 'password' => Hash::make($request->password),
             ]);
 
@@ -170,7 +171,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|max:255|unique:'.User::class.',email,'.$user->id,
+            'username' => 'required|string|lowercase|max:255|unique:'.User::class.',username,'.$user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'is_active' => 'required|boolean',
         ]);
@@ -178,16 +179,16 @@ class UserController extends Controller
         DB::beginTransaction();
 
         try {
-            $emailChanged = $request->email !== $user->email;
+            $usernameChanged = $request->username !== $user->username;
 
             $user->update([
                 'name' => $request->name,
-                'email' => $request->email,
+                'username' => $request->username,
                 'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
                 'is_active' => $request->is_active,
             ]);
 
-            if ($emailChanged) {
+            if ($usernameChanged) {
                 DB::table('sessions')->where('user_id', $user->id)->delete();
                 // Jika pakai Passport atau Sanctum: $user->tokens()->delete();
             }

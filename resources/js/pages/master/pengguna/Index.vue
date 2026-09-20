@@ -74,6 +74,7 @@ watchDebounced(
                             <TableRow>
                                 <TableHead>Nama Pengguna</TableHead>
                                 <TableHead>Username</TableHead>
+                                <TableHead>Email</TableHead>
                                 <TableHead class="w-[125px]">Status</TableHead>
                                 <TableHead class="w-[50px]"></TableHead>
                             </TableRow>
@@ -81,7 +82,8 @@ watchDebounced(
                         <TableBody>
                             <TableRow v-for="value in data.data" :key="value.id">
                                 <TableCell>{{ value.name }}</TableCell>
-                                <TableCell>{{ value.email }}</TableCell>
+                                <TableCell>{{ value.username }}</TableCell>
+                                <TableCell>{{ value.email ?? '-' }}</TableCell>
                                 <TableCell>
                                     <div v-if="value.is_active" class="inline rounded-full bg-sky-50 px-3 py-1 text-xs text-sky-500 dark:bg-gray-800">
                                         Aktif

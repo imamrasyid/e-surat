@@ -19,7 +19,7 @@ defineProps<{
 
 const form = useForm({
     name: '',
-    email: '',
+    username: '',
     password: '',
     password_confirmation: '',
 });
@@ -86,10 +86,10 @@ const submit = () => {
                             required
                             :tabindex="2"
                             autocomplete="off"
-                            v-model="form.email"
+                            v-model="form.username"
                             placeholder="Enter username"
                         />
-                        <InputError :message="form.errors.email" />
+                        <InputError :message="form.errors.username" />
                     </div>
 
                     <div class="grid gap-2">
