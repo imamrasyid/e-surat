@@ -10,8 +10,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
 import { Head, router, useHttp } from '@inertiajs/vue3';
+import { ChevronLeft, Forward, Reply } from '@lucide/vue';
 import { now, useDateFormat } from '@vueuse/core';
-import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps<{

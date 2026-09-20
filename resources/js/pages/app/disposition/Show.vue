@@ -10,8 +10,8 @@ import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Disposition, Letter, TimelineRecipient } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
+import { ChevronLeft, Forward, Reply } from '@lucide/vue';
 import { now, useDateFormat } from '@vueuse/core';
-import { ChevronLeft, Forward, Reply } from 'lucide-vue-next';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];

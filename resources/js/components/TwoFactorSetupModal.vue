@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Icon from '@/components/Icon.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -8,9 +7,8 @@ import { useAppearance } from '@/composables/useAppearance';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import type { TwoFactorConfigContent } from '@/types';
 import { Form } from '@inertiajs/vue3';
-import { Check, Copy, ScanLine } from '@lucide/vue';
+import { Check, Copy, LoaderCircle, ScanLine, ShieldAlert } from '@lucide/vue';
 import { useClipboard } from '@vueuse/core';
-import { LoaderCircle } from 'lucide-vue-next';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 
 type Props = {
@@ -119,7 +117,7 @@ watch(
             <div class="relative flex w-auto flex-col items-center justify-center space-y-5">
                 <template v-if="!showVerificationStep">
                     <div v-if="errors?.length" class="flex rounded-md bg-red-50 p-2 text-sm text-red-400">
-                        <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
+                        <ShieldAlert class="h-5 w-5 flex-shrink-0" />
                         <p class="ml-1"><strong class="font-medium">Whoops!</strong> {{ errors[0] }}</p>
                     </div>
                     <template v-else>

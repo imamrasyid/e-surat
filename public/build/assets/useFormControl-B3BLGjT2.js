@@ -1,0 +1,1 @@
+import{q as e,rr as t}from"./dist-BeEM8VSi.js";import{i as n}from"./useForwardExpose-Czw2JHJj.js";function r(r){return e(()=>!t(r)||!!n(r)?.closest(`form`))}export{r as t};

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Icon from '@/components/Icon.vue';
 import PasskeyVerify from '@/components/PasskeyVerify.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { LoaderCircle, ShieldAlert } from '@lucide/vue';
 
 defineProps<{
     status?: string;
@@ -39,7 +38,7 @@ const submit = () => {
         <PasskeyVerify />
 
         <div class="flex rounded-md bg-red-50 p-2 text-sm text-red-400" v-if="form.errors.username || form.errors.password">
-            <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
+            <ShieldAlert class="h-5 w-5 flex-shrink-0" />
             <p class="ml-1"><strong class="font-medium">Whoops!</strong> Username or Password is incorrect.</p>
         </div>
 

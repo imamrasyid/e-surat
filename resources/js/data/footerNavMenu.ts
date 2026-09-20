@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Archive, HardDrive } from 'lucide-vue-next';
+import { Archive, HardDrive } from '@lucide/vue';
 
 const footerNavItems: NavItem[] = [
     {

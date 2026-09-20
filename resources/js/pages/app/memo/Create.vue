@@ -17,8 +17,8 @@ import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, Position, TimelineRecipient } from '@/types';
 import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
+import { Loader2, Plus, Send, Trash2, XCircle } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
-import { Loader2, Plus, Send, Trash2, XCircle } from 'lucide-vue-next';
 import { computed, onUnmounted, ref } from 'vue';
 
 const { toast } = useToast();

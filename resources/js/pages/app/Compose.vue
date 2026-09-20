@@ -23,7 +23,7 @@ import type { BreadcrumbItem, Position, RefKdKlasifikasi } from '@/types';
 import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
 import type { DateValue } from '@internationalized/date';
 import { DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
-import { Calendar as CalendarIcon, Loader2, Plus, Send, Trash2 } from 'lucide-vue-next';
+import { Calendar as CalendarIcon, Loader2, Plus, Send, Trash2 } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 
 const { toast } = useToast();

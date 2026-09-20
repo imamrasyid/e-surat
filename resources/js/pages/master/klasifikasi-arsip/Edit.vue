@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, RefKdKlasifikasi } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from 'lucide-vue-next';
+import { Loader2 } from '@lucide/vue';
 
 const { toast } = useToast();
 

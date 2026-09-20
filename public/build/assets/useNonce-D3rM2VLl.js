@@ -1,0 +1,1 @@
+import{c as e}from"./RovingFocusGroup-62CqqO4j.js";import{Yn as t,q as n}from"./dist-BeEM8VSi.js";function r(r){let i=e({nonce:t()});return n(()=>r?.value||i.nonce?.value)}export{r as t};

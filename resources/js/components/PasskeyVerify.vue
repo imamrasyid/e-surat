@@ -5,8 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import type { UrlMethodPair } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import { usePasskeyVerify } from '@laravel/passkeys/vue';
-import { KeyRound } from '@lucide/vue';
-import { LoaderCircle } from 'lucide-vue-next';
+import { KeyRound, LoaderCircle } from '@lucide/vue';
 
 type Props = {
     routes?: {

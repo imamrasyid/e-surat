@@ -4,7 +4,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import type { AppPageProps } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { ArrowRight, LoaderCircle, MailWarning } from 'lucide-vue-next';
+import { ArrowRight, LoaderCircle, MailWarning } from '@lucide/vue';
 import { computed } from 'vue';
 
 defineProps<{

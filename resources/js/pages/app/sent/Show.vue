@@ -10,8 +10,8 @@ import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
 import { Head, Link, useHttp } from '@inertiajs/vue3';
+import { ChevronLeft, FilePenLine, Printer } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
-import { ChevronLeft, FilePenLine, Printer } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 defineProps<{

@@ -12,8 +12,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, Position } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
+import { ChevronLeft, Loader2, Save } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
-import { ChevronLeft, Loader2, Save } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 const { toast } = useToast();

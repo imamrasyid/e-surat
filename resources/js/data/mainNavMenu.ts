@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Inbox, LayoutGrid, Mails, Radio, SendHorizonal, SquarePen, StickyNote } from 'lucide-vue-next';
+import { Inbox, LayoutGrid, Mails, Radio, SendHorizonal, SquarePen, StickyNote } from '@lucide/vue';
 
 const platformItems: NavItem[] = [
     {

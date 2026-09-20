@@ -11,7 +11,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Position, User } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from 'lucide-vue-next';
+import { Loader2 } from '@lucide/vue';
 import SpecialDisposition from './partials/SpecialDisposition.vue';
 
 const { toast } = useToast();

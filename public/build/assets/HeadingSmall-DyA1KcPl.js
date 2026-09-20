@@ -1,0 +1,1 @@
+import{Gt as e,J as t,X as n,Z as r,dr as i,ot as a}from"./dist-BeEM8VSi.js";var o={class:`mb-0.5 text-base font-medium`},s={key:0,class:`text-sm text-muted-foreground`},c=a({__name:`HeadingSmall`,props:{title:{},description:{}},setup(a){return(c,l)=>(e(),r(`header`,null,[t(`h3`,o,i(a.title),1),a.description?(e(),r(`p`,s,i(a.description),1)):n(``,!0)]))}});export{c as t};

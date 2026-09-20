@@ -1,1 +1,0 @@
-import{Wt as e,X as t,Y as n,at as r,q as i,ur as a}from"./dist-D6u6ec0z.js";var o={class:`mb-0.5 text-base font-medium`},s={key:0,class:`text-sm text-muted-foreground`},c=r({__name:`HeadingSmall`,props:{title:{},description:{}},setup(r){return(c,l)=>(e(),t(`header`,null,[i(`h3`,o,a(r.title),1),r.description?(e(),t(`p`,s,a(r.description),1)):n(``,!0)]))}});export{c as t};

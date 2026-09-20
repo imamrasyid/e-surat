@@ -7,8 +7,8 @@ import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, PaginatedData } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
+import { Search } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
-import { Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const { formatCreate } = useFormattedDate();

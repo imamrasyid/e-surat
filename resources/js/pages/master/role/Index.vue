@@ -9,8 +9,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, PaginatedData, Role } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { CirclePlus, FilePenLine, Search } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
-import { CirclePlus, FilePenLine, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 defineProps<{

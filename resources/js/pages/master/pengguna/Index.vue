@@ -18,8 +18,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, PaginatedData, User } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { Award, CircleEllipsis, CirclePlus, KeyRound, Search, UserRoundPen } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
-import { Award, CircleEllipsis, CirclePlus, KeyRound, Search, UserRoundPen } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 defineProps<{

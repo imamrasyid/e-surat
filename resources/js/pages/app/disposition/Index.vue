@@ -12,8 +12,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem, Disposition, PaginatedData } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
+import { BadgeInfo, Filter, Search } from '@lucide/vue';
 import { toRef, watchDebounced } from '@vueuse/core';
-import { BadgeInfo, Filter, Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const { toast } = useToast();

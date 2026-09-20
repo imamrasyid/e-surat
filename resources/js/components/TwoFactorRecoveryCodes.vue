@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import Icon from '@/components/Icon.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { Form } from '@inertiajs/vue3';
-import { Eye, EyeOff, LockKeyhole, RefreshCw } from '@lucide/vue';
+import { Eye, EyeOff, LockKeyhole, RefreshCw, ShieldAlert } from '@lucide/vue';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
 
 const { recoveryCodesList, fetchRecoveryCodes, errors } = useTwoFactorAuth();
@@ -60,7 +59,7 @@ onMounted(async () => {
             <div :class="['relative overflow-hidden transition-all duration-300', isRecoveryCodesVisible ? 'h-auto opacity-100' : 'h-0 opacity-0']">
                 <div v-if="errors?.length" class="mt-6">
                     <div v-if="errors?.length" class="flex rounded-md bg-red-50 p-2 text-sm text-red-400">
-                        <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
+                        <ShieldAlert class="h-5 w-5 flex-shrink-0" />
                         <p class="ml-1"><strong class="font-medium">Whoops!</strong> {{ errors[0] }}</p>
                     </div>
                 </div>

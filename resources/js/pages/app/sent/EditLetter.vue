@@ -19,8 +19,8 @@ import type { BreadcrumbItem, Letter } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import type { DateValue } from '@internationalized/date';
 import { DateFormatter, getLocalTimeZone, parseDate, today } from '@internationalized/date';
+import { Calendar as CalendarIcon, ChevronLeft, Loader2, Save } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
-import { Calendar as CalendarIcon, ChevronLeft, Loader2, Save } from 'lucide-vue-next';
 import { watch } from 'vue';
 
 const { toast } = useToast();
