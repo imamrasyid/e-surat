@@ -31,6 +31,7 @@ const user = page.props.auth.user as User;
 
 const form = useForm({
     name: user.name,
+    username: user.username,
     email: user.email,
 });
 
@@ -69,22 +70,43 @@ const submit = () => {
 
         <SettingsLayout>
             <div class="flex flex-col space-y-6">
-                <HeadingSmall title="Profile information" description="Your name and username" />
+                <HeadingSmall title="Profile information" description="Your name, username, and setup email" />
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="name">Name</Label>
-                        <Input id="name" class="mt-1 block w-full" v-model="form.name" autocomplete="off" />
+                        <Input id="name" class="mt-1 block w-full" v-model="form.name" autocomplete="off" placeholder="Enter your name" />
                         <InputError class="mt-2" :message="form.errors.name" />
                     </div>
 
                     <div class="grid gap-2">
                         <Label for="username">Username</Label>
-                        <Input id="username" type="text" class="mt-1 block w-full" v-model="form.email" autocomplete="off" />
+                        <Input
+                            id="username"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.username"
+                            autocomplete="off"
+                            placeholder="Enter your username"
+                        />
+                        <InputError class="mt-2" :message="form.errors.username" />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.email"
+                            autocomplete="off"
+                            placeholder="Enter your email"
+                            :readonly="mustVerifyEmail && user.email && !user.email_verified_at"
+                        />
                         <InputError class="mt-2" :message="form.errors.email" />
                     </div>
 
-                    <div v-if="mustVerifyEmail && !user.email_verified_at">
+                    <div v-if="mustVerifyEmail && user.email && !user.email_verified_at">
                         <p class="-mt-4 text-sm text-muted-foreground">
                             Your email address is unverified.
                             <Link

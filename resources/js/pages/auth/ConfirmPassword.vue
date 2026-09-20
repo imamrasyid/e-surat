@@ -36,6 +36,7 @@ const submit = () => {
                         required
                         autocomplete="current-password"
                         autofocus
+                        placeholder="Enter your password"
                     />
 
                     <InputError :message="form.errors.password" />

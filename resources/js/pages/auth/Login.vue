@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Icon from '@/components/Icon.vue';
+import PasskeyVerify from '@/components/PasskeyVerify.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -34,6 +35,8 @@ const submit = () => {
         <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
             {{ status }}
         </div>
+
+        <PasskeyVerify />
 
         <div class="flex rounded-md bg-red-50 p-2 text-sm text-red-400" v-if="form.errors.username || form.errors.password">
             <Icon name="ShieldAlert" class="h-5 w-5 flex-shrink-0" />
