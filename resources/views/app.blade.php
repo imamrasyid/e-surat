@@ -39,7 +39,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    @vite('resources/js/app.ts')
+    @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     <x-inertia::head>
         <title data-inertia>{{ config('app.name', 'Laravel') }}</title>
     </x-inertia::head>

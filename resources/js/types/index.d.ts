@@ -5,6 +5,11 @@ import type { User } from './models/user';
 export type Appearance = 'light' | 'dark' | 'system';
 export type ResolvedAppearance = 'light' | 'dark';
 
+export type FlashToast = {
+    type: 'success' | 'info' | 'warning' | 'error';
+    message: string;
+};
+
 export * from './models';
 
 export interface Auth {

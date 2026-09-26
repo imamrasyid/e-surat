@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { Toaster } from '@/components/ui/toast';
+import { Toaster } from '@/components/ui/sonner';
 import { usePage } from '@inertiajs/vue3';
+import 'vue-sonner/style.css';
 
 interface Props {
     variant?: 'header' | 'sidebar';
