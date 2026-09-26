@@ -11,6 +11,10 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
+Route::get('/about', function () {
+    return Inertia::render('about/Index');
+})->name('about');
+
 Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])->name('dashboard');
 
