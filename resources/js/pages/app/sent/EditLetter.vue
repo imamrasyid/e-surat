@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useClearErrorsOnChange } from '@/composables/useClearErrorsOnChange';
 import { categoryInbox } from '@/data/helpers';
@@ -22,8 +21,6 @@ import { DateFormatter, getLocalTimeZone, parseDate, today } from '@internationa
 import { Calendar as CalendarIcon, ChevronLeft, Loader2, Save } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
 import { watch } from 'vue';
-
-const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -83,30 +80,7 @@ watch(
 useClearErrorsOnChange(form, { debounceMs: 120 });
 
 const onSubmit = () => {
-    form.put(route('sent.updateletter', props.letter.letter_id), {
-        onSuccess: () => {
-            toast({
-                title: 'Berhasil!',
-                description: 'Data surat berhasil diperbarui.',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap.',
-                    variant: 'warning',
-                });
-            }
-        },
-    });
+    form.put(route('sent.updateletter', props.letter.letter_id));
 };
 </script>
 

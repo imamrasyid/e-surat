@@ -4,13 +4,10 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-
-const { toast } = useToast();
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -38,28 +35,6 @@ const form = useForm({
 const submit = () => {
     form.patch(route('profile.update'), {
         preserveScroll: true,
-        onSuccess: () => {
-            toast({
-                title: 'Success! Data submitted.',
-                description: 'Data berhasil tersimpan',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data tidak sesuai',
-                    variant: 'warning',
-                });
-            }
-        },
     });
 };
 </script>

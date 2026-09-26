@@ -8,7 +8,6 @@ import Label from '@/components/ui/label/Label.vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/toast';
 import { useClearErrorsOnChange } from '@/composables/useClearErrorsOnChange';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -16,8 +15,6 @@ import type { BreadcrumbItem, Letter, Memo, TimelineRecipient } from '@/types';
 import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
 import { Loader2, Send } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
-
-const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -50,26 +47,6 @@ const onSubmit = () => {
     form.post(route('memo.store.close'), {
         onSuccess: () => {
             form.reset();
-            toast({
-                title: 'Success! Data terkirim.',
-                description: 'Surat masuk berhasil ditandai sebagai selesai.',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
-                });
-            }
         },
     });
 };

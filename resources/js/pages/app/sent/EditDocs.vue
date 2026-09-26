@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter } from '@/types';
@@ -14,8 +13,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ChevronLeft, Loader2, Plus, Save, Trash2 } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
 import { ref } from 'vue';
-
-const { toast } = useToast();
+import { toast } from 'vue-sonner';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -62,11 +60,7 @@ const handleFileChange = (event: Event) => {
             if (file.type === 'application/pdf') {
                 form.lampiran.push(file);
             } else {
-                toast({
-                    title: 'Format file tidak didukung',
-                    description: 'Hanya file PDF yang dapat diunggah.',
-                    variant: 'destructive',
-                });
+                toast.error('Format file tidak didukung! Hanya file PDF yang dapat diunggah.');
             }
         });
     }
@@ -88,29 +82,6 @@ function formatBytes(bytes: number, decimals = 2): string {
 const onSubmit = () => {
     form.post(route('sent.updatedocs', props.letter.letter_id), {
         forceFormData: true,
-        onSuccess: () => {
-            form.reset();
-            toast({
-                title: 'Berhasil!',
-                description: 'Data lampiran surat berhasil diperbarui.',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap.',
-                    variant: 'warning',
-                });
-            }
-        },
     });
 };
 </script>

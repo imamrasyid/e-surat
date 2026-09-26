@@ -11,7 +11,6 @@ import Separator from '@/components/ui/separator/Separator.vue';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/toast';
 import { useClearErrorsOnChange } from '@/composables/useClearErrorsOnChange';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -20,8 +19,7 @@ import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
 import { Loader2, Plus, Send, Trash2, XCircle } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
 import { computed, onUnmounted, ref } from 'vue';
-
-const { toast } = useToast();
+import { toast } from 'vue-sonner';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -132,11 +130,7 @@ const handleFileChange = (event: Event) => {
             if (file.type === 'application/pdf') {
                 form.lampiran.push(file);
             } else {
-                toast({
-                    title: 'Format file tidak didukung',
-                    description: 'Hanya file PDF yang dapat diunggah.',
-                    variant: 'destructive',
-                });
+                toast.error('Format file tidak didukung! Hanya file PDF yang dapat diunggah.');
             }
         });
     }
@@ -163,26 +157,6 @@ const onSubmit = () => {
             openPenerima.value = false;
             openPenerimacc.value = false;
             openFollowup.value = false;
-            toast({
-                title: 'Success! Data terkirim.',
-                description: 'Data disposisi berhasil terkirim',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
-                });
-            }
         },
     });
 };

@@ -4,7 +4,6 @@ import SmartPagination from '@/components/SmartPagination.vue';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/components/ui/toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -15,7 +14,6 @@ import { BadgeInfo, Filter, Search } from '@lucide/vue';
 import { toRef, watchDebounced } from '@vueuse/core';
 import { ref } from 'vue';
 
-const { toast } = useToast();
 const { formatCreate } = useFormattedDate();
 
 defineProps<{
@@ -58,53 +56,11 @@ watchDebounced(
 );
 
 function goToDetail(recipient: number, letter_id: string) {
-    router.get(
-        route('inbox.undangan.show', { recipient, letter_id }),
-        {},
-        {
-            onError: (errors: any) => {
-                if (errors.confirm) {
-                    toast({
-                        title: 'Uh oh! Something went wrong.',
-                        description: errors.confirm,
-                        variant: 'destructive',
-                    });
-                } else {
-                    toast({
-                        title: 'Uh oh! Something went wrong.',
-                        description: 'Sepertinya terjadi kesalahan, silahkan coba lagi beberapa saat!',
-                        variant: 'info',
-                    });
-                }
-            },
-            preserveState: true,
-        },
-    );
+    router.get(route('inbox.undangan.show', { recipient, letter_id }));
 }
 
 function goToDetailPatch(recipient: number, letter_id: string) {
-    router.patch(
-        route('inbox.undangan.show', { recipient, letter_id }),
-        {},
-        {
-            onError: (errors: any) => {
-                if (errors.confirm) {
-                    toast({
-                        title: 'Uh oh! Something went wrong.',
-                        description: errors.confirm,
-                        variant: 'destructive',
-                    });
-                } else {
-                    toast({
-                        title: 'Uh oh! Something went wrong.',
-                        description: 'Sepertinya terjadi kesalahan, silahkan coba lagi beberapa saat!',
-                        variant: 'info',
-                    });
-                }
-            },
-            preserveState: true,
-        },
-    );
+    router.patch(route('inbox.undangan.show', { recipient, letter_id }));
 }
 
 function handleClick(item: LetterRecipient) {

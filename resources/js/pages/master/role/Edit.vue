@@ -6,14 +6,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Permission, Role } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from '@lucide/vue';
-
-const { toast } = useToast();
+import { toast } from 'vue-sonner';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -33,24 +31,18 @@ const form = useForm({
 const submit = () => {
     form.patch(route('ref.role.update', props.data.id), {
         onSuccess: () => {
-            toast({
-                title: 'Success! Data submitted.',
+            toast.success('Success! Data submitted.', {
                 description: 'Data berhasil tersimpan',
-                variant: 'success',
             });
         },
         onError: (errors: any) => {
             if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
+                toast.error('Uh oh! Something went wrong.', {
                     description: errors.confirm,
-                    variant: 'destructive',
                 });
             } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
+                toast.warning('Uh oh! Something went wrong.', {
                     description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
                 });
             }
         },
@@ -62,30 +54,7 @@ const formPermission = useForm({
 });
 
 const submitPermission = () => {
-    formPermission.patch(route('ref.role.updatePermission', props.data.id), {
-        onSuccess: () => {
-            toast({
-                title: 'Success! Data submitted.',
-                description: 'Data berhasil tersimpan',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
-                });
-            }
-        },
-    });
+    formPermission.patch(route('ref.role.updatePermission', props.data.id));
 };
 </script>
 

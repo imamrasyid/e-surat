@@ -5,14 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Position } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from '@lucide/vue';
-
-const { toast } = useToast();
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -25,30 +22,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('ref.position.store'), {
-        onSuccess: () => {
-            toast({
-                title: 'Success! Data submitted.',
-                description: 'Data berhasil tersimpan',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
-                });
-            }
-        },
-    });
+    form.post(route('ref.position.store'));
 };
 </script>
 

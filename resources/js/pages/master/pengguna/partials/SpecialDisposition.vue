@@ -2,12 +2,9 @@
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/components/ui/toast';
 import type { Position } from '@/types';
 import { useForm } from '@inertiajs/vue3';
 import { Loader2 } from '@lucide/vue';
-
-const { toast } = useToast();
 
 const props = defineProps<{
     user_id: number;
@@ -24,30 +21,7 @@ const form = useForm({
 form.position_ids = props.specialDispositions.map((d) => d.id);
 
 const submit = () => {
-    form.post(route('ref.user.updateDisposition', props.user_id), {
-        onSuccess: () => {
-            toast({
-                title: 'Success! Data submitted.',
-                description: 'Data berhasil tersimpan',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
-                });
-            }
-        },
-    });
+    form.post(route('ref.user.updateDisposition', props.user_id));
 };
 </script>
 <template>

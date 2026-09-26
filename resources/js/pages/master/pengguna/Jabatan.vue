@@ -6,15 +6,12 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Position, User } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2 } from '@lucide/vue';
 import SpecialDisposition from './partials/SpecialDisposition.vue';
-
-const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -29,30 +26,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('ref.user.updatePosition', props.data.id), {
-        onSuccess: () => {
-            toast({
-                title: 'Success! Data submitted.',
-                description: 'Data berhasil tersimpan',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap',
-                    variant: 'warning',
-                });
-            }
-        },
-    });
+    form.post(route('ref.user.updatePosition', props.data.id));
 };
 </script>
 

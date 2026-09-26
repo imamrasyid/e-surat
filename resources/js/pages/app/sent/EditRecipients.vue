@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, Position } from '@/types';
@@ -15,8 +14,6 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ChevronLeft, Loader2, Save } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
 import { computed, ref } from 'vue';
-
-const { toast } = useToast();
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -70,30 +67,7 @@ const filteredPenerima = computed(() => {
 });
 
 const onSubmit = () => {
-    form.put(route('sent.updaterecipients', props.letter.letter_id), {
-        onSuccess: () => {
-            toast({
-                title: 'Berhasil!',
-                description: 'Data penerima surat berhasil diperbarui.',
-                variant: 'success',
-            });
-        },
-        onError: (errors: any) => {
-            if (errors.confirm) {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: errors.confirm,
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Uh oh! Something went wrong.',
-                    description: 'Sepertinya data belum lengkap.',
-                    variant: 'warning',
-                });
-            }
-        },
-    });
+    form.put(route('sent.updaterecipients', props.letter.letter_id));
 };
 </script>
 
