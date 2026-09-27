@@ -6,7 +6,6 @@ use App\Models\Disposition;
 use App\Models\LetterRecipient;
 use App\Models\Memo;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class GetLetterTimelineAction
 {
