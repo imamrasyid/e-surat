@@ -8,7 +8,6 @@ export default defineConfig({
     plugins: lazyPlugins(() => [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
-            ssr: 'resources/js/ssr.ts',
             refresh: true,
         }),
         inertia(),
@@ -24,14 +23,7 @@ export default defineConfig({
     ]),
     server: {
         watch: {
-            ignored: [
-                '**/.agents/**',
-                '**/.claude/**',
-                '**/.cursor/**',
-                '**/.junie/**',
-                '**/storage/**',
-                '**/vendor/**',
-            ],
+            ignored: ['**/.agents/**', '**/.claude/**', '**/.cursor/**', '**/.junie/**', '**/storage/**', '**/vendor/**'],
         },
     },
     lint: {

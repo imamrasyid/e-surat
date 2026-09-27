@@ -9,15 +9,6 @@
         "check:fix": "vp check --fix",
         "types:check": "vue-tsc --noEmit"
     },
-    "devDependencies": {
-        "@inertiajs/vite": "^3.7.1",
-        "@tailwindcss/vite": "^4.3.3",
-        "@vitejs/plugin-vue": "^6.0.9",
-        "typescript": "^6.0.3",
-        "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-        "vite-plus": "1.0.0-rc.1",
-        "vue-tsc": "^3.3.11"
-    },
     "dependencies": {
         "@inertiajs/vue3": "^3.7.1",
         "@laravel/passkeys": "^0.4.0",
@@ -37,6 +28,15 @@
         "vue-input-otp": "^0.4.0",
         "vue-sonner": "^2.0.9",
         "ziggy-js": "^2.4.2"
+    },
+    "devDependencies": {
+        "@inertiajs/vite": "^3.7.1",
+        "@tailwindcss/vite": "^4.3.3",
+        "@vitejs/plugin-vue": "^6.0.9",
+        "typescript": "^6.0.3",
+        "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+        "vite-plus": "1.0.0-rc.1",
+        "vue-tsc": "^3.3.11"
     },
     "optionalDependencies": {
         "@tailwindcss/oxide-linux-x64-gnu": "^4.3.3",

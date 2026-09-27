@@ -10,7 +10,7 @@ import Workflow from './partials/Workflow.vue';
 <template>
     <Head title="e-Surat • Sistem Persuratan & Disposisi Elektronik" />
 
-    <div class="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+    <div class="bg-background text-foreground selection:bg-primary/20 selection:text-primary min-h-screen">
         <Navbar />
         <main>
             <Hero />

@@ -17,7 +17,7 @@ defineProps<{
         <div class="px-4 py-6">
             <Heading title="Arsip Surat" description="Data arsip surat masuk" />
 
-            <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+            <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
                 <PlaceholderPattern />
             </div>
         </div>

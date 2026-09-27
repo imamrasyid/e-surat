@@ -202,7 +202,7 @@ const onSubmit = () => {
                                     <div class="flex items-center justify-between">
                                         <div class="grid gap-1">
                                             <Label for="lampiran">Tambah Lampiran Baru</Label>
-                                            <p class="text-xs text-muted-foreground">Supported Format: PDF</p>
+                                            <p class="text-muted-foreground text-xs">Supported Format: PDF</p>
                                         </div>
                                         <Button
                                             id="lampiran"
@@ -227,7 +227,7 @@ const onSubmit = () => {
                                     <Card class="mt-2" :class="{ 'border-red-500': form.errors.lampiran }">
                                         <CardContent>
                                             <div v-if="form.lampiran.length === 0" class="text-center">
-                                                <p class="text-sm text-muted-foreground">Belum ada lampiran baru. Klik tombol + untuk mengunggah.</p>
+                                                <p class="text-muted-foreground text-sm">Belum ada lampiran baru. Klik tombol + untuk mengunggah.</p>
                                             </div>
                                             <div
                                                 v-for="(item, index) in form.lampiran"

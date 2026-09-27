@@ -76,7 +76,7 @@ watch(selectedRange, async (days, _prev, onCleanup) => {
     <Card class="mt-4 shadow-none lg:mt-8">
         <CardHeader>
             <CardTitle class="flex items-center gap-2">
-                <TrendingUp class="h-5 w-5 text-primary" />
+                <TrendingUp class="text-primary h-5 w-5" />
                 Tren Surat Masuk
             </CardTitle>
             <CardDescription>Grafik jumlah surat masuk berdasarkan waktu</CardDescription>
@@ -95,7 +95,7 @@ watch(selectedRange, async (days, _prev, onCleanup) => {
         </CardHeader>
         <CardContent>
             <div v-if="isLoading" class="flex h-[300px] items-center justify-center">
-                <Clock class="h-8 w-8 animate-spin text-muted-foreground" />
+                <Clock class="text-muted-foreground h-8 w-8 animate-spin" />
             </div>
             <ChartContainer v-else :config="chartConfig" :cursor="true" class="h-[300px] w-full">
                 <VisXYContainer :data="chartData" :padding="{ top: 10 }">

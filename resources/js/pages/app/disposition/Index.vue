@@ -94,7 +94,7 @@ function handleClick(item: Disposition) {
                             autocomplete="off"
                         />
                         <span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
-                            <Search class="size-5 text-muted-foreground" />
+                            <Search class="text-muted-foreground size-5" />
                         </span>
                     </div>
                     <Select v-model="filter">
@@ -154,7 +154,7 @@ function handleClick(item: Disposition) {
                                         </HoverCardTrigger>
                                         <HoverCardContent class="w-80">
                                             <div class="space-y-1">
-                                                <span class="text-xs text-muted-foreground">Asal Surat</span>
+                                                <span class="text-muted-foreground text-xs">Asal Surat</span>
                                                 <h4 class="text-sm font-semibold">{{ item.letter?.sender }}</h4>
                                                 <p class="text-sm">{{ item.letter?.number }}</p>
                                                 <p class="text-sm">{{ item.letter?.subject }}</p>
@@ -163,7 +163,7 @@ function handleClick(item: Disposition) {
                                     </HoverCard>
                                 </TableCell>
                                 <TableCell class="align-top">
-                                    <p v-if="item.is_cc" class="text-xs text-muted-foreground">CC Dari:</p>
+                                    <p v-if="item.is_cc" class="text-muted-foreground text-xs">CC Dari:</p>
                                     {{ item.from_position?.name }}
                                 </TableCell>
                                 <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
@@ -173,7 +173,7 @@ function handleClick(item: Disposition) {
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="dispo.data.length === 0">
-                                <TableCell colspan="5" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
+                                <TableCell colspan="5" class="text-muted-foreground text-center">Data tidak ditemukan.</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

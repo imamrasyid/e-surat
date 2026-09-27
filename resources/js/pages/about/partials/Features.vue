@@ -86,19 +86,19 @@ const features = [
 </script>
 
 <template>
-    <section id="fitur" class="border-t border-border/50 bg-muted/20 py-12 sm:py-16 lg:py-24">
+    <section id="fitur" class="border-border/50 bg-muted/20 border-t py-12 sm:py-16 lg:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <!-- Section Header -->
             <div class="mx-auto max-w-3xl text-center">
                 <span
-                    class="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+                    class="border-primary/20 bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold"
                 >
                     Apa Saja yang Bisa Dilakukan?
                 </span>
-                <h2 class="mt-4 text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+                <h2 class="text-foreground mt-4 text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
                     Semua Kebutuhan Persuratan, Satu Aplikasi
                 </h2>
-                <p class="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                <p class="text-muted-foreground mt-3 text-sm leading-relaxed sm:text-base">
                     Tidak perlu lagi repot dengan tumpukan kertas atau berkas yang tercecer. e-Surat menyederhanakan seluruh alur persuratan dinas
                     Anda dari awal sampai akhir.
                 </p>
@@ -109,7 +109,7 @@ const features = [
                 <div
                     v-for="feature in features"
                     :key="feature.title"
-                    class="group relative flex flex-col justify-between rounded-xl border border-border/70 bg-card p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:rounded-2xl sm:p-6"
+                    class="group border-border/70 bg-card relative flex flex-col justify-between rounded-xl border p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:rounded-2xl sm:p-6"
                     :class="feature.theme.cardHover"
                 >
                     <div>
@@ -127,10 +127,10 @@ const features = [
                         </div>
 
                         <!-- Title & Description -->
-                        <h3 class="mt-4 text-base font-bold text-foreground transition-colors sm:mt-5 sm:text-lg" :class="feature.theme.titleHover">
+                        <h3 class="text-foreground mt-4 text-base font-bold transition-colors sm:mt-5 sm:text-lg" :class="feature.theme.titleHover">
                             {{ feature.title }}
                         </h3>
-                        <p class="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                        <p class="text-muted-foreground mt-2 text-xs leading-relaxed sm:text-sm">
                             {{ feature.description }}
                         </p>
                     </div>

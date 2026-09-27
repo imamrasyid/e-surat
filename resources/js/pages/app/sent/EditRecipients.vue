@@ -155,7 +155,7 @@ const onSubmit = () => {
                                     <Label for="penerima">Penerima</Label>
                                     <Combobox v-model="form.recipients" v-model:open="openPenerima" :ignore-filter="true">
                                         <ComboboxAnchor as-child>
-                                            <TagsInput id="penerima" v-model="form.recipients" class="w-full gap-2 px-2 dark:bg-input/30">
+                                            <TagsInput id="penerima" v-model="form.recipients" class="dark:bg-input/30 w-full gap-2 px-2">
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <TagsInputItem
                                                         v-for="(item, index) in form.recipients"

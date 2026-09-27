@@ -93,7 +93,7 @@ function handleClick(item: LetterRecipient) {
                             autocomplete="off"
                         />
                         <span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
-                            <Search class="size-5 text-muted-foreground" />
+                            <Search class="text-muted-foreground size-5" />
                         </span>
                     </div>
                     <Select v-model="filter">
@@ -148,7 +148,7 @@ function handleClick(item: LetterRecipient) {
                                 <TableCell class="align-top">{{ item.letter?.number }}</TableCell>
                                 <TableCell class="align-top">
                                     {{ item.letter?.sender }}
-                                    <p class="line-clamp-1 text-muted-foreground">
+                                    <p class="text-muted-foreground line-clamp-1">
                                         {{ item.letter?.subject }}
                                     </p>
                                 </TableCell>
@@ -156,14 +156,14 @@ function handleClick(item: LetterRecipient) {
                                     <div class="flex -space-x-2">
                                         <div v-for="dispo in item.activity_dispo" class="flex" :key="dispo.id">
                                             <span
-                                                class="relative inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs leading-none text-gray-100 ring-1 ring-background hover:z-5"
+                                                class="bg-primary ring-background relative inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs leading-none text-gray-100 ring-1 hover:z-5"
                                             >
                                                 D
                                             </span>
                                         </div>
                                         <div v-for="memo in item.activity_memo" class="flex" :key="memo.id">
                                             <span
-                                                class="relative inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-warning text-xs leading-none text-gray-100 ring-1 ring-background hover:z-5"
+                                                class="bg-warning ring-background relative inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs leading-none text-gray-100 ring-1 hover:z-5"
                                             >
                                                 ND
                                             </span>
@@ -176,7 +176,7 @@ function handleClick(item: LetterRecipient) {
                                 </TableCell>
                             </TableRow>
                             <TableRow v-if="undangan.data.length === 0">
-                                <TableCell colspan="5" class="text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
+                                <TableCell colspan="5" class="text-muted-foreground text-center">Data tidak ditemukan.</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

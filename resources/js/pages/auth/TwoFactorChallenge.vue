@@ -63,7 +63,7 @@ const submit = () => {
                     <InputError :message="form.errors.code" />
                 </div>
                 <Button type="submit" class="w-full" :disabled="form.processing">Continue</Button>
-                <div class="text-center text-sm text-muted-foreground">
+                <div class="text-muted-foreground text-center text-sm">
                     <span>or you can </span>
                     <button
                         type="button"
@@ -87,7 +87,7 @@ const submit = () => {
                 <InputError :message="form.errors.recovery_code" />
                 <Button type="submit" class="w-full" :disabled="form.processing">Continue</Button>
 
-                <div class="text-center text-sm text-muted-foreground">
+                <div class="text-muted-foreground text-center text-sm">
                     <span>or you can </span>
                     <button
                         type="button"

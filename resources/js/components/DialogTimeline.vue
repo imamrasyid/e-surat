@@ -43,17 +43,17 @@ watch(dialogTimeline, (val) => {
                         <li
                             class="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] first:before:top-1/2 last:before:bottom-1/2 dark:before:border-[#3E3E3A]"
                         >
-                            <span class="relative bg-background py-1">
+                            <span class="bg-background relative py-1">
                                 <span
                                     class="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
                                 >
-                                    <span class="h-1.5 w-1.5 rounded-full bg-primary" />
+                                    <span class="bg-primary h-1.5 w-1.5 rounded-full" />
                                 </span>
                             </span>
                             <div class="w-full">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm text-muted-foreground">Dikirim dari</p>
+                                        <p class="text-muted-foreground text-sm">Dikirim dari</p>
                                         <h6 class="text-sm/6 font-medium">{{ item.from_position.name }}</h6>
                                     </div>
                                     <p class="text-xs">
@@ -65,7 +65,7 @@ watch(dialogTimeline, (val) => {
                         <li
                             class="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] first:before:top-1/2 last:before:bottom-1/2 dark:before:border-[#3E3E3A]"
                         >
-                            <span class="relative bg-background py-1">
+                            <span class="bg-background relative py-1">
                                 <span
                                     class="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
                                 >
@@ -75,7 +75,7 @@ watch(dialogTimeline, (val) => {
                             <div class="w-full">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm text-muted-foreground">Penerima</p>
+                                        <p class="text-muted-foreground text-sm">Penerima</p>
                                         <h6 class="text-sm/6 font-medium"><span v-if="item.is_cc">cc: </span>{{ item.to_position.name }}</h6>
                                     </div>
                                     <p class="text-xs">
@@ -86,18 +86,18 @@ watch(dialogTimeline, (val) => {
                         </li>
                     </ul>
                     <div v-if="item.instruction" class="mb-2">
-                        <p class="text-sm text-muted-foreground">Catatan</p>
+                        <p class="text-muted-foreground text-sm">Catatan</p>
                         <h6 class="text-sm">{{ item.instruction }}</h6>
                     </div>
                     <div v-if="item.followup" class="pb-2">
-                        <p class="text-sm text-muted-foreground">Followup</p>
+                        <p class="text-muted-foreground text-sm">Followup</p>
                         <h6 class="text-sm">{{ item.followup }}</h6>
                     </div>
                     <Separator v-if="data && index != data.length - 1" class="my-2" />
                 </div>
 
                 <div v-if="data.length == 0" class="text-center sm:text-start">
-                    <p class="text-sm text-muted-foreground">Belum ada disposisi atau nota dinas.</p>
+                    <p class="text-muted-foreground text-sm">Belum ada disposisi atau nota dinas.</p>
                 </div>
             </ScrollArea>
         </DialogContent>

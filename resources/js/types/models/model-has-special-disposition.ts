@@ -14,5 +14,5 @@ export interface ModelHasSpecialDisposition {
 
     // Relationships
     position?: Position | null;
-    model?: User | unknown;
+    model?: User | null;
 }

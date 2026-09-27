@@ -58,7 +58,7 @@ watchDebounced(
                     <div class="relative w-full max-w-sm items-center sm:max-w-[250px]">
                         <Input id="search" type="text" v-model="search" placeholder="Search..." class="pl-8" autocomplete="off" />
                         <span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
-                            <Search class="size-5 text-muted-foreground" />
+                            <Search class="text-muted-foreground size-5" />
                         </span>
                     </div>
                     <Button as-child>

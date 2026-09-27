@@ -12,7 +12,7 @@ import AppLogo from './AppLogo.vue';
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child class="hover:bg-transparent hover:text-sidebar-foreground">
+                    <SidebarMenuButton size="lg" as-child class="hover:text-sidebar-foreground hover:bg-transparent">
                         <Link :href="route('dashboard')">
                             <AppLogo />
                         </Link>

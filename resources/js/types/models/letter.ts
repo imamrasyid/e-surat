@@ -5,8 +5,8 @@ import type { LetterRecipient } from './letter-recipient';
 import type { Memo } from './memo';
 import type { User } from './user';
 
-export type LetterType = 'in' | 'out' | string;
-export type LetterStatus = 'open' | 'close' | string;
+export type LetterType = 'in' | 'out';
+export type LetterStatus = 'open' | 'close';
 
 export interface Letter {
     id: number;

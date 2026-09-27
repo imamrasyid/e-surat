@@ -275,7 +275,7 @@ onUnmounted(() => {
                                 <Label for="penerima">Pilih Penerima</Label>
                                 <Combobox v-model="form.penerima" v-model:open="openPenerima" :ignore-filter="true">
                                     <ComboboxAnchor as-child>
-                                        <TagsInput id="penerima" v-model="form.penerima" class="w-full gap-2 px-2 dark:bg-input/30">
+                                        <TagsInput id="penerima" v-model="form.penerima" class="dark:bg-input/30 w-full gap-2 px-2">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <TagsInputItem v-for="(item, index) in form.penerima" :key="index" :value="item.name">
                                                     <TagsInputItemText />
@@ -323,7 +323,7 @@ onUnmounted(() => {
                                 <Label for="penerima_cc">CC Penerima</Label>
                                 <Combobox v-model="form.penerima_cc" v-model:open="openPenerimacc" :ignore-filter="true">
                                     <ComboboxAnchor as-child>
-                                        <TagsInput id="penerima_cc" v-model="form.penerima_cc" class="w-full gap-2 px-2 dark:bg-input/30">
+                                        <TagsInput id="penerima_cc" v-model="form.penerima_cc" class="dark:bg-input/30 w-full gap-2 px-2">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <TagsInputItem v-for="(item, index) in form.penerima_cc" :key="index" :value="item.name">
                                                     <TagsInputItemText />
@@ -408,7 +408,7 @@ onUnmounted(() => {
                             <div class="flex items-center justify-between">
                                 <div class="grid gap-1">
                                     <Label for="lampiran">Dokumen</Label>
-                                    <p class="text-xs text-muted-foreground">Supported Format: PDF</p>
+                                    <p class="text-muted-foreground text-xs">Supported Format: PDF</p>
                                 </div>
                                 <Button
                                     id="lampiran"
@@ -434,7 +434,7 @@ onUnmounted(() => {
                             <Card class="mt-2" :class="{ 'border-red-500': form.errors.lampiran }">
                                 <CardContent>
                                     <div v-if="form.lampiran.length === 0" class="text-center">
-                                        <p class="text-sm text-muted-foreground">Silahkan unggah bila nota dinas memiliki lampiran.</p>
+                                        <p class="text-muted-foreground text-sm">Silahkan unggah bila nota dinas memiliki lampiran.</p>
                                     </div>
                                     <div
                                         v-for="(item, index) in form.lampiran"

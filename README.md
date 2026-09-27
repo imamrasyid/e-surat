@@ -8,9 +8,11 @@
 </p>
 
 ## 🚀 Laravel 12 + Vue 3 + TypeScript (Starter Kit Fullstack)
+
 Starter kit aplikasi fullstack menggunakan Laravel 12 sebagai backend & API, Inertia, serta Vue 3 + TypeScript + Vite sebagai frontend dengan integrasi melalui Inertia.js.
 
 ## ✨ Fitur Utama
+
 - Laravel 12: Framework backend dengan API resource, middleware, validation.
 - Inertia.js: Menghubungkan Laravel dengan Vue tanpa perlu membuat API terpisah.
 - Vue 3 (Composition API) + TypeScript: Frontend modern dengan dukungan type-safety.
@@ -19,13 +21,16 @@ Starter kit aplikasi fullstack menggunakan Laravel 12 sebagai backend & API, Ine
 - Autentikasi siap pakai (login) dari starter kit.
 
 ## 📦 Instalasi
+
 **1. Clone Repository**
- ```javascript
+
+```javascript
 git clone https://github.com/msbhdn/e-surat.git
 cd e-surat
 ```
 
 **2. Setup Backend (Laravel)**
+
 ```javascript
 cp .env.example .env
 composer install
@@ -33,21 +38,26 @@ php artisan key:generate
 php artisan migrate --seed
 php artisan serve
 ```
+
 👉 Backend berjalan di http://127.0.0.1:8000.
 
 **3. Setup Frontend (Vue 3 + TS via Inertia)**
+
 ```javascript
 npm install
 npm run dev
 ```
+
 👉 Frontend berjalan di http://127.0.0.1:5173 (atau otomatis dari Laravel melalui Inertia).
 
 ## ⚙️ Konfigurasi
+
 - Sesuaikan database di file .env.
 - Untuk email/queue, sesuaikan juga konfigurasi .env.
 - Jika pakai Inertia, frontend otomatis disajikan melalui Laravel route.
 
 ## 📂 Struktur Proyek
+
 ```javascript
 .
 ├── app/                   # Laravel backend
@@ -69,15 +79,20 @@ npm run dev
 ```
 
 ## 🧪 Testing
+
 **Backend**
+
 ```javascript
 php artisan test
 ```
+
 **Frontend (Vitest)**
+
 ```javascript
 npm run test
 ```
 
 ## 🚀 Deployment
+
 - Laravel: Bisa dideploy ke server (Nginx/Apache) atau platform seperti Laravel Forge/Vapor.
 - Frontend (Inertia + Vite): Dibuild otomatis saat menjalankan npm run build.
