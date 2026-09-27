@@ -1,16 +1,17 @@
+import inertia from '@inertiajs/vite';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
-import path from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
-    plugins: [
+    plugins: lazyPlugins(() => [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
         }),
+        inertia(),
         tailwindcss(),
         vue({
             template: {
@@ -20,15 +21,57 @@ export default defineConfig({
                 },
             },
         }),
-    ],
-    resolve: {
-        alias: {
-            '@': path.resolve(import.meta.dirname, './resources/js'),
-        },
-    },
+    ]),
     server: {
         watch: {
-            ignored: ['**/storage/**', '**/vendor/**'],
+            ignored: [
+                '**/.agents/**',
+                '**/.claude/**',
+                '**/.cursor/**',
+                '**/.junie/**',
+                '**/storage/**',
+                '**/vendor/**',
+            ],
+        },
+    },
+    lint: {
+        ignorePatterns: [
+            'vendor/**',
+            'node_modules/**',
+            'public/**',
+            'bootstrap/ssr/**',
+            'tailwind.config.js',
+            'resources/js/actions/**',
+            'resources/js/components/ui/*',
+            'resources/js/routes/**',
+            'resources/js/wayfinder/**',
+        ],
+        options: {
+            denyWarnings: true,
+            typeAware: true,
+        },
+    },
+    fmt: {
+        printWidth: 150,
+        tabWidth: 4,
+        singleQuote: true,
+        semi: true,
+        singleAttributePerLine: false,
+        htmlWhitespaceSensitivity: 'css',
+        ignorePatterns: [
+            'vendor/**',
+            'storage/**',
+            'node_modules/**',
+            'public/**',
+            'bootstrap/ssr/**',
+            '.github/**',
+            'composer.json',
+            'resources/js/components/ui/*',
+            'resources/views/mail/*',
+        ],
+        sortTailwindcss: {
+            functions: ['clsx', 'cn', 'cva'],
+            entryPoint: 'resources/css/app.css',
         },
     },
     build: {

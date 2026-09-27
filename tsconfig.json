@@ -33,6 +33,5 @@
         "resources/js/**/*.d.ts",
         "resources/js/**/*.tsx",
         "resources/js/**/*.vue",
-        "vite.config.ts"
     ]
 }
