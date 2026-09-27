@@ -2,40 +2,46 @@
 
 namespace App\Http\Controllers\MasterData;
 
+use App\Actions\MasterData\User\CreateUserAction;
+use App\Actions\MasterData\User\UpdateUserAction;
+use App\Actions\MasterData\User\UpdateUserPositionAction;
+use App\Actions\MasterData\User\UpdateUserRoleAction;
+use App\Actions\MasterData\User\UpdateUserSpecialDispositionAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MasterData\StoreUserRequest;
+use App\Http\Requests\MasterData\UpdateUserRequest;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Request as FacadesRequest;
-use Illuminate\Validation\Rules;
+use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
+use Throwable;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $data = User::query()
             ->select('id', 'name', 'username', 'email', 'is_active')
-            ->where(function (Builder $query) {
-                $search = FacadesRequest::input('search');
-                if ($search) {
-                    $query->whereLike('name', '%'.$search.'%')
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
+                $search = $request->input('search');
+                $query->where(function (Builder $q) use ($search) {
+                    $q->whereLike('name', '%'.$search.'%')
                         ->orWhereLike('username', '%'.$search.'%')
                         ->orWhereLike('email', '%'.$search.'%');
-                }
+                });
             })
             ->orderBy('name')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return inertia('master/pengguna/Index', [
+        return Inertia::render('master/pengguna/Index', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
@@ -51,7 +57,7 @@ class UserController extends Controller
      */
     public function create(): Response
     {
-        return inertia('master/pengguna/Create', [
+        return Inertia::render('master/pengguna/Create', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
@@ -67,31 +73,26 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request, CreateUserAction $action): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|lowercase|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        DB::beginTransaction();
+        $validated = $request->validated();
 
         try {
-            User::create([
-                'name' => $request->name,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
+            $action->handle($validated);
+
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Pengguna berhasil ditambahkan.',
             ]);
 
-            DB::commit();
+            return to_route('ref.user.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal menambahkan pengguna: '.$th->getMessage(),
+            ]);
 
-            return redirect()->route('ref.user.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 
@@ -100,7 +101,7 @@ class UserController extends Controller
      */
     public function edit(User $user): Response
     {
-        return inertia('master/pengguna/Edit', [
+        return Inertia::render('master/pengguna/Edit', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
@@ -116,10 +117,7 @@ class UserController extends Controller
 
     public function editPosition(User $user): Response
     {
-        $currentPosition = $user->currentPosition()->first();
-        if ($currentPosition) {
-            $currentPosition = $currentPosition->only('name');
-        }
+        $currentPosition = $user->currentPosition()->first()?->only('name');
 
         $positions = Position::query()
             ->select('id', 'name')
@@ -127,7 +125,7 @@ class UserController extends Controller
             ->orderBy('name')
             ->get();
 
-        return inertia('master/pengguna/Jabatan', [
+        return Inertia::render('master/pengguna/Jabatan', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
@@ -147,9 +145,9 @@ class UserController extends Controller
     public function editRole(string $user_id): Response
     {
         $user = User::with('roles')->select('id', 'email', 'name')->findOrFail($user_id);
-        $roles = Role::all();
+        $roles = Role::query()->select('id', 'name')->get();
 
-        return inertia('master/pengguna/Role', [
+        return Inertia::render('master/pengguna/Role', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
@@ -167,121 +165,124 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|lowercase|max:255|unique:'.User::class.',username,'.$user->id,
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'is_active' => 'required|boolean',
-        ]);
-
-        DB::beginTransaction();
+    public function update(
+        UpdateUserRequest $request,
+        User $user,
+        UpdateUserAction $action
+    ): RedirectResponse {
+        $validated = $request->validated();
 
         try {
-            $usernameChanged = $request->username !== $user->username;
+            $action->handle($user, $validated);
 
-            $user->update([
-                'name' => $request->name,
-                'username' => $request->username,
-                'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
-                'is_active' => $request->is_active,
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Pengguna berhasil diperbarui.',
             ]);
 
-            if ($usernameChanged) {
-                DB::table('sessions')->where('user_id', $user->id)->delete();
-                // Jika pakai Passport atau Sanctum: $user->tokens()->delete();
-            }
-
-            DB::commit();
-
-            return redirect()->route('ref.user.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
-        }
-    }
-
-    public function updatePosition(Request $request, User $user): RedirectResponse
-    {
-        $request->validate([
-            'positionId' => 'required|exists:'.Position::class.',id',
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            $currentPosition = $user->currentPosition()->first();
-            $positionId = $request->positionId;
-
-            if ($currentPosition) {
-                $user->positions()->updateExistingPivot($currentPosition->id, [
-                    'end_date' => now(),
-                    'is_active' => false,
-                ]);
-            }
-
-            $user->positions()->attach($positionId, [
-                'start_date' => now(),
-                'is_active' => true,
+            return to_route('ref.user.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui pengguna: '.$th->getMessage(),
             ]);
 
-            DB::commit();
-
-            return redirect()->route('ref.user.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 
-    public function updateSpecialDisposition(Request $request, User $user): RedirectResponse
-    {
+    public function updatePosition(
+        Request $request,
+        User $user,
+        UpdateUserPositionAction $action
+    ): RedirectResponse {
         $validated = $request->validate([
-            'position_ids' => 'nullable|array',
-            'position_ids.*' => 'exists:'.Position::class.',id',
+            'positionId' => ['required', 'exists:'.Position::class.',id'],
+        ], [
+            'positionId.required' => 'Jabatan wajib dipilih.',
+            'positionId.exists' => 'Jabatan yang dipilih tidak valid.',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $user->updateSpecialDispositions($validated['position_ids']);
+            $action->handle($user, $validated['positionId']);
 
-            DB::commit();
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Jabatan pengguna berhasil diperbarui.',
+            ]);
 
-            return redirect()->route('ref.user.index');
+            return to_route('ref.user.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui jabatan pengguna: '.$th->getMessage(),
+            ]);
 
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 
-    public function updateRole(Request $request, User $user): RedirectResponse
-    {
+    public function updateSpecialDisposition(
+        Request $request,
+        User $user,
+        UpdateUserSpecialDispositionAction $action
+    ): RedirectResponse {
         $validated = $request->validate([
-            'roles' => 'nullable|array',
-            'roles.*' => 'exists:'.Role::class.',id',
+            'position_ids' => ['nullable', 'array'],
+            'position_ids.*' => ['exists:'.Position::class.',id'],
+        ], [
+            'position_ids.array' => 'Format jabatan disposisi khusus harus berupa array.',
+            'position_ids.*.exists' => 'Jabatan disposisi yang dipilih tidak valid.',
         ]);
 
-        DB::beginTransaction();
+        try {
+            $action->handle($user, $validated['position_ids'] ?? []);
+
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Disposisi khusus pengguna berhasil diperbarui.',
+            ]);
+
+            return to_route('ref.user.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui disposisi khusus: '.$th->getMessage(),
+            ]);
+
+            return back();
+        }
+    }
+
+    public function updateRole(
+        Request $request,
+        User $user,
+        UpdateUserRoleAction $action
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['exists:'.Role::class.',id'],
+        ], [
+            'roles.array' => 'Format role harus berupa array.',
+            'roles.*.exists' => 'Role yang dipilih tidak valid.',
+        ]);
 
         try {
-            $user->syncRoles($validated['roles']);
+            $action->handle($user, $validated['roles'] ?? []);
 
-            DB::commit();
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Role pengguna berhasil diperbarui.',
+            ]);
 
-            return redirect()->route('ref.user.index');
+            return to_route('ref.user.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui role pengguna: '.$th->getMessage(),
+            ]);
 
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 }

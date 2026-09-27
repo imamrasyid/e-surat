@@ -2,30 +2,29 @@
 
 namespace App\Http\Controllers\Inbox;
 
+use App\Actions\Letter\MarkRecipientAsReadAction;
 use App\Http\Controllers\Controller;
 use App\Models\LetterRecipient;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class PrimaryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $user = User::find(Auth::user()->id);
-        $currentPosition = $user?->currentPosition()?->first();
+        $currentPosition = $request->user()?->currentPosition()?->first();
 
         // Kalau user tidak punya currentPosition
         if (! $currentPosition) {
-            return inertia('app/primary/Index', [
+            return Inertia::render('app/primary/Index', [
                 'breadcrumbItems' => [
                     [
                         'title' => 'Primary',
@@ -47,25 +46,29 @@ class PrimaryController extends Controller
                 $query->where('type', 'in')
                     ->where('category', '1');
             })
-            ->when(FacadesRequest::input('search'), function (Builder $query, $search) {
-                $query->whereHas('letter', function ($subQuery) use ($search) {
-                    $subQuery->whereLike('agenda', '%'.$search.'%')
-                        ->orWhereLike('sender', '%'.$search.'%')
-                        ->orWhereLike('subject', '%'.$search.'%')
-                        ->orWhereLike('number', '%'.$search.'%');
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
+                $search = $request->input('search');
+                $query->whereHas('letter', function (Builder $subQuery) use ($search) {
+                    $subQuery->where(function (Builder $sq) use ($search) {
+                        $sq->whereLike('agenda', '%'.$search.'%')
+                            ->orWhereLike('sender', '%'.$search.'%')
+                            ->orWhereLike('subject', '%'.$search.'%')
+                            ->orWhereLike('number', '%'.$search.'%');
+                    });
                 });
             })
-            ->when(FacadesRequest::input('filter'), function (Builder $query, $filter) {
-                if ($filter == 'read') {
-                    $query->whereNotNull('read_at');
-                } elseif ($filter == 'unread') {
-                    $query->whereNull('read_at');
-                }
+            ->when($request->filled('filter'), function (Builder $query) use ($request) {
+                match ($request->input('filter')) {
+                    'read' => $query->whereNotNull('read_at'),
+                    'unread' => $query->whereNull('read_at'),
+                    default => null,
+                };
             })
             ->orderBy('received_at', 'desc')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return inertia('app/primary/Index', [
+        return Inertia::render('app/primary/Index', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Primary',
@@ -79,30 +82,42 @@ class PrimaryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(LetterRecipient $recipient, string $letter_id): Response|RedirectResponse
-    {
-        $user = User::find(Auth::user()->id);
-        $currentPosition = $user->currentPosition()->first();
+    public function show(
+        Request $request,
+        LetterRecipient $recipient,
+        string $letter_id,
+        MarkRecipientAsReadAction $markAsRead
+    ): Response|RedirectResponse {
+        $currentPosition = $request->user()?->currentPosition()->first();
 
-        if ($recipient->to_position_id !== $currentPosition->id) {
-            return redirect()->back()->withErrors(['confirm' => 'Anda tidak memiliki akses ke surat ini.']);
+        if ($recipient->to_position_id !== $currentPosition?->id) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Anda tidak memiliki akses ke surat ini.',
+            ]);
+
+            return back();
         }
 
         if ($recipient->letter()->where('letter_id', $letter_id)->doesntExist()) {
-            return redirect()->back()->withErrors(['confirm' => 'Surat tidak ditemukan atau tidak sesuai dengan penerima surat.']);
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Surat tidak ditemukan atau tidak sesuai dengan penerima surat.',
+            ]);
+
+            return back();
         }
 
-        if (FacadesRequest::isMethod('patch')) {
-            DB::beginTransaction();
-
+        if ($request->isMethod('patch')) {
             try {
-                $recipient->update(['read_at' => now()]);
+                $markAsRead->handle($recipient);
+            } catch (Throwable $th) {
+                Inertia::flash('toast', [
+                    'type' => 'error',
+                    'message' => 'Gagal memperbarui status baca: '.$th->getMessage(),
+                ]);
 
-                DB::commit();
-            } catch (\Throwable $th) {
-                DB::rollBack();
-
-                return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+                return back();
             }
         }
 
@@ -112,7 +127,7 @@ class PrimaryController extends Controller
             'docs:id,letter_id,name,url',
         ])->firstOrFail();
 
-        return inertia('app/primary/Show', [
+        return Inertia::render('app/primary/Show', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Primary',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use Inertia\Response;
 
 class ArsipController extends Controller
@@ -11,7 +12,7 @@ class ArsipController extends Controller
      */
     public function index(): Response
     {
-        return inertia('archive/Index', [
+        return Inertia::render('archive/Index', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Arsip Surat',

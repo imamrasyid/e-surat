@@ -2,37 +2,38 @@
 
 namespace App\Http\Controllers\MasterData;
 
+use App\Actions\MasterData\Role\CreateRoleAction;
+use App\Actions\MasterData\Role\UpdateRoleAction;
+use App\Actions\MasterData\Role\UpdateRolePermissionsAction;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Throwable;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $data = Role::query()
             ->select('id', 'name')
-            ->where(function (Builder $query) {
-                $search = FacadesRequest::input('search');
-                if ($search) {
-                    $query->whereLike('name', '%'.$search.'%');
-                }
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
+                $query->whereLike('name', '%'.$request->input('search').'%');
             })
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return inertia('master/role/Index', [
+        return Inertia::render('master/role/Index', [
             'breadcrumbItems' => [
                 [
-                    'title' => 'Followup',
+                    'title' => 'Role',
                     'href' => '/master-data/roles',
                 ],
             ],
@@ -45,7 +46,7 @@ class RoleController extends Controller
      */
     public function create(): Response
     {
-        return inertia('master/role/Create', [
+        return Inertia::render('master/role/Create', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Role',
@@ -61,27 +62,32 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, CreateRoleAction $action): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ], [
+            'name.required' => 'Nama role wajib diisi.',
+            'name.string' => 'Nama role harus berupa teks.',
+            'name.max' => 'Nama role maksimal 255 karakter.',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $data = $request->all();
+            $action->handle($validated);
 
-            Role::create($data);
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Role berhasil disimpan.',
+            ]);
 
-            DB::commit();
+            return to_route('ref.role.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal menyimpan role: '.$th->getMessage(),
+            ]);
 
-            return redirect()->route('ref.role.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 
@@ -90,9 +96,9 @@ class RoleController extends Controller
      */
     public function edit(Role $role): Response
     {
-        $permissions = Permission::all();
+        $permissions = Permission::query()->select('id', 'name')->get();
 
-        return inertia('master/role/Edit', [
+        return Inertia::render('master/role/Edit', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Role',
@@ -111,50 +117,67 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Role $role): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
+    public function update(
+        Request $request,
+        Role $role,
+        UpdateRoleAction $action
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ], [
+            'name.required' => 'Nama role wajib diisi.',
+            'name.string' => 'Nama role harus berupa teks.',
+            'name.max' => 'Nama role maksimal 255 karakter.',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $role->update([
-                'name' => $request->name,
+            $action->handle($role, $validated);
+
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Role berhasil diperbarui.',
             ]);
 
-            DB::commit();
+            return to_route('ref.role.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui role: '.$th->getMessage(),
+            ]);
 
-            return redirect()->route('ref.role.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 
-    public function updatePermission(Request $request, Role $role): RedirectResponse
-    {
+    public function updatePermission(
+        Request $request,
+        Role $role,
+        UpdateRolePermissionsAction $action
+    ): RedirectResponse {
         $validated = $request->validate([
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:'.Permission::class.',id',
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['exists:'.Permission::class.',id'],
+        ], [
+            'permissions.array' => 'Format daftar izin harus berupa array.',
+            'permissions.*.exists' => 'Izin yang dipilih tidak valid.',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $role->syncPermissions($validated['permissions']);
+            $action->handle($role, $validated['permissions'] ?? []);
 
-            DB::commit();
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Hak akses role berhasil diperbarui.',
+            ]);
 
-            return redirect()->route('ref.role.index');
+            return to_route('ref.role.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui hak akses role: '.$th->getMessage(),
+            ]);
 
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 }

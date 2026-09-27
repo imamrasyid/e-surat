@@ -2,43 +2,42 @@
 
 namespace App\Http\Controllers\MasterData;
 
+use App\Actions\MasterData\Position\CreatePositionAction;
+use App\Actions\MasterData\Position\UpdatePositionAction;
 use App\Http\Controllers\Controller;
 use App\Models\Position;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request as FacadesRequest;
+use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class PositionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $data = Position::query()
             ->select('id', 'name', 'parent_id', 'is_active')
-            ->where(function (Builder $query) {
-                $search = FacadesRequest::input('search');
-                if ($search) {
-                    $query->whereLike('name', '%'.$search.'%');
-                }
+            ->with('parent:id,name')
+            ->when($request->filled('search'), function (Builder $query) use ($request) {
+                $query->whereLike('name', '%'.$request->input('search').'%');
             })
             ->orderBy('name')
             ->paginate(10)
-            ->through(function ($position) {
-                return [
-                    'id' => $position->id,
-                    'name' => $position->name,
-                    'parent_id' => $position->parent_id,
-                    'parent_name' => $position->parent_name, // accessor dari model
-                    'is_active' => $position->is_active,
-                ];
-            });
+            ->withQueryString()
+            ->through(fn (Position $position) => [
+                'id' => $position->id,
+                'name' => $position->name,
+                'parent_id' => $position->parent_id,
+                'parent_name' => $position->parent?->name,
+                'is_active' => $position->is_active,
+            ]);
 
-        return inertia('master/jabatan/Index', [
+        return Inertia::render('master/jabatan/Index', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Jabatan',
@@ -60,7 +59,7 @@ class PositionController extends Controller
             ->orderBy('name')
             ->get();
 
-        return inertia('master/jabatan/Create', [
+        return Inertia::render('master/jabatan/Create', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Jabatan',
@@ -78,28 +77,34 @@ class PositionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, CreatePositionAction $action): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:positions,id',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'parent_id' => ['nullable', 'exists:positions,id'],
+        ], [
+            'name.required' => 'Nama jabatan wajib diisi.',
+            'name.string' => 'Nama jabatan harus berupa teks.',
+            'name.max' => 'Nama jabatan maksimal 255 karakter.',
+            'parent_id.exists' => 'Jabatan atasan yang dipilih tidak valid.',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $data = $request->all();
+            $action->handle($validated);
 
-            Position::create($data);
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Data jabatan berhasil disimpan.',
+            ]);
 
-            DB::commit();
+            return to_route('ref.position.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal menyimpan data: '.$th->getMessage(),
+            ]);
 
-            return redirect()->route('ref.position.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 
@@ -108,7 +113,7 @@ class PositionController extends Controller
      */
     public function edit(Position $position): Response
     {
-        return inertia('master/jabatan/Edit', [
+        return Inertia::render('master/jabatan/Edit', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Jabatan',
@@ -131,31 +136,40 @@ class PositionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Position $position): RedirectResponse
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:positions,id',
-            'is_active' => 'required|boolean',
+    public function update(
+        Request $request,
+        Position $position,
+        UpdatePositionAction $action
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'parent_id' => ['nullable', 'exists:positions,id'],
+            'is_active' => ['required', 'boolean'],
+        ], [
+            'name.required' => 'Nama jabatan wajib diisi.',
+            'name.string' => 'Nama jabatan harus berupa teks.',
+            'name.max' => 'Nama jabatan maksimal 255 karakter.',
+            'parent_id.exists' => 'Jabatan atasan yang dipilih tidak valid.',
+            'is_active.required' => 'Status aktif wajib dipilih.',
+            'is_active.boolean' => 'Status aktif tidak valid.',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            $position->update([
-                'name' => $request->name,
-                'parent_id' => $request->parent_id,
-                'is_active' => $request->is_active,
+            $action->handle($position, $validated);
+
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Data jabatan berhasil diperbarui.',
             ]);
 
-            DB::commit();
+            return to_route('ref.position.index');
+        } catch (Throwable $th) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui data: '.$th->getMessage(),
+            ]);
 
-            return redirect()->route('ref.position.index');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return back();
         }
     }
 }

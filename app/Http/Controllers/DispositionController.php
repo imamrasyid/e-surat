@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Disposition\CreateDispositionAction;
+use App\Actions\Disposition\MarkDispositionAsReadAction;
+use App\Http\Requests\StoreDispositionRequest;
 use App\Models\Disposition;
 use App\Models\Followup;
 use App\Models\Letter;
-use App\Models\LetterDoc;
 use App\Models\Position;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request as FacadesRequest;
-use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Inertia\Response;
 
 class DispositionController extends Controller
@@ -23,14 +21,14 @@ class DispositionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $user = User::find(Auth::user()->id);
+        $user = $request->user();
         $currentPosition = $user?->currentPosition()?->first();
 
         // Kalau user tidak punya currentPosition
         if (! $currentPosition) {
-            return inertia('app/disposition/Index', [
+            return Inertia::render('app/disposition/Index', [
                 'breadcrumbItems' => [
                     [
                         'title' => 'Disposisi',
@@ -47,22 +45,23 @@ class DispositionController extends Controller
                 'fromPosition:id,name',
                 'letter:id,letter_id,agenda,sender,number,subject',
             ])
-            ->when(FacadesRequest::input('search'), function (Builder $query, $search) {
+            ->when($request->input('search'), function (Builder $query, $search) {
                 $query->whereHas('letter', function (Builder $query) use ($search) {
                     $query->where('agenda', 'like', '%'.$search.'%');
                 });
             })
-            ->when(FacadesRequest::input('filter'), function (Builder $query, $filter) {
-                if ($filter == 'read') {
-                    $query->whereNotNull('read_at');
-                } elseif ($filter == 'unread') {
-                    $query->whereNull('read_at');
-                }
+            ->when($request->input('filter'), function (Builder $query, $filter) {
+                match ($filter) {
+                    'read' => $query->whereNotNull('read_at'),
+                    'unread' => $query->whereNull('read_at'),
+                    default => null,
+                };
             })
             ->orderBy('received_at', 'desc')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return inertia('app/disposition/Index', [
+        return Inertia::render('app/disposition/Index', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Disposisi',
@@ -76,7 +75,7 @@ class DispositionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(string $recipient, string $key): Response
+    public function create(Request $request, string $recipient, string $key): Response
     {
         $keyDecode = base64_decode($key);
         $letter_id = substr($keyDecode, -26);
@@ -85,7 +84,7 @@ class DispositionController extends Controller
 
         $recipients = $this->getTimeline($letter->id);
 
-        $user = User::find(Auth::user()->id);
+        $user = $request->user();
         $currentPosition = $user->currentPosition()->first();
 
         // --- Ambil posisi normal (hirarki bawahan) ---
@@ -114,7 +113,7 @@ class DispositionController extends Controller
             ->orderBy('name')
             ->get();
 
-        return inertia('app/disposition/Create', [
+        return Inertia::render('app/disposition/Create', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Disposisi',
@@ -136,85 +135,24 @@ class DispositionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreDispositionRequest $request, CreateDispositionAction $action): RedirectResponse
     {
-        $user = User::find(Auth::user()->id);
+        $user = $request->user();
         $currentPosition = $user->currentPosition()->first();
-
-        $request->validate([
-            'type' => 'required|string',
-            'letter_id_primary' => 'required|integer',
-            'letter_id' => 'required|string',
-            'letter_recipient_id' => 'required|integer',
-            'letter_receipt_date' => 'required|string',
-            'penerima' => 'required|array|min:1',
-            'penerima.*.id' => 'required|integer',
-            'penerima.*.name' => 'required|string',
-            'penerima_cc' => 'nullable|array',
-            'penerima_cc.*.id' => 'nullable|integer',
-            'penerima_cc.*.name' => 'nullable|string',
-            'catatan' => 'nullable|string',
-            'followup' => 'nullable|array',
-            'followup.*.id' => 'nullable|integer',
-            'followup.*.name' => 'nullable|string',
-            'lampiran' => 'nullable|array',
-            'lampiran.*' => 'nullable|file|mimes:pdf',
-        ]);
-
-        $followups = null;
-        if ($request->followup) {
-            $followups = implode('; ', array_map(function ($entry) {
-                return $entry['name'];
-            }, $request->followup));
-        }
-
-        DB::beginTransaction();
+        $validated = $request->validated();
 
         try {
-            // INSERT PENERIMA
-            foreach ($request->penerima as $penerima) {
-                Disposition::create([
-                    'letter_id' => $request->letter_id_primary,
-                    'letter_recipient_id' => $request->letter_recipient_id,
-                    'from_user_id' => $user->id,
-                    'from_position_id' => $currentPosition->id,
-                    'to_position_id' => $penerima['id'],
-                    'instruction' => $request->catatan,
-                    'followup' => $followups,
-                    'received_at' => now(),
-                ]);
-            }
-            if ($request->penerima_cc) {
-                foreach ($request->penerima_cc as $penerima) {
-                    Disposition::create([
-                        'letter_id' => $request->letter_id_primary,
-                        'letter_recipient_id' => $request->letter_recipient_id,
-                        'is_cc' => 1,
-                        'from_user_id' => $user->id,
-                        'from_position_id' => $currentPosition->id,
-                        'to_position_id' => $penerima['id'],
-                        'received_at' => now(),
-                    ]);
-                }
-            }
+            $action->handle(
+                $user,
+                $currentPosition,
+                $validated,
+                $request->file('lampiran', [])
+            );
 
-            // INSERT LAMPIRAN
-            if ($request->HasFile('lampiran')) {
-                foreach ($request->lampiran as $lampiran) {
-                    $path = 'attachment/'.$request->letter_receipt_date;
-                    $filename = 'DSP'.now()->format('His').'_'.$lampiran->getClientOriginalName();
-                    Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-
-                    $storeUrl = "/storage/{$path}/{$filename}";
-                    LetterDoc::create([
-                        'letter_id' => $request->letter_id_primary,
-                        'name' => $filename,
-                        'url' => $storeUrl,
-                    ]);
-                }
-            }
-
-            DB::commit();
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Disposisi berhasil dikirim.',
+            ]);
 
             $routes = [
                 'primary' => [
@@ -237,35 +175,52 @@ class DispositionController extends Controller
                 ],
             ];
 
-            if (isset($routes[$request->type])) {
-                $route = $routes[$request->type];
+            if (isset($routes[$validated['type']])) {
+                $route = $routes[$validated['type']];
 
                 return redirect()->route($route['route'], $route['params']($request));
             }
 
-            return redirect()->back()->withErrors(['confirm' => 'Terjadi kesalahan, tipe surat tidak dikenali.']);
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Terjadi kesalahan, tipe surat tidak dikenali.',
+            ]);
 
+            return redirect()->back();
         } catch (\Throwable $th) {
-            DB::rollBack();
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal mengirim disposisi: '.$th->getMessage(),
+            ]);
 
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return redirect()->back();
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Disposition $recipient, string $letter_id): Response|RedirectResponse
+    public function show(Request $request, Disposition $recipient, string $letter_id): Response|RedirectResponse
     {
-        $user = User::find(Auth::user()->id);
-        $currentPosition = $user->currentPosition()->first();
+        $user = $request->user();
+        $currentPosition = $user?->currentPosition()?->first();
 
-        if ($recipient->to_position_id != $currentPosition->id) {
-            return redirect()->back()->withErrors(['confirm' => 'Anda tidak memiliki akses ke disposisi ini.']);
+        if (! $currentPosition || $recipient->to_position_id != $currentPosition->id) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Anda tidak memiliki akses ke disposisi ini.',
+            ]);
+
+            return redirect()->back();
         }
 
         if ($recipient->letter()->where('letter_id', $letter_id)->doesntExist()) {
-            return redirect()->back()->withErrors(['confirm' => 'Surat tidak ditemukan atau tidak sesuai dengan disposisi ini.']);
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Surat tidak ditemukan atau tidak sesuai dengan disposisi ini.',
+            ]);
+
+            return redirect()->back();
         }
 
         $from = $recipient->senderUser()->select('id', 'name')->first();
@@ -276,7 +231,7 @@ class DispositionController extends Controller
             'docs:id,letter_id,name,url',
         ])->firstOrFail();
 
-        return inertia('app/disposition/Show', [
+        return Inertia::render('app/disposition/Show', [
             'breadcrumbItems' => [
                 [
                     'title' => 'Disposisi',
@@ -303,21 +258,22 @@ class DispositionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Disposition $disposition, string $letter_id): RedirectResponse
-    {
-        DB::beginTransaction();
-
+    public function update(
+        Disposition $disposition,
+        string $letter_id,
+        MarkDispositionAsReadAction $action
+    ): RedirectResponse {
         try {
-            $disposition->update(['read_at' => now()]);
+            $action->handle($disposition);
 
-            DB::commit();
-
-            return redirect()->route('dispo.show', (['recipient' => $disposition->id, 'letter_id' => $letter_id]));
-
+            return redirect()->route('dispo.show', ['recipient' => $disposition->id, 'letter_id' => $letter_id]);
         } catch (\Throwable $th) {
-            DB::rollBack();
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui status disposisi: '.$th->getMessage(),
+            ]);
 
-            return redirect()->back()->withErrors(['confirm' => $th->getMessage()]);
+            return redirect()->back();
         }
     }
 }
