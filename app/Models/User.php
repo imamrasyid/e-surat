@@ -98,7 +98,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             ->withTimestamps();
     }
 
-    // Update hak khusus (tanpa menghapus row lama, hanya aktif/nonaktif)
+    /**
+     * Update hak khusus (tanpa menghapus row lama, hanya aktif/nonaktif)
+     *
+     * @param  array<int, int|string>  $positionIds
+     */
     public function updateSpecialDispositions(array $positionIds): void
     {
         $existing = ModelHasSpecialDisposition::where('model_type', self::class)
