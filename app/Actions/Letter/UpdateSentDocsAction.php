@@ -5,8 +5,10 @@ namespace App\Actions\Letter;
 use App\Models\Letter;
 use App\Models\LetterDoc;
 use App\Models\RefAgendaSurat;
+use App\Models\RefKdKlasifikasi;
 use App\Services\LetterActivityService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -45,9 +47,10 @@ class UpdateSentDocsAction
             // Tambah lampiran baru
             if (! empty($lampiranFiles)) {
                 $agenda = RefAgendaSurat::where('nomor_agenda', $letter->agenda)->firstOrFail();
+                /** @var RefKdKlasifikasi $klasifikasi */
                 $klasifikasi = $agenda->klasifikasi;
 
-                $receiptDate = date('Y-m-d', strtotime($letter->receipt_date));
+                $receiptDate = Carbon::parse($letter->receipt_date)->format('Y-m-d');
 
                 foreach ($lampiranFiles as $lampiran) {
                     $path = 'attachment/'.$receiptDate;

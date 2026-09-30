@@ -10,6 +10,8 @@ class GetRecipientTimelineAction
 {
     /**
      * Get the combined disposition and memo timeline for a letter recipient.
+     *
+     * @return Collection<int, Disposition|Memo>
      */
     public function handle(string $recipientId): Collection
     {
@@ -37,8 +39,8 @@ class GetRecipientTimelineAction
             ->with(['fromPosition:id,name', 'toPosition:id,name'])
             ->get();
 
-        return collect([$dispositions, $memos])
-            ->collapse()
+        return $dispositions
+            ->concat($memos)
             ->sortBy('received_at')
             ->values();
     }

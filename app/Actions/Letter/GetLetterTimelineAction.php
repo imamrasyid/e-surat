@@ -11,6 +11,8 @@ class GetLetterTimelineAction
 {
     /**
      * Get unified timeline of recipients, dispositions, and memos for a letter.
+     *
+     * @return Collection<int, LetterRecipient|Disposition|Memo>
      */
     public function handle(string $letterId): Collection
     {
@@ -59,8 +61,9 @@ class GetLetterTimelineAction
             ->with(['fromPosition:id,name', 'toPosition:id,name'])
             ->get();
 
-        return collect([$recipients, $dispositions, $memos])
-            ->collapse()
+        return $recipients
+            ->concat($dispositions)
+            ->concat($memos)
             ->sortBy('received_at')
             ->values();
     }

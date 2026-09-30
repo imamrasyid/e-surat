@@ -2,6 +2,7 @@
 
 namespace App\Actions\MasterData\User;
 
+use App\Models\Position;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,7 @@ class UpdateUserPositionAction
     public function handle(User $user, int|string $positionId): void
     {
         DB::transaction(function () use ($user, $positionId): void {
+            /** @var Position|null $currentPosition */
             $currentPosition = $user->currentPosition()->first();
 
             if ($currentPosition) {

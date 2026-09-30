@@ -33,7 +33,7 @@ class CloseMemoAction
             ]);
 
             // UPDATE LETTER STATUS
-            $letter = Letter::findOrFail($validated['letter_id_primary']);
+            $letter = Letter::where('id', $validated['letter_id_primary'])->firstOrFail();
             $letter->update([
                 'status' => 'close',
             ]);

@@ -71,7 +71,7 @@ class UpdateSentRecipientsAction
                 $changes['removed'] = $removedIds->map(fn ($r) => $r->toPosition->name ?? $r->to_position_id)->values()->toArray();
             }
             if (! empty($newRecipients)) {
-                $changes['added'] = collect($newRecipients)->map(fn ($r) => Position::find($r->to_position_id)?->name ?? $r->to_position_id)->values()->toArray();
+                $changes['added'] = collect($newRecipients)->map(fn ($r) => Position::find($r->to_position_id)->name ?? $r->to_position_id)->values()->toArray();
             }
 
             if (! empty($changes)) {
