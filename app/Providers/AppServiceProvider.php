@@ -15,7 +15,12 @@ use Spatie\Permission\Events\RoleDetached;
 
 class AppServiceProvider extends ServiceProvider
 {
-    protected $listen = [
+    /**
+     * The event handler mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected array $listen = [
         RoleAttached::class => [
             ClearUserPermissionsCache::class,
         ],

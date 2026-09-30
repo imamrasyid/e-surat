@@ -9,6 +9,8 @@ class LetterActivityService
 {
     /**
      * Log perubahan data surat.
+     *
+     * @param  array<string, mixed>|null  $changes
      */
     public static function log(int $letterId, string $action, string $description, ?array $changes = null): LetterActivity
     {
@@ -23,6 +25,9 @@ class LetterActivityService
 
     /**
      * Log perubahan field pada surat (otomatis diff old vs new).
+     *
+     * @param  array<string, mixed>  $oldData
+     * @param  array<string, mixed>  $newData
      */
     public static function logDiff(int $letterId, string $action, string $description, array $oldData, array $newData): ?LetterActivity
     {

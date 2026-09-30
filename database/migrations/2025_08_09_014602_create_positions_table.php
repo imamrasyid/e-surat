@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('Nama jabatan');
-            $table->foreignId('parent_id')->nullable()->constrained('positions')->comment('Hirarki jabatan');
+            $table->foreignId('parent_id')->nullable()->comment('Hirarki jabatan')->constrained('positions');
             $table->boolean('is_active')->default(true)->comment('Status aktif jabatan');
             $table->timestamps();
         });
