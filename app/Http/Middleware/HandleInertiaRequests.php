@@ -47,7 +47,7 @@ class HandleInertiaRequests extends Middleware
         $memo = 0;
 
         if ($request->user()) {
-            $currentPositionId = $request->user()->currentPosition()->pluck('positions.id')->first();
+            $currentPositionId = $request->user()->currentPosition()->value('positions.id');
 
             if ($currentPositionId) {
                 $counts = Cache::remember(

@@ -53,6 +53,9 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         ];
     }
 
+    /**
+     * @return MorphToMany<Position, $this>
+     */
     public function positions(): MorphToMany
     {
         return $this->morphToMany(Position::class, 'model', 'model_has_position')
@@ -60,13 +63,21 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             ->withTimestamps();
     }
 
-    // Ambil jabatan aktif saat ini
+    /**
+     * Ambil jabatan aktif saat ini
+     *
+     * @return MorphToMany<Position, $this>
+     */
     public function currentPosition(): MorphToMany
     {
         return $this->positions()->wherePivot('is_active', true);
     }
 
-    // Hak khusus disposisi aktif
+    /**
+     * Hak khusus disposisi aktif
+     *
+     * @return MorphToMany<Position, $this>
+     */
     public function specialDispositions(): MorphToMany
     {
         return $this->morphToMany(Position::class, 'model', 'model_has_special_dispositions', 'model_id', 'to_position_id')
@@ -75,7 +86,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             ->withTimestamps();
     }
 
-    // Semua hak disposisi (termasuk nonaktif)
+    /**
+     * Semua hak disposisi (termasuk nonaktif)
+     *
+     * @return MorphToMany<Position, $this>
+     */
     public function allSpecialDispositions(): MorphToMany
     {
         return $this->morphToMany(Position::class, 'model', 'model_has_special_dispositions', 'model_id', 'to_position_id')

@@ -75,6 +75,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request, CreateUserAction $action): RedirectResponse
     {
+        /** @var array{name: string, username: string, password: string} $validated */
         $validated = $request->validated();
 
         try {
@@ -170,6 +171,7 @@ class UserController extends Controller
         User $user,
         UpdateUserAction $action
     ): RedirectResponse {
+        /** @var array{name: string, username: string, is_active: bool, password?: string|null} $validated */
         $validated = $request->validated();
 
         try {

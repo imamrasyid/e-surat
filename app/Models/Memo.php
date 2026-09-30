@@ -40,6 +40,9 @@ class Memo extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Letter, $this>
+     */
     public function letter(): BelongsTo
     {
         return $this->belongsTo(Letter::class);

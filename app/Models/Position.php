@@ -30,6 +30,9 @@ class Position extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Position, $this>
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Position::class, 'parent_id');

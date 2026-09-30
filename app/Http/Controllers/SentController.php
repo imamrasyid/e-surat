@@ -279,8 +279,8 @@ class SentController extends Controller
         try {
             $action->handle(
                 $letter,
-                $request->input('hapus', []) ?? [],
-                $request->file('lampiran', []) ?? []
+                $request->input('hapus', []),
+                $request->file('lampiran', [])
             );
 
             Inertia::flash('toast', [
