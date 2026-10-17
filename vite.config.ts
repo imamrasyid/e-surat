@@ -10,7 +10,7 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.ts'],
             refresh: true,
         }),
-        inertia(),
+        inertia({ ssr: false }),
         tailwindcss(),
         vue({
             template: {
@@ -27,6 +27,7 @@ export default defineConfig({
         },
     },
     lint: {
+        plugins: ['typescript'],
         ignorePatterns: [
             'vendor/**',
             'node_modules/**',
@@ -41,6 +42,9 @@ export default defineConfig({
         options: {
             denyWarnings: true,
             typeAware: true,
+        },
+        rules: {
+            'no-console': ['error', { allow: ['warn', 'error'] }],
         },
     },
     fmt: {
