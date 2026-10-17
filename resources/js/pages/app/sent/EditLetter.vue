@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import Heading from '@/components/Heading.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -18,9 +20,8 @@ import type { BreadcrumbItem, Letter } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import type { DateValue } from '@internationalized/date';
 import { DateFormatter, getLocalTimeZone, parseDate, today } from '@internationalized/date';
-import { Calendar as CalendarIcon, ChevronLeft, Loader2, Save } from '@lucide/vue';
-import { useDateFormat } from '@vueuse/core';
-import { watch } from 'vue';
+import { BadgeCheck, Calendar as CalendarIcon, ChevronLeft, Loader2, Save } from '@lucide/vue';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -61,9 +62,6 @@ const form = useForm({
     tglDiterima: DateValue | undefined;
 };
 
-form.tglSurat = toDateValue(props.letter.date);
-form.tglDiterima = toDateValue(props.letter.receipt_date);
-
 watch(
     () => form.tglSurat,
     (val) => {
@@ -82,6 +80,15 @@ useClearErrorsOnChange(form, { debounceMs: 120 });
 const onSubmit = () => {
     form.put(route('sent.updateletter', props.letter.letter_id));
 };
+
+const hasHistory = ref(false);
+const goBack = () => { window.history.back() };
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
+    form.tglSurat = toDateValue(props.letter.date);
+    form.tglDiterima = toDateValue(props.letter.receipt_date);
+});
 </script>
 
 <template>
@@ -89,31 +96,11 @@ const onSubmit = () => {
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6 xl:px-12">
-            <div class="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                <HeadingSmall title="Perbarui Surat Terkirim" description="Perbarui data surat yang telah terkirim" />
-                <div class="sm:text-end">
-                    <p class="text-xs text-gray-500">
-                        {{
-                            useDateFormat(letter.created_at, 'dddd, DD MMM YYYY, HH.mm', {
-                                locales: 'id-ID',
-                            })
-                        }}
-                    </p>
-                </div>
-            </div>
-
-            <Separator class="my-6" />
-
-            <div class="flex items-center justify-between">
-                <TooltipProvider>
+            <div class="flex items-center gap-4">
+                <TooltipProvider v-if="hasHistory">
                     <Tooltip>
                         <TooltipTrigger>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                class="cursor-pointer rounded-full"
-                                @click="$inertia.get(route('sent.show', letter.letter_id))"
-                            >
+                            <Button variant="outline" size="icon" class="cursor-pointer rounded-full" @click="goBack()">
                                 <ChevronLeft class="size-5" />
                             </Button>
                         </TooltipTrigger>
@@ -122,79 +109,60 @@ const onSubmit = () => {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
+                <Heading class="mb-0!" title="Perbarui Surat Terkirim" description="Perbarui data surat yang telah terkirim" />
             </div>
 
-            <form class="mt-6" @submit.prevent="onSubmit">
-                <!-- Informasi Read-Only -->
-                <div class="space-y-2">
-                    <div class="flex space-x-4 lg:space-x-12">
-                        <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                            <h6 class="text-sm font-medium">Nomor Agenda</h6>
-                        </aside>
-                        <div class="flex-1">
-                            <h6 class="text-sm dark:text-gray-300">{{ letter.agenda }}</h6>
-                        </div>
-                    </div>
-
-                    <div class="flex space-x-4 lg:space-x-12">
-                        <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                            <h6 class="text-sm font-medium">Status Surat</h6>
-                        </aside>
-                        <div class="flex-1">
-                            <span
-                                v-if="letter.status === 'open'"
-                                class="inline-block rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-500 dark:bg-gray-800"
-                            >
-                                Open
-                            </span>
-                            <span
-                                v-else
-                                class="inline-block rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-500 dark:bg-gray-800"
-                            >
-                                Close
-                            </span>
-                        </div>
-                    </div>
+            <dl class="mt-8 space-y-2">
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Nomor Agenda</dt>
+                    <dd class="max-w-md wrap-break-word">{{ letter.agenda }}</dd>
                 </div>
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
+                    <Badge v-if="letter.status === 'open'">
+                        Open
+                    </Badge>
+                    <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600">
+                        <BadgeCheck /> Close
+                    </Badge>
+                </div>
+            </dl>
 
-                <Separator class="my-6" />
+            <Separator class="mt-6" />
 
-                <!-- Form Editable Fields -->
+            <form class="mt-6" @submit.prevent="onSubmit">
                 <div class="space-y-8">
-                    <!-- Pengirim & Nomor Surat -->
                     <div class="flex flex-col lg:flex-row lg:space-x-12">
-                        <aside class="w-full max-w-xl lg:w-[250px] xl:w-[350px] 2xl:w-md">
-                            <HeadingSmall title="Pengirim" description="Perbarui pengirim dan nomor surat" />
+                        <aside class="w-full max-w-xl lg:w-62.5 xl:w-87.5 2xl:w-md">
+                            <HeadingSmall title="Pengirim" description="Masukkan pengirim dan nomor surat" />
                         </aside>
 
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
-                                    <Label for="sender">Pengirim</Label>
+                                    <Label for="pengirim">Pengirim</Label>
                                     <Input
-                                        id="sender"
+                                        id="pengirim"
                                         type="text"
                                         autofocus
                                         :tabindex="1"
                                         autocomplete="off"
                                         v-model="form.sender"
                                         placeholder="Nama pengirim surat"
-                                        class="h-10"
                                     />
                                     <InputError :message="form.errors.sender" />
                                 </div>
                                 <div class="grid gap-2 lg:basis-1/2">
-                                    <Label for="number">Nomor Surat</Label>
+                                    <Label for="nomor">Nomor</Label>
                                     <Input
-                                        id="number"
+                                        id="nomor"
                                         type="text"
                                         :tabindex="2"
                                         autocomplete="off"
                                         v-model="form.number"
-                                        placeholder="Nomor surat"
-                                        class="h-10"
+                                        placeholder="Nomor surat masuk (Opsional)"
                                     />
                                     <InputError :message="form.errors.number" />
                                 </div>
@@ -204,32 +172,32 @@ const onSubmit = () => {
 
                     <Separator class="hidden lg:block" />
 
-                    <!-- Tanggal Surat & Tanggal Diterima -->
                     <div class="flex flex-col lg:flex-row lg:space-x-12">
-                        <aside class="w-full max-w-xl lg:w-[250px] xl:w-[350px] 2xl:w-md">
-                            <HeadingSmall title="Tanggal" description="Perbarui tanggal surat dan tanggal diterima" />
+                        <aside class="w-full max-w-xl lg:w-62.5 xl:w-87.5 2xl:w-md">
+                            <HeadingSmall title="Informasi Surat" description="Atur informasi data surat masuk" />
                         </aside>
 
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
                                     <Label for="tglsurat">Tanggal Surat</Label>
                                     <Popover>
                                         <PopoverTrigger as-child>
                                             <Button
                                                 id="tglsurat"
+                                                type="button"
                                                 variant="outline"
                                                 :tabindex="3"
                                                 :class="
                                                     cn(
-                                                        'h-10 max-w-[200px] justify-start text-left font-normal',
+                                                        'w-full justify-start text-left font-normal',
                                                         !form.tglSurat && 'text-muted-foreground',
                                                     )
                                                 "
                                             >
-                                                <CalendarIcon class="mr-2 h-4 w-4" />
+                                                <CalendarIcon class="h-4 w-4" />
                                                 {{ form.tglSurat ? df.format(form.tglSurat.toDate(getLocalTimeZone())) : 'Pilih tanggal' }}
                                             </Button>
                                         </PopoverTrigger>
@@ -245,16 +213,17 @@ const onSubmit = () => {
                                         <PopoverTrigger as-child>
                                             <Button
                                                 id="tglditerima"
+                                                type="button"
                                                 variant="outline"
                                                 :tabindex="4"
                                                 :class="
                                                     cn(
-                                                        'h-10 max-w-[200px] justify-start text-left font-normal',
+                                                        'w-full justify-start text-left font-normal',
                                                         !form.tglDiterima && 'text-muted-foreground',
                                                     )
                                                 "
                                             >
-                                                <CalendarIcon class="mr-2 h-4 w-4" />
+                                                <CalendarIcon class="h-4 w-4" />
                                                 {{ form.tglDiterima ? df.format(form.tglDiterima.toDate(getLocalTimeZone())) : 'Pilih tanggal' }}
                                             </Button>
                                         </PopoverTrigger>
@@ -265,36 +234,16 @@ const onSubmit = () => {
                                     <InputError :message="form.errors.receipt_date" />
                                 </div>
                             </section>
-                        </div>
-                    </div>
-
-                    <Separator class="hidden lg:block" />
-
-                    <!-- Kategori -->
-                    <div class="flex flex-col lg:flex-row lg:space-x-12">
-                        <aside class="w-full max-w-xl lg:w-[250px] xl:w-[350px] 2xl:w-md">
-                            <HeadingSmall title="Kategori" description="Perbarui kategori surat" />
-                        </aside>
-
-                        <Separator class="my-6 lg:hidden" />
-
-                        <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl">
-                                <div class="grid gap-2 lg:max-w-[200px]">
-                                    <Label for="category">Kategori</Label>
-                                    <Select v-model="form.category">
-                                        <SelectTrigger id="category" :tabindex="5" aria-label="Select kategori" class="dark:bg-input/30">
-                                            <SelectValue placeholder="Pilih kategori" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectItem v-for="item in categoryInbox" :key="item.value" :value="String(item.value)">
-                                                    {{ item.name }}
-                                                </SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    <InputError :message="form.errors.category" />
+                            <section class="mt-6 max-w-2xl">
+                                <div class="grid gap-2">
+                                    <Label for="perihal">Perihal</Label>
+                                    <Textarea
+                                        id="perihal"
+                                        :tabindex="4"
+                                        v-model="form.subject"
+                                        placeholder="Perihal isi surat"
+                                    />
+                                    <InputError :message="form.errors.subject" />
                                 </div>
                             </section>
                         </div>
@@ -302,26 +251,29 @@ const onSubmit = () => {
 
                     <Separator class="hidden lg:block" />
 
-                    <!-- Perihal -->
                     <div class="flex flex-col lg:flex-row lg:space-x-12">
-                        <aside class="w-full max-w-xl lg:w-[250px] xl:w-[350px] 2xl:w-md">
-                            <HeadingSmall title="Perihal" description="Perbarui perihal isi surat" />
+                        <aside class="w-full max-w-xl lg:w-62.5 xl:w-87.5 2xl:w-md">
+                            <HeadingSmall title="Kategori Surat" description="Tentukan kategori surat" />
                         </aside>
 
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl">
-                                <div class="grid gap-2">
-                                    <Label for="subject">Perihal</Label>
-                                    <Textarea
-                                        id="subject"
-                                        :tabindex="6"
-                                        v-model="form.subject"
-                                        placeholder="Perihal isi surat"
-                                        class="dark:bg-input/30"
-                                    />
-                                    <InputError :message="form.errors.subject" />
+                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                                <div class="grid gap-2 lg:basis-1/3">
+                                    <Label for="kategori">Kategori</Label>
+                                    <Select v-model="form.category">
+                                        <SelectTrigger id="kategori" :tabindex="5" aria-label="Select kategori" class="w-full">
+                                            <SelectValue placeholder="Pilih kategori" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectLabel>Kategori surat</SelectLabel>
+                                            <SelectItem v-for="item in categoryInbox" :key="item.value" :value="item.value">
+                                                {{ item.name }}
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError :message="form.errors.category" />
                                 </div>
                             </section>
                         </div>
@@ -332,8 +284,8 @@ const onSubmit = () => {
 
                 <div class="flex justify-end">
                     <Button type="submit" :disabled="form.processing || !form.isDirty" class="cursor-pointer">
-                        <Loader2 v-if="form.processing" class="h-4 w-4 animate-spin" />
-                        <Save v-else class="h-4 w-4" />
+                        <Loader2 v-if="form.processing" class="animate-spin" />
+                        <Save v-else />
                         Simpan Perubahan
                     </Button>
                 </div>

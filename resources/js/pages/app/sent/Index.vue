@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
 import SmartPagination from '@/components/SmartPagination.vue';
-import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -53,43 +53,39 @@ function goToDetail(letter_id: string) {
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <Heading class="!mb-0" title="Surat Terkirim" description="Daftar surat yang telah terkirim" />
-                <div class="relative w-full max-w-sm items-center sm:max-w-[250px]">
-                    <Input id="search" type="text" v-model="search" placeholder="Cari..." class="h-10 pl-8" autocomplete="off" />
-                    <span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
-                        <Search class="text-muted-foreground size-5" />
-                    </span>
-                </div>
+                <Heading class="mb-0!" title="Surat Terkirim" description="Daftar surat yang telah terkirim" />
+                 <InputGroup class="sm:max-w-62.5">
+                    <InputGroupInput id="search-sent-letter" v-model="search" placeholder="Cari..." />
+                    <InputGroupAddon>
+                        <Search />
+                    </InputGroupAddon>
+                </InputGroup>
             </div>
 
             <div class="space-y-6">
-                <div class="rounded-md border">
+                <div class="rounded-md border overflow-hidden">
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
-                                <TableHead class="w-[125px] xl:w-[175px]">Agenda</TableHead>
-                                <TableHead class="w-[165px] xl:w-[260px]">Nomor Surat</TableHead>
-                                <TableHead class="min-w-[180px]">Perihal</TableHead>
-                                <TableHead class="w-[100px]">Status</TableHead>
-                                <TableHead class="w-[100px] text-right"></TableHead>
+                                <TableHead class="min-w-32">Agenda</TableHead>
+                                <TableHead class="min-w-42">Nomor Surat</TableHead>
+                                <TableHead class="min-w-46">Perihal</TableHead>
+                                <TableHead class="w-20">Status</TableHead>
+                                <TableHead class="w-20 text-right"></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="(item, index) in sent.data" :key="index" class="cursor-pointer" @click="goToDetail(item.letter_id)">
+                            <TableRow v-for="(item, index) in sent.data" :key="item.id ?? index" class="cursor-pointer" @click="goToDetail(item.letter_id)">
                                 <TableCell class="align-top">{{ item.agenda }}</TableCell>
                                 <TableCell class="align-top">{{ item.number }}</TableCell>
                                 <TableCell class="align-top">
-                                    <div>
-                                        <p>
-                                            {{ item.sender }}
-                                        </p>
-                                        <p class="text-muted-foreground line-clamp-1">
-                                            {{ item.subject }}
-                                        </p>
-                                    </div>
+                                    {{ item.sender }}
+                                    <p class="text-muted-foreground line-clamp-1">
+                                        {{ item.subject }}
+                                    </p>
                                 </TableCell>
                                 <TableCell class="align-top">{{ item.status == 'open' ? 'Open' : 'Close' }}</TableCell>
-                                <TableCell class="text-right align-top">
+                                <TableCell class="whitespace-nowrap text-right align-top">
                                     {{ formatCreate(item.created_at) }}
                                 </TableCell>
                             </TableRow>

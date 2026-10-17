@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import Heading from '@/components/Heading.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,8 +12,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ChevronLeft, Loader2, Plus, Save, Trash2 } from '@lucide/vue';
-import { useDateFormat } from '@vueuse/core';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
 
 const props = defineProps<{
@@ -25,28 +25,7 @@ const form = useForm({
     hapus: [] as number[],
 });
 
-// Daftar lampiran yang sudah ada (reaktif, untuk tampilan)
 const existingDocs = ref<Letter['docs']>(props.letter.docs);
-
-// Dialog konfirmasi hapus
-const showDeleteDialog = ref(false);
-const deleteTarget = ref<{ id: number; name: string; index: number } | null>(null);
-
-const openDeleteDialog = (doc: { id: number; name: string }, index: number) => {
-    deleteTarget.value = { id: doc.id, name: doc.name, index };
-    showDeleteDialog.value = true;
-};
-
-const confirmDelete = () => {
-    if (deleteTarget.value && existingDocs.value) {
-        form.hapus.push(deleteTarget.value.id);
-        existingDocs.value.splice(deleteTarget.value.index, 1);
-        deleteTarget.value = null;
-        showDeleteDialog.value = false;
-    }
-};
-
-// Upload file baru
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const triggerFileSelect = () => {
@@ -64,7 +43,7 @@ const handleFileChange = (event: Event) => {
             }
         });
     }
-    // Reset input agar bisa upload file yang sama lagi
+
     if (fileInputRef.value) {
         fileInputRef.value.value = '';
     }
@@ -84,6 +63,30 @@ const onSubmit = () => {
         forceFormData: true,
     });
 };
+
+const showDeleteDialog = ref(false);
+const deleteTarget = ref<{ id: number; name: string; index: number } | null>(null);
+
+const openDeleteDialog = (doc: { id: number; name: string }, index: number) => {
+    deleteTarget.value = { id: doc.id, name: doc.name, index };
+    showDeleteDialog.value = true;
+};
+
+const confirmDelete = () => {
+    if (deleteTarget.value && existingDocs.value) {
+        form.hapus.push(deleteTarget.value.id);
+        existingDocs.value.splice(deleteTarget.value.index, 1);
+        deleteTarget.value = null;
+        showDeleteDialog.value = false;
+    }
+};
+
+const hasHistory = ref(false);
+const goBack = () => { window.history.back() };
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
+});
 </script>
 
 <template>
@@ -91,27 +94,11 @@ const onSubmit = () => {
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6 xl:px-12">
-            <div class="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                <HeadingSmall title="Perbarui Lampiran Surat" description="Kelola lampiran surat yang telah terkirim" />
-                <div class="sm:text-end">
-                    <p class="text-xs text-gray-500">
-                        {{ useDateFormat(letter.created_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' }) }}
-                    </p>
-                </div>
-            </div>
-
-            <Separator class="my-6" />
-
-            <div class="flex items-center justify-between">
-                <TooltipProvider>
+            <div class="flex items-center gap-4">
+                <TooltipProvider v-if="hasHistory">
                     <Tooltip>
                         <TooltipTrigger>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                class="cursor-pointer rounded-full"
-                                @click="$inertia.get(route('sent.show', letter.letter_id))"
-                            >
+                            <Button variant="outline" size="icon" class="cursor-pointer rounded-full" @click="goBack()">
                                 <ChevronLeft class="size-5" />
                             </Button>
                         </TooltipTrigger>
@@ -120,148 +107,133 @@ const onSubmit = () => {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
+                <Heading class="mb-0!" title="Perbarui Lampiran Surat" description="Kelola lampiran surat yang telah terkirim" />
             </div>
 
-            <!-- Info Surat (Read-Only) -->
-            <div class="mt-6 space-y-2">
-                <div class="flex space-x-4 lg:space-x-12">
-                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                        <h6 class="text-sm font-medium">Nomor Agenda</h6>
-                    </aside>
-                    <div class="flex-1">
-                        <h6 class="text-sm dark:text-gray-300">{{ letter.agenda }}</h6>
-                    </div>
+            <dl class="mt-8 space-y-2">
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Nomor Agenda</dt>
+                    <dd class="max-w-md wrap-break-word">{{ letter.agenda }}</dd>
                 </div>
-
-                <div class="flex space-x-4 lg:space-x-12">
-                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                        <h6 class="text-sm font-medium">Pengirim</h6>
-                    </aside>
-                    <div class="flex-1">
-                        <h6 class="text-sm dark:text-gray-300">{{ letter.sender }}</h6>
-                    </div>
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Pengirim</dt>
+                    <dd class="max-w-md wrap-break-word">{{ letter.sender }}</dd>
                 </div>
-
-                <div class="flex space-x-4 lg:space-x-12">
-                    <aside class="w-full max-w-[150px] sm:max-w-[150px] lg:w-[150px]">
-                        <h6 class="text-sm font-medium">Perihal</h6>
-                    </aside>
-                    <div class="flex-1 sm:max-w-md">
-                        <h6 class="text-sm dark:text-gray-300">{{ letter.subject }}</h6>
-                    </div>
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Nomor Surat</dt>
+                    <dd class="max-w-md wrap-break-word">{{ letter.number }}</dd>
                 </div>
-            </div>
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Perihal</dt>
+                    <dd class="max-w-md wrap-break-word">{{ letter.subject }}</dd>
+                </div>
+            </dl>
 
             <Separator class="my-6" />
 
-            <!-- Form Lampiran -->
             <form @submit.prevent="onSubmit">
-                <div class="space-y-8">
-                    <div class="flex flex-col lg:flex-row lg:space-x-12">
-                        <aside class="w-full max-w-xl lg:w-[250px] xl:w-[350px] 2xl:w-md">
-                            <HeadingSmall title="Lampiran" description="Kelola lampiran surat masuk" />
-                        </aside>
+                <div class="flex flex-col lg:flex-row lg:space-x-12">
+                    <aside class="w-full max-w-xl lg:w-62.5 xl:w-87.5 2xl:w-md">
+                        <HeadingSmall title="Lampiran" description="Kelola lampiran surat masuk" />
+                    </aside>
 
-                        <Separator class="my-6 lg:hidden" />
+                    <Separator class="my-6 lg:hidden" />
 
-                        <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl">
-                                <!-- Lampiran yang sudah ada -->
-                                <div v-if="existingDocs && existingDocs.length > 0" class="mb-6">
-                                    <Label class="mb-2 block">Lampiran Saat Ini</Label>
-                                    <Card>
-                                        <CardContent>
-                                            <div
-                                                v-for="(item, index) in existingDocs"
-                                                :key="item.id"
-                                                class="flex items-center justify-between py-4"
-                                                :class="{ 'border-b dark:border-gray-500': index !== existingDocs.length - 1 }"
-                                            >
-                                                <a :href="item.url" target="_blank" class="mr-2 flex items-center gap-2">
-                                                    <img class="block size-10 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
-                                                    <img class="hidden size-10 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
-                                                    <h6 class="line-clamp-1 text-sm font-medium text-gray-800 hover:underline dark:text-gray-300">
-                                                        {{ item.name }}
-                                                    </h6>
-                                                </a>
-                                                <Button
-                                                    type="button"
-                                                    size="icon"
-                                                    class="size-6 shrink-0 cursor-pointer rounded-full bg-red-50 hover:bg-red-100 dark:bg-red-500 dark:hover:bg-red-800"
-                                                    @click="openDeleteDialog(item, index)"
-                                                >
-                                                    <Trash2 class="size-3 text-red-500 dark:text-white" />
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                <!-- Upload lampiran baru -->
-                                <div>
-                                    <div class="flex items-center justify-between">
-                                        <div class="grid gap-1">
-                                            <Label for="lampiran">Tambah Lampiran Baru</Label>
-                                            <p class="text-muted-foreground text-xs">Supported Format: PDF</p>
-                                        </div>
+                    <div class="flex-1 md:max-w-2xl">
+                        <section class="max-w-2xl">
+                            <Card v-if="existingDocs && existingDocs.length > 0" class="mb-6 rounded-lg dark:bg-input/30">
+                                <CardHeader>
+                                    <CardTitle class="text-sm leading-none font-medium">Lampiran Saat Ini</CardTitle>
+                                    <CardDescription class="text-xs">Daftar lampiran yang telah terkirim</CardDescription>
+                                </CardHeader>
+                                <CardContent class="space-y-4">
+                                    <div
+                                        v-for="(item, index) in existingDocs"
+                                        :key="item.id"
+                                        class="flex items-center justify-between"
+                                        :class="{ 'border-b border-input border-dashed pb-4': index !== existingDocs.length - 1 }"
+                                    >
+                                        <a :href="item.url" target="_blank" class="mr-2 flex min-w-0 flex-1 items-center gap-2 text-sm hover:underline">
+                                            <img class="block size-10 shrink-0 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
+                                            <img class="hidden size-10 shrink-0 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
+                                            <span class="line-clamp-2 min-w-0 break-all">
+                                                {{ item.name }}
+                                            </span>
+                                        </a>
                                         <Button
-                                            id="lampiran"
                                             type="button"
-                                            size="icon"
-                                            class="cursor-pointer rounded-full"
-                                            aria-label="Button lampiran"
-                                            @click="triggerFileSelect"
+                                            size="xs"
+                                            class="rounded-full bg-red-50 hover:bg-red-100 dark:bg-red-500 dark:hover:bg-red-800"
+                                            @click="openDeleteDialog(item, index)"
                                         >
-                                            <Plus class="h-4 w-4" />
+                                            <Trash2 class="text-red-500 dark:text-white" />
                                         </Button>
-                                        <input
-                                            ref="fileInputRef"
-                                            type="file"
-                                            multiple
-                                            accept="application/pdf"
-                                            hidden
-                                            aria-label="Input file"
-                                            @change="handleFileChange"
-                                        />
                                     </div>
-                                    <Card class="mt-2" :class="{ 'border-red-500': form.errors.lampiran }">
-                                        <CardContent>
-                                            <div v-if="form.lampiran.length === 0" class="text-center">
-                                                <p class="text-muted-foreground text-sm">Belum ada lampiran baru. Klik tombol + untuk mengunggah.</p>
-                                            </div>
-                                            <div
-                                                v-for="(item, index) in form.lampiran"
-                                                :key="index"
-                                                class="flex items-center justify-between py-4"
-                                                :class="{ 'border-b dark:border-gray-500': index !== form.lampiran.length - 1 }"
-                                            >
-                                                <div class="mr-2 flex items-center gap-2">
-                                                    <img class="block size-10 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
-                                                    <img class="hidden size-10 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
-                                                    <div>
-                                                        <h6 class="line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-300">
-                                                            {{ item.name }}
-                                                        </h6>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                            {{ formatBytes(Number(item.size)) }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    type="button"
-                                                    size="icon"
-                                                    class="size-6 shrink-0 cursor-pointer rounded-full bg-red-50 hover:bg-red-100 dark:bg-red-500 dark:hover:bg-red-800"
-                                                    @click="form.lampiran.splice(index, 1)"
-                                                >
-                                                    <Trash2 class="size-3 text-red-500 dark:text-white" />
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <InputError :message="form.errors.lampiran" class="mt-1" />
+                                </CardContent>
+                            </Card>
+
+                            <!-- Upload lampiran baru -->
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <div class="grid gap-1">
+                                        <Label for="lampiran">Tambah Lampiran Baru</Label>
+                                        <p class="text-muted-foreground text-xs">Supported Format: PDF</p>
+                                    </div>
+                                    <Button
+                                        id="lampiran"
+                                        type="button"
+                                        size="icon-sm"
+                                        class="cursor-pointer rounded-full"
+                                        aria-label="Button lampiran"
+                                        @click="triggerFileSelect"
+                                    >
+                                        <Plus class="h-4 w-4" />
+                                    </Button>
+                                    <input
+                                        ref="fileInputRef"
+                                        type="file"
+                                        multiple
+                                        accept="application/pdf"
+                                        hidden
+                                        aria-label="Input file"
+                                        @change="handleFileChange"
+                                    />
                                 </div>
-                            </section>
-                        </div>
+                                <Card class="mt-2 rounded-lg dark:bg-input/30" :class="[form.errors.lampiran ? 'border-red-500' : '']">
+                                    <CardContent class="space-y-4">
+                                        <div v-if="form.lampiran.length === 0" class="text-center">
+                                            <p class="text-muted-foreground text-sm">Belum ada lampiran baru. Klik tombol + untuk mengunggah.</p>
+                                        </div>
+                                        <div
+                                            v-for="(item, index) in form.lampiran"
+                                            :key="index"
+                                            class="flex items-center justify-between"
+                                            :class="{ 'border-b border-input border-dashed pb-4': index != form.lampiran.length - 1 }"
+                                        >
+                                            <div class="mr-2 flex min-w-0 flex-1 items-center gap-2">
+                                                <img class="block size-10 shrink-0 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
+                                                <img class="hidden size-10 shrink-0 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
+                                                <div class="space-y-0.5">
+                                                    <p class="line-clamp-1 text-sm min-w-0 break-all">
+                                                        {{ item.name }}
+                                                    </p>
+                                                    <p class="text-xs text-muted-foreground">{{ formatBytes(Number(item.size)) }}</p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                size="xs"
+                                                class="rounded-full bg-red-50 hover:bg-red-100 dark:bg-red-500 dark:hover:bg-red-800"
+                                                @click="form.lampiran.splice(index, 1)"
+                                            >
+                                                <Trash2 class="text-red-500 dark:text-white" />
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <InputError :message="form.errors.lampiran" class="mt-1" />
+                            </div>
+                        </section>
                     </div>
                 </div>
 
@@ -269,32 +241,28 @@ const onSubmit = () => {
 
                 <div class="flex justify-end">
                     <Button type="submit" :disabled="form.processing || !form.isDirty" class="cursor-pointer">
-                        <Loader2 v-if="form.processing" class="h-4 w-4 animate-spin" />
-                        <Save v-else class="h-4 w-4" />
+                        <Loader2 v-if="form.processing" class="animate-spin" />
+                        <Save v-else />
                         Simpan Perubahan
                     </Button>
                 </div>
             </form>
         </div>
 
-        <!-- Dialog Konfirmasi Hapus -->
-        <Dialog v-model:open="showDeleteDialog">
-            <DialogContent>
-                <DialogHeader class="space-y-3">
-                    <DialogTitle>Hapus Lampiran</DialogTitle>
-                    <DialogDescription>
-                        Apakah Anda yakin ingin menghapus lampiran
-                        <strong>{{ deleteTarget?.name }}</strong
-                        >? Lampiran yang dihapus tidak dapat dikembalikan.
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter class="gap-2">
-                    <DialogClose as-child>
-                        <Button variant="secondary"> Batal </Button>
-                    </DialogClose>
-                    <Button variant="destructive" @click="confirmDelete"> Hapus </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <AlertDialog v-model:open="showDeleteDialog">
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Yakin menghapus lampiran?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Lampiran <strong>{{ deleteTarget?.name }}</strong>
+                        akan dihapus secara permanen dan tidak dapat dikembalikan.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction @click="confirmDelete">Ya, Hapus</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </AppLayout>
 </template>
