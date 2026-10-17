@@ -3,7 +3,16 @@ import Heading from '@/components/Heading.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox';
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+    ComboboxTrigger,
+    ComboboxViewport,
+} from '@/components/ui/combobox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,7 +68,9 @@ const onSubmit = () => {
 };
 
 const hasHistory = ref(false);
-const goBack = () => { window.history.back() };
+const goBack = () => {
+    window.history.back();
+};
 
 onMounted(() => {
     hasHistory.value = window.history.length > 1;
@@ -130,10 +141,19 @@ onMounted(() => {
                                                     type="button"
                                                     variant="outline"
                                                     :tabindex="9"
-                                                    :class="cn('w-full justify-between font-normal whitespace-normal', selectedPenerimas.length === 0 && 'text-muted-foreground')"
+                                                    :class="
+                                                        cn(
+                                                            'w-full justify-between font-normal whitespace-normal',
+                                                            selectedPenerimas.length === 0 && 'text-muted-foreground',
+                                                        )
+                                                    "
                                                 >
-                                                    <span class="text-left line-clamp-1">
-                                                        {{ selectedPenerimas.length > 0 ? selectedPenerimas.map((p) => p.name).join(', ') : 'Pilih penerima' }}
+                                                    <span class="line-clamp-1 text-left">
+                                                        {{
+                                                            selectedPenerimas.length > 0
+                                                                ? selectedPenerimas.map((p) => p.name).join(', ')
+                                                                : 'Pilih penerima'
+                                                        }}
                                                     </span>
                                                     <ChevronDownIcon class="text-muted-foreground" />
                                                 </Button>
@@ -141,16 +161,12 @@ onMounted(() => {
                                         </ComboboxAnchor>
                                         <ComboboxList align="start" class="w-(--reka-combobox-trigger-width) min-w-(--reka-combobox-trigger-width)">
                                             <ComboboxInput id="search-position" placeholder="Cari..." />
-                                            <ComboboxViewport class="w-full min-w-(--reka-combobox-trigger-width) max-h-65 p-1">
+                                            <ComboboxViewport class="max-h-65 w-full min-w-(--reka-combobox-trigger-width) p-1">
                                                 <ComboboxEmpty>Tidak ada data.</ComboboxEmpty>
-                                                <ComboboxItem
-                                                    v-for="item in positions"
-                                                    :key="item.id"
-                                                    :value="item"
-                                                >
+                                                <ComboboxItem v-for="item in positions" :key="item.id" :value="item">
                                                     <div
                                                         class="border-input data-[selected=true]:border-primary data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground pointer-events-none size-4 shrink-0 rounded-lg border transition-all select-none *:[svg]:opacity-0 data-[selected=true]:*:[svg]:opacity-100"
-                                                        :data-selected="selectedPenerimas.some(p => p.id === item.id)"
+                                                        :data-selected="selectedPenerimas.some((p) => p.id === item.id)"
                                                     >
                                                         <CheckIcon class="size-3.5 text-current" />
                                                     </div>

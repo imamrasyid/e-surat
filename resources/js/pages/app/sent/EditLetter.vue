@@ -82,7 +82,9 @@ const onSubmit = () => {
 };
 
 const hasHistory = ref(false);
-const goBack = () => { window.history.back() };
+const goBack = () => {
+    window.history.back();
+};
 
 onMounted(() => {
     hasHistory.value = window.history.length > 1;
@@ -119,12 +121,8 @@ onMounted(() => {
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
-                    <Badge v-if="letter.status === 'open'">
-                        Open
-                    </Badge>
-                    <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600">
-                        <BadgeCheck /> Close
-                    </Badge>
+                    <Badge v-if="letter.status === 'open'"> Open </Badge>
+                    <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600"> <BadgeCheck /> Close </Badge>
                 </div>
             </dl>
 
@@ -140,7 +138,7 @@ onMounted(() => {
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
                                     <Label for="pengirim">Pengirim</Label>
                                     <Input
@@ -180,7 +178,7 @@ onMounted(() => {
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
                                     <Label for="tglsurat">Tanggal Surat</Label>
                                     <Popover>
@@ -190,12 +188,7 @@ onMounted(() => {
                                                 type="button"
                                                 variant="outline"
                                                 :tabindex="3"
-                                                :class="
-                                                    cn(
-                                                        'w-full justify-start text-left font-normal',
-                                                        !form.tglSurat && 'text-muted-foreground',
-                                                    )
-                                                "
+                                                :class="cn('w-full justify-start text-left font-normal', !form.tglSurat && 'text-muted-foreground')"
                                             >
                                                 <CalendarIcon class="h-4 w-4" />
                                                 {{ form.tglSurat ? df.format(form.tglSurat.toDate(getLocalTimeZone())) : 'Pilih tanggal' }}
@@ -217,10 +210,7 @@ onMounted(() => {
                                                 variant="outline"
                                                 :tabindex="4"
                                                 :class="
-                                                    cn(
-                                                        'w-full justify-start text-left font-normal',
-                                                        !form.tglDiterima && 'text-muted-foreground',
-                                                    )
+                                                    cn('w-full justify-start text-left font-normal', !form.tglDiterima && 'text-muted-foreground')
                                                 "
                                             >
                                                 <CalendarIcon class="h-4 w-4" />
@@ -237,12 +227,7 @@ onMounted(() => {
                             <section class="mt-6 max-w-2xl">
                                 <div class="grid gap-2">
                                     <Label for="perihal">Perihal</Label>
-                                    <Textarea
-                                        id="perihal"
-                                        :tabindex="4"
-                                        v-model="form.subject"
-                                        placeholder="Perihal isi surat"
-                                    />
+                                    <Textarea id="perihal" :tabindex="4" v-model="form.subject" placeholder="Perihal isi surat" />
                                     <InputError :message="form.errors.subject" />
                                 </div>
                             </section>
@@ -259,7 +244,7 @@ onMounted(() => {
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/3">
                                     <Label for="kategori">Kategori</Label>
                                     <Select v-model="form.category">

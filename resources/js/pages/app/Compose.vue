@@ -5,7 +5,17 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox';
+import {
+    Combobox,
+    ComboboxAnchor,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxList,
+    ComboboxTrigger,
+    ComboboxViewport,
+} from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -45,7 +55,7 @@ const thisYear = computed(() => {
     return today(getLocalTimeZone()).year.toString();
 });
 
-const decades = createDecades({dateObj: today(getLocalTimeZone()), startIndex: -1, endIndex: 0});
+const decades = createDecades({ dateObj: today(getLocalTimeZone()), startIndex: -1, endIndex: 0 });
 
 type FormInput = {
     pengirim: string;
@@ -183,7 +193,7 @@ const onSubmit = () => {
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
                                     <Label for="pengirim">Pengirim</Label>
                                     <Input
@@ -223,7 +233,7 @@ const onSubmit = () => {
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
                                     <Label for="tglsurat">Tanggal Surat</Label>
                                     <Popover>
@@ -233,12 +243,7 @@ const onSubmit = () => {
                                                 type="button"
                                                 variant="outline"
                                                 :tabindex="3"
-                                                :class="
-                                                    cn(
-                                                        'w-full justify-start text-left font-normal',
-                                                        !form.tglSurat && 'text-muted-foreground',
-                                                    )
-                                                "
+                                                :class="cn('w-full justify-start text-left font-normal', !form.tglSurat && 'text-muted-foreground')"
                                             >
                                                 <CalendarIcon class="h-4 w-4" />
                                                 {{ form.tglSurat ? df.format(form.tglSurat.toDate(getLocalTimeZone())) : 'Pilih tanggal' }}
@@ -260,10 +265,7 @@ const onSubmit = () => {
                                                 variant="outline"
                                                 :tabindex="4"
                                                 :class="
-                                                    cn(
-                                                        'w-full justify-start text-left font-normal',
-                                                        !form.tglDiterima && 'text-muted-foreground',
-                                                    )
+                                                    cn('w-full justify-start text-left font-normal', !form.tglDiterima && 'text-muted-foreground')
                                                 "
                                             >
                                                 <CalendarIcon class="h-4 w-4" />
@@ -280,12 +282,7 @@ const onSubmit = () => {
                             <section class="mt-6 max-w-2xl">
                                 <div class="grid gap-2">
                                     <Label for="perihal">Perihal</Label>
-                                    <Textarea
-                                        id="perihal"
-                                        :tabindex="5"
-                                        v-model="form.perihal"
-                                        placeholder="Perihal isi surat"
-                                    />
+                                    <Textarea id="perihal" :tabindex="5" v-model="form.perihal" placeholder="Perihal isi surat" />
                                     <InputError :message="form.errors.perihal" />
                                 </div>
                             </section>
@@ -302,7 +299,7 @@ const onSubmit = () => {
                         <Separator class="my-6 lg:hidden" />
 
                         <div class="flex-1 md:max-w-2xl">
-                            <section class="max-w-2xl space-y-6 items-start lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                            <section class="max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/3">
                                     <Label for="kategori">Kategori</Label>
                                     <Select v-model="form.kategori">
@@ -321,7 +318,7 @@ const onSubmit = () => {
                                 <div class="grid gap-2 lg:basis-2/3">
                                     <Label for="agenda">Agenda</Label>
                                     <div class="flex w-full items-start justify-between gap-6">
-                                        <div class="grid w-full lg:w-3/4 gap-2">
+                                        <div class="grid w-full gap-2 lg:w-3/4">
                                             <Combobox v-model="selectedAgenda" by="nama">
                                                 <ComboboxAnchor as-child>
                                                     <ComboboxTrigger as-child>
@@ -330,16 +327,24 @@ const onSubmit = () => {
                                                             type="button"
                                                             variant="outline"
                                                             :tabindex="7"
-                                                            :class="cn('w-full justify-between font-normal', !selectedAgenda?.nama && 'text-muted-foreground')"
+                                                            :class="
+                                                                cn(
+                                                                    'w-full justify-between font-normal',
+                                                                    !selectedAgenda?.nama && 'text-muted-foreground',
+                                                                )
+                                                            "
                                                         >
                                                             {{ selectedAgenda?.nama || 'Pilih agenda' }}
                                                             <ChevronDownIcon class="text-muted-foreground" />
                                                         </Button>
                                                     </ComboboxTrigger>
                                                 </ComboboxAnchor>
-                                                <ComboboxList align="start" class="w-(--reka-combobox-trigger-width) min-w-(--reka-combobox-trigger-width)">
+                                                <ComboboxList
+                                                    align="start"
+                                                    class="w-(--reka-combobox-trigger-width) min-w-(--reka-combobox-trigger-width)"
+                                                >
                                                     <ComboboxInput id="search-clasification" placeholder="Cari..." />
-                                                    <ComboboxViewport class="w-full min-w-(--reka-combobox-trigger-width) max-h-65 p-1">
+                                                    <ComboboxViewport class="max-h-65 w-full min-w-(--reka-combobox-trigger-width) p-1">
                                                         <ComboboxEmpty>Tidak ada data.</ComboboxEmpty>
                                                         <ComboboxItem
                                                             v-for="item in kdKlasifikasi"
@@ -364,11 +369,7 @@ const onSubmit = () => {
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectLabel>Tahun agenda</SelectLabel>
-                                                    <SelectItem
-                                                        v-for="(yearValue, index) in decades"
-                                                        :key="index"
-                                                        :value="yearValue.year.toString()"
-                                                    >
+                                                    <SelectItem v-for="(yearValue, index) in decades" :key="index" :value="yearValue.year.toString()">
                                                         {{ yearValue.year }}
                                                     </SelectItem>
                                                 </SelectContent>
@@ -402,10 +403,19 @@ const onSubmit = () => {
                                                     type="button"
                                                     variant="outline"
                                                     :tabindex="9"
-                                                    :class="cn('w-full justify-between font-normal whitespace-normal', selectedPenerimas.length === 0 && 'text-muted-foreground')"
+                                                    :class="
+                                                        cn(
+                                                            'w-full justify-between font-normal whitespace-normal',
+                                                            selectedPenerimas.length === 0 && 'text-muted-foreground',
+                                                        )
+                                                    "
                                                 >
-                                                    <span class="text-left line-clamp-1">
-                                                        {{ selectedPenerimas.length > 0 ? selectedPenerimas.map((p) => p.name).join(', ') : 'Pilih penerima' }}
+                                                    <span class="line-clamp-1 text-left">
+                                                        {{
+                                                            selectedPenerimas.length > 0
+                                                                ? selectedPenerimas.map((p) => p.name).join(', ')
+                                                                : 'Pilih penerima'
+                                                        }}
                                                     </span>
                                                     <ChevronDownIcon class="text-muted-foreground" />
                                                 </Button>
@@ -413,16 +423,12 @@ const onSubmit = () => {
                                         </ComboboxAnchor>
                                         <ComboboxList align="start" class="w-(--reka-combobox-trigger-width) min-w-(--reka-combobox-trigger-width)">
                                             <ComboboxInput id="search-position" placeholder="Cari..." />
-                                            <ComboboxViewport class="w-full min-w-(--reka-combobox-trigger-width) max-h-65 p-1">
+                                            <ComboboxViewport class="max-h-65 w-full min-w-(--reka-combobox-trigger-width) p-1">
                                                 <ComboboxEmpty>Tidak ada data.</ComboboxEmpty>
-                                                <ComboboxItem
-                                                    v-for="item in positions"
-                                                    :key="item.id"
-                                                    :value="item"
-                                                >
+                                                <ComboboxItem v-for="item in positions" :key="item.id" :value="item">
                                                     <div
                                                         class="border-input data-[selected=true]:border-primary data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground pointer-events-none size-4 shrink-0 rounded-lg border transition-all select-none *:[svg]:opacity-0 data-[selected=true]:*:[svg]:opacity-100"
-                                                        :data-selected="selectedPenerimas.some(p => p.id === item.id)"
+                                                        :data-selected="selectedPenerimas.some((p) => p.id === item.id)"
                                                     >
                                                         <CheckIcon class="size-3.5 text-current" />
                                                     </div>
@@ -435,12 +441,7 @@ const onSubmit = () => {
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="catatan">Catatan</Label>
-                                    <Textarea
-                                        id="catatan"
-                                        :tabindex="10"
-                                        v-model="form.catatan"
-                                        placeholder="Masukkan catatan surat (Opsional)"
-                                    />
+                                    <Textarea id="catatan" :tabindex="10" v-model="form.catatan" placeholder="Masukkan catatan surat (Opsional)" />
                                     <InputError :message="form.errors.catatan" />
                                 </div>
                             </section>
@@ -484,7 +485,7 @@ const onSubmit = () => {
                                         @change="handleFileChange"
                                     />
                                 </div>
-                                <Card class="mt-2 rounded-lg dark:bg-input/30" :class="[form.errors.lampiran ? 'border-red-500' : '']">
+                                <Card class="dark:bg-input/30 mt-2 rounded-lg" :class="[form.errors.lampiran ? 'border-red-500' : '']">
                                     <CardContent class="space-y-4">
                                         <div v-if="form.lampiran.length === 0" class="text-center">
                                             <p class="text-muted-foreground text-sm">Silahkan unggah lampiran surat masuk.</p>
@@ -493,16 +494,20 @@ const onSubmit = () => {
                                             v-for="(item, index) in form.lampiran"
                                             :key="index"
                                             class="flex items-center justify-between"
-                                            :class="{ 'border-b border-input border-dashed pb-4': index != form.lampiran.length - 1 }"
+                                            :class="{ 'border-input border-b border-dashed pb-4': index != form.lampiran.length - 1 }"
                                         >
                                             <div class="mr-2 flex min-w-0 flex-1 items-center gap-2">
                                                 <img class="block size-10 shrink-0 dark:hidden" src="../../assets/media/pdf.svg" alt="pdf icon" />
-                                                <img class="hidden size-10 shrink-0 dark:block" src="../../assets/media/pdf-dark.svg" alt="pdf icon" />
+                                                <img
+                                                    class="hidden size-10 shrink-0 dark:block"
+                                                    src="../../assets/media/pdf-dark.svg"
+                                                    alt="pdf icon"
+                                                />
                                                 <div class="space-y-0.5">
-                                                    <p class="line-clamp-1 text-sm min-w-0 break-all">
+                                                    <p class="line-clamp-1 min-w-0 text-sm break-all">
                                                         {{ item.name }}
                                                     </p>
-                                                    <p class="text-xs text-muted-foreground">{{ formatBytes(Number(item.size)) }}</p>
+                                                    <p class="text-muted-foreground text-xs">{{ formatBytes(Number(item.size)) }}</p>
                                                 </div>
                                             </div>
                                             <Button

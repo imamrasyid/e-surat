@@ -42,7 +42,9 @@ async function handleRowClick(itemId: number) {
 }
 
 const hasHistory = ref(false);
-const goBack = () => { window.history.back() };
+const goBack = () => {
+    window.history.back();
+};
 
 onMounted(() => {
     hasHistory.value = window.history.length > 1;
@@ -54,10 +56,10 @@ onMounted(() => {
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6 xl:px-12">
-            <div class="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Heading class="mb-0!" title="Detail Surat" description="Detail data surat terkirim" />
                 <div class="flex items-center justify-between gap-1 text-sm sm:flex-col sm:items-end">
-                    <p class="text-xs text-muted-foreground">{{ createdAt }}</p>
+                    <p class="text-muted-foreground text-xs">{{ createdAt }}</p>
                     <p>Oleh {{ letter.sender_user?.name ?? '-' }}</p>
                 </div>
             </div>
@@ -131,22 +133,18 @@ onMounted(() => {
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
-                    <Badge v-if="letter.status === 'open'">
-                        Open
-                    </Badge>
-                    <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600">
-                        <BadgeCheck /> Close
-                    </Badge>
+                    <Badge v-if="letter.status === 'open'"> Open </Badge>
+                    <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600"> <BadgeCheck /> Close </Badge>
                 </div>
             </dl>
 
-            <div class="flex flex-col gap-4 mt-6">
+            <div class="mt-6 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <p class="text-sm font-medium">Penerima:</p>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button 
+                                <Button
                                     size="icon"
                                     variant="outline"
                                     class="cursor-pointer rounded-full"
@@ -163,7 +161,7 @@ onMounted(() => {
                     </TooltipProvider>
                 </div>
 
-                <div class="rounded-md border overflow-hidden">
+                <div class="overflow-hidden rounded-md border">
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
@@ -191,13 +189,13 @@ onMounted(() => {
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 mt-6">
+            <div class="mt-6 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <p class="text-sm font-medium">Lampiran:</p>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Button 
+                                <Button
                                     size="icon"
                                     variant="outline"
                                     class="cursor-pointer rounded-full"
@@ -219,11 +217,11 @@ onMounted(() => {
                             <a :href="item.url" target="_blank" :title="item.name" rel="noopener noreferrer">
                                 <Item variant="outline">
                                     <ItemMedia variant="image">
-                                        <img src="../../../assets/media/pdf.svg" :alt="item.name" class="size-12 dark:hidden">
-                                        <img src="../../../assets/media/pdf-dark.svg" :alt="item.name" class="size-12 dark:flex">
+                                        <img src="../../../assets/media/pdf.svg" :alt="item.name" class="size-12 dark:hidden" />
+                                        <img src="../../../assets/media/pdf-dark.svg" :alt="item.name" class="size-12 dark:flex" />
                                     </ItemMedia>
                                     <ItemContent class="min-w-0 flex-1">
-                                        <ItemTitle class="line-clamp-2 font-normal min-w-0 break-all">
+                                        <ItemTitle class="line-clamp-2 min-w-0 font-normal break-all">
                                             {{ item.name }}
                                         </ItemTitle>
                                     </ItemContent>

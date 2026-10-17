@@ -54,7 +54,7 @@ function goToDetail(letter_id: string) {
         <div class="px-4 py-6">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Heading class="mb-0!" title="Surat Terkirim" description="Daftar surat yang telah terkirim" />
-                 <InputGroup class="sm:max-w-62.5">
+                <InputGroup class="sm:max-w-62.5">
                     <InputGroupInput id="search-sent-letter" v-model="search" placeholder="Cari..." />
                     <InputGroupAddon>
                         <Search />
@@ -63,7 +63,7 @@ function goToDetail(letter_id: string) {
             </div>
 
             <div class="space-y-6">
-                <div class="rounded-md border overflow-hidden">
+                <div class="overflow-hidden rounded-md border">
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
@@ -75,7 +75,12 @@ function goToDetail(letter_id: string) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="(item, index) in sent.data" :key="item.id ?? index" class="cursor-pointer" @click="goToDetail(item.letter_id)">
+                            <TableRow
+                                v-for="(item, index) in sent.data"
+                                :key="item.id ?? index"
+                                class="cursor-pointer"
+                                @click="goToDetail(item.letter_id)"
+                            >
                                 <TableCell class="align-top">{{ item.agenda }}</TableCell>
                                 <TableCell class="align-top">{{ item.number }}</TableCell>
                                 <TableCell class="align-top">
@@ -85,7 +90,7 @@ function goToDetail(letter_id: string) {
                                     </p>
                                 </TableCell>
                                 <TableCell class="align-top">{{ item.status == 'open' ? 'Open' : 'Close' }}</TableCell>
-                                <TableCell class="whitespace-nowrap text-right align-top">
+                                <TableCell class="text-right align-top whitespace-nowrap">
                                     {{ formatCreate(item.created_at) }}
                                 </TableCell>
                             </TableRow>

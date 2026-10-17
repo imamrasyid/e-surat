@@ -2,7 +2,16 @@
 import Heading from '@/components/Heading.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -82,7 +91,9 @@ const confirmDelete = () => {
 };
 
 const hasHistory = ref(false);
-const goBack = () => { window.history.back() };
+const goBack = () => {
+    window.history.back();
+};
 
 onMounted(() => {
     hasHistory.value = window.history.length > 1;
@@ -141,7 +152,7 @@ onMounted(() => {
 
                     <div class="flex-1 md:max-w-2xl">
                         <section class="max-w-2xl">
-                            <Card v-if="existingDocs && existingDocs.length > 0" class="mb-6 rounded-lg dark:bg-input/30">
+                            <Card v-if="existingDocs && existingDocs.length > 0" class="dark:bg-input/30 mb-6 rounded-lg">
                                 <CardHeader>
                                     <CardTitle class="text-sm leading-none font-medium">Lampiran Saat Ini</CardTitle>
                                     <CardDescription class="text-xs">Daftar lampiran yang telah terkirim</CardDescription>
@@ -151,9 +162,13 @@ onMounted(() => {
                                         v-for="(item, index) in existingDocs"
                                         :key="item.id"
                                         class="flex items-center justify-between"
-                                        :class="{ 'border-b border-input border-dashed pb-4': index !== existingDocs.length - 1 }"
+                                        :class="{ 'border-input border-b border-dashed pb-4': index !== existingDocs.length - 1 }"
                                     >
-                                        <a :href="item.url" target="_blank" class="mr-2 flex min-w-0 flex-1 items-center gap-2 text-sm hover:underline">
+                                        <a
+                                            :href="item.url"
+                                            target="_blank"
+                                            class="mr-2 flex min-w-0 flex-1 items-center gap-2 text-sm hover:underline"
+                                        >
                                             <img class="block size-10 shrink-0 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
                                             <img class="hidden size-10 shrink-0 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
                                             <span class="line-clamp-2 min-w-0 break-all">
@@ -199,7 +214,7 @@ onMounted(() => {
                                         @change="handleFileChange"
                                     />
                                 </div>
-                                <Card class="mt-2 rounded-lg dark:bg-input/30" :class="[form.errors.lampiran ? 'border-red-500' : '']">
+                                <Card class="dark:bg-input/30 mt-2 rounded-lg" :class="[form.errors.lampiran ? 'border-red-500' : '']">
                                     <CardContent class="space-y-4">
                                         <div v-if="form.lampiran.length === 0" class="text-center">
                                             <p class="text-muted-foreground text-sm">Belum ada lampiran baru. Klik tombol + untuk mengunggah.</p>
@@ -208,16 +223,20 @@ onMounted(() => {
                                             v-for="(item, index) in form.lampiran"
                                             :key="index"
                                             class="flex items-center justify-between"
-                                            :class="{ 'border-b border-input border-dashed pb-4': index != form.lampiran.length - 1 }"
+                                            :class="{ 'border-input border-b border-dashed pb-4': index != form.lampiran.length - 1 }"
                                         >
                                             <div class="mr-2 flex min-w-0 flex-1 items-center gap-2">
                                                 <img class="block size-10 shrink-0 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
-                                                <img class="hidden size-10 shrink-0 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
+                                                <img
+                                                    class="hidden size-10 shrink-0 dark:block"
+                                                    src="../../../assets/media/pdf-dark.svg"
+                                                    alt="pdf icon"
+                                                />
                                                 <div class="space-y-0.5">
-                                                    <p class="line-clamp-1 text-sm min-w-0 break-all">
+                                                    <p class="line-clamp-1 min-w-0 text-sm break-all">
                                                         {{ item.name }}
                                                     </p>
-                                                    <p class="text-xs text-muted-foreground">{{ formatBytes(Number(item.size)) }}</p>
+                                                    <p class="text-muted-foreground text-xs">{{ formatBytes(Number(item.size)) }}</p>
                                                 </div>
                                             </div>
                                             <Button
