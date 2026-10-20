@@ -1,6 +1,22 @@
 {
-    "agents": ["antigravity"],
-    "mcp": true,
-    "nightwatch": false,
-    "sail": false
+    "agents": [
+        "opencode"
+    ],
+    "cloud": true,
+    "skills": [
+        "infer-conventions",
+        "deploying-to-cloud",
+        "fortify-development",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "inertia-vue-development",
+        "tailwindcss-development",
+        "antfu",
+        "create-adaptable-composable",
+        "vite",
+        "vue",
+        "vue-best-practices",
+        "vue-router-best-practices",
+        "vue-testing-best-practices"
+    ]
 }
