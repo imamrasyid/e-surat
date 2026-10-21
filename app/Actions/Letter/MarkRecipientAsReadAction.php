@@ -3,6 +3,7 @@
 namespace App\Actions\Letter;
 
 use App\Models\LetterRecipient;
+use App\Services\InboxCountsCache;
 
 class MarkRecipientAsReadAction
 {
@@ -11,6 +12,11 @@ class MarkRecipientAsReadAction
      */
     public function handle(LetterRecipient $recipient): bool
     {
-        return $recipient->update(['read_at' => now()]);
+        $updated = $recipient->update(['read_at' => now()]);
+
+        // Hapus cache badge inbox posisi penerima (primary/undangan)
+        InboxCountsCache::forgetPositions([$recipient->to_position_id]);
+
+        return $updated;
     }
 }

@@ -111,3 +111,4 @@ composer ci:check         # npm run check + npm run types:check + @test (what CI
 - Run subsets: `php artisan test`, `php artisan test --filter=AuthenticationTest`, `php artisan test tests/Feature/Auth/`.
 - **Coverage reality**: starter-kit auth/settings/dashboard flows are tested; the core e-surat domain (letters, memos, dispositions, archive, master data) is largely untested. When touching those flows, add Feature coverage rather than relying on existing tests.
 - CI (`.github/workflows/tests.yml`, push to `main`/PR): ubuntu, PHP 8.4 + Node 22, `composer setup`, then `composer ci:check` (vp check → vue-tsc → pint --test → phpstan → artisan test). Make sure new code passes `composer test` locally.
+- `phpunit.xml` forces `APP_ENV=testing` and `DB_CONNECTION=sqlite` (`:memory:`) with `force="true"` — `.env` DB values never leak into tests; `php artisan test` is safe to run anytime and leaves the dev DB untouched.

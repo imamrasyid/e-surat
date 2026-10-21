@@ -3,6 +3,7 @@
 namespace App\Actions\Disposition;
 
 use App\Models\Disposition;
+use App\Services\InboxCountsCache;
 
 class MarkDispositionAsReadAction
 {
@@ -11,6 +12,11 @@ class MarkDispositionAsReadAction
      */
     public function handle(Disposition $disposition): bool
     {
-        return $disposition->update(['read_at' => now()]);
+        $updated = $disposition->update(['read_at' => now()]);
+
+        // Hapus cache badge inbox posisi penerima disposisi
+        InboxCountsCache::forgetPositions([$disposition->to_position_id]);
+
+        return $updated;
     }
 }

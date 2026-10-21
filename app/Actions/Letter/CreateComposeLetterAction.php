@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\RefAgendaSurat;
 use App\Models\RefKdKlasifikasi;
 use App\Models\User;
+use App\Services\InboxCountsCache;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -71,6 +72,9 @@ class CreateComposeLetterAction
                     'received_at' => now(),
                 ]);
             }
+
+            // Hapus cache badge inbox penerima surat
+            InboxCountsCache::forgetPositions(array_column($validated['penerima'], 'id'));
 
             // INSERT LAMPIRAN
             foreach ($lampiranFiles as $lampiran) {

@@ -6,6 +6,7 @@ use App\Models\Letter;
 use App\Models\LetterRecipient;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\InboxCountsCache;
 use App\Services\LetterActivityService;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,12 @@ class UpdateSentRecipientsAction
         ?Position $currentPosition,
         array $recipients
     ): void {
-        DB::transaction(function () use ($recipients, $letter, $user, $currentPosition): void {
+        // Posisi penerima sebelum perubahan (untuk invalidasi cache badge)
+        $oldPositionIds = LetterRecipient::where('letter_id', $letter->id)
+            ->pluck('to_position_id')
+            ->all();
+
+        DB::transaction(function () use ($recipients, $letter, $user, $currentPosition, $oldPositionIds): void {
             $existingIds = collect($recipients)
                 ->pluck('id')
                 ->filter()
@@ -82,6 +88,12 @@ class UpdateSentRecipientsAction
                     $changes
                 );
             }
+
+            // Hapus cache badge inbox untuk posisi penerima lama & baru
+            InboxCountsCache::forgetPositions(array_merge(
+                $oldPositionIds,
+                array_column($recipients, 'to_position_id')
+            ));
         });
     }
 }

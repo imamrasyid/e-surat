@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Position;
+use App\Services\InboxCountsCache;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -51,8 +52,8 @@ class HandleInertiaRequests extends Middleware
 
             if ($currentPositionId) {
                 $counts = Cache::remember(
-                    "inbox_counts_user_{$request->user()->id}_pos_{$currentPositionId}",
-                    now()->addSeconds(30), // TTL cache
+                    InboxCountsCache::key($request->user()->id, (int) $currentPositionId),
+                    now()->addSeconds(InboxCountsCache::TTL_SECONDS),
                     function () use ($currentPositionId) {
                         $position = Position::where('id', $currentPositionId)
                             ->withCount([

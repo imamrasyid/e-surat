@@ -6,6 +6,7 @@ use App\Models\Disposition;
 use App\Models\LetterDoc;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\InboxCountsCache;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -57,6 +58,14 @@ class CreateDispositionAction
                     ]);
                 }
             }
+
+            // Hapus cache badge inbox untuk posisi penerima & cc
+            InboxCountsCache::forgetPositions(
+                array_merge(
+                    array_column($validated['penerima'], 'id'),
+                    array_column($validated['penerima_cc'] ?? [], 'id')
+                )
+            );
 
             // INSERT LAMPIRAN
             foreach ($lampiranFiles as $lampiran) {

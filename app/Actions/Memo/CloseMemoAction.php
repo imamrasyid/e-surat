@@ -6,6 +6,7 @@ use App\Models\Letter;
 use App\Models\Memo;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\InboxCountsCache;
 use Illuminate\Support\Facades\DB;
 
 class CloseMemoAction
@@ -37,6 +38,9 @@ class CloseMemoAction
             $letter->update([
                 'status' => 'close',
             ]);
+
+            // Hapus cache badge inbox posisi penerima memo penutupan
+            InboxCountsCache::forgetPositions([$validated['to_position_id']]);
 
             return $memo;
         });

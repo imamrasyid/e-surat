@@ -4,6 +4,7 @@ namespace App\Actions\MasterData\User;
 
 use App\Models\Position;
 use App\Models\User;
+use App\Services\InboxCountsCache;
 use Illuminate\Support\Facades\DB;
 
 class UpdateUserPositionAction
@@ -13,6 +14,8 @@ class UpdateUserPositionAction
      */
     public function handle(User $user, int|string $positionId): void
     {
+        $oldPositionId = $user->currentPosition()->value('positions.id');
+
         DB::transaction(function () use ($user, $positionId): void {
             /** @var Position|null $currentPosition */
             $currentPosition = $user->currentPosition()->first();
@@ -29,5 +32,10 @@ class UpdateUserPositionAction
                 'is_active' => true,
             ]);
         });
+
+        // Jabatan aktif berubah: hapus badge inbox pada jabatan lama
+        if ($oldPositionId !== null) {
+            InboxCountsCache::forget($user, (int) $oldPositionId);
+        }
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Actions\Memo;
 
 use App\Models\Memo;
+use App\Services\InboxCountsCache;
 
 class MarkMemoAsReadAction
 {
@@ -11,6 +12,11 @@ class MarkMemoAsReadAction
      */
     public function handle(Memo $memo): bool
     {
-        return $memo->update(['read_at' => now()]);
+        $updated = $memo->update(['read_at' => now()]);
+
+        // Hapus cache badge inbox posisi penerima memo
+        InboxCountsCache::forgetPositions([$memo->to_position_id]);
+
+        return $updated;
     }
 }
