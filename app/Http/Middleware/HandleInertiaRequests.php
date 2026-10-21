@@ -103,16 +103,24 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
-                'can' => fn () => $request->user()
-                    ? Cache::remember(
+                'can' => function () use ($request) {
+                    if (! $request->user()) {
+                        return [];
+                    }
+
+                    if ($request->user()->hasRole('Super Admin')) {
+                        return \Spatie\Permission\Models\Permission::pluck('name')->toArray();
+                    }
+
+                    return Cache::remember(
                         PermissionsCache::key($request->user()->id),
                         now()->addMinutes(PermissionsCache::TTL_MINUTES),
                         fn () => $request->user()
                             ->getPermissionsViaRoles()
                             ->pluck('name')
                             ->toArray()
-                    )
-                    : [],
+                    );
+                },
             ],
             'inbox' => [
                 'primary' => fn () => $primary,
