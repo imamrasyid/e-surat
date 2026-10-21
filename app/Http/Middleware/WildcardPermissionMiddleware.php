@@ -21,6 +21,10 @@ class WildcardPermissionMiddleware
             abort(403, 'Unauthorized');
         }
 
+        if ($user->hasRole('Super Admin')) {
+            return $next($request);
+        }
+
         // bisa terima multiple permission, pisahkan dengan "|"
         $permissionList = explode('|', $permissions);
 
