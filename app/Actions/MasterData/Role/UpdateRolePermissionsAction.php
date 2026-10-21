@@ -2,6 +2,7 @@
 
 namespace App\Actions\MasterData\Role;
 
+use App\Services\PermissionsCache;
 use Spatie\Permission\Models\Role;
 
 class UpdateRolePermissionsAction
@@ -13,6 +14,11 @@ class UpdateRolePermissionsAction
      */
     public function handle(Role $role, array $permissionIds = []): Role
     {
-        return $role->syncPermissions($permissionIds);
+        $role->syncPermissions($permissionIds);
+
+        // Hak akses role berubah: hapus cache permission seluruh pemegang role
+        PermissionsCache::forgetRole($role);
+
+        return $role;
     }
 }

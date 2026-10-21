@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Position;
 use App\Services\InboxCountsCache;
+use App\Services\PermissionsCache;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -104,8 +105,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'can' => fn () => $request->user()
                     ? Cache::remember(
-                        "user_permissions:{$request->user()->id}",
-                        now()->addMinutes(15),
+                        PermissionsCache::key($request->user()->id),
+                        now()->addMinutes(PermissionsCache::TTL_MINUTES),
                         fn () => $request->user()
                             ->getPermissionsViaRoles()
                             ->pluck('name')

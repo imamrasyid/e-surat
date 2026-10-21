@@ -2,27 +2,25 @@
 
 namespace App\Listeners;
 
-use Illuminate\Support\Facades\Cache;
+use App\Models\User;
+use App\Services\PermissionsCache;
+use Spatie\Permission\Models\Role;
 
 class ClearUserPermissionsCache
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Handle the event.
      */
     public function handle(object $event): void
     {
-        $user = $event->model ?? null;
+        $model = $event->model ?? null;
 
-        if ($user) {
-            Cache::forget("user_permissions:{$user->id}");
+        if ($model instanceof Role) {
+            // Permission berubah pada role: bersihkan cache seluruh pemegang role
+            PermissionsCache::forgetRole($model);
+        } elseif ($model instanceof User) {
+            // Role berubah pada user: bersihkan cache user tersebut
+            PermissionsCache::forget($model);
         }
     }
 }
