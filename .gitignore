@@ -43,3 +43,5 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 /skills-lock.json
+/.graphify.svg
+/.graphify
