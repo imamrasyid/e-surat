@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class Permissions extends Seeder
 {
@@ -38,17 +36,17 @@ class Permissions extends Seeder
             'master.klasifikasi',
             'master.jabatan',
             'master.pengguna',
-            'arsip',
+            'arsip.index',
+            'arsip.create',
+            'arsip.store',
+            'arsip.show',
+            'arsip.edit',
+            'arsip.update',
+            'arsip.delete',
         ];
 
         foreach ($permissions as $perm) {
             Permission::firstOrCreate(['name' => $perm]);
         }
-
-        $admin = Role::firstOrCreate(['name' => 'administrator']);
-        Role::firstOrCreate(['name' => 'pengelola']);
-        Role::firstOrCreate(['name' => 'pengguna']);
-
-        $admin->syncPermissions(Permission::all());
     }
 }
