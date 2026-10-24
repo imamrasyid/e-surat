@@ -1,3 +1,26 @@
+const longDateFormatter = new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+});
+
+const shortDateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+});
+
+function toDate(value: string | null | undefined): Date | null {
+    if (!value) return null;
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export function useFormattedDate() {
     function formatCreate(dateString: string): string {
         const date = new Date(dateString);
@@ -21,5 +44,17 @@ export function useFormattedDate() {
         });
     }
 
-    return { formatCreate };
+    function formatDate(value: string | null | undefined): string {
+        const date = toDate(value);
+
+        return date ? longDateFormatter.format(date) : '-';
+    }
+
+    function formatDateTime(value: string | null | undefined): string {
+        const date = toDate(value);
+
+        return date ? shortDateTimeFormatter.format(date) : '-';
+    }
+
+    return { formatCreate, formatDate, formatDateTime };
 }
