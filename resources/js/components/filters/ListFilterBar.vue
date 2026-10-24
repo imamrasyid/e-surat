@@ -4,6 +4,15 @@ import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectVa
 import { statusHelper } from '@/data/helpers';
 import { Search } from '@lucide/vue';
 
+withDefaults(
+    defineProps<{
+        searchPlaceholder?: string;
+    }>(),
+    {
+        searchPlaceholder: 'Cari',
+    },
+);
+
 const search = defineModel<string>('search', { required: true });
 const filter = defineModel<string>('filter', { required: true });
 </script>
@@ -11,7 +20,7 @@ const filter = defineModel<string>('filter', { required: true });
 <template>
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
         <InputGroup class="w-full sm:w-62.5">
-            <InputGroupInput v-model="search" aria-label="Cari surat" placeholder="Cari" />
+            <InputGroupInput v-model="search" aria-label="Cari surat" :placeholder="searchPlaceholder" />
             <InputGroupAddon>
                 <Search aria-hidden="true" />
             </InputGroupAddon>

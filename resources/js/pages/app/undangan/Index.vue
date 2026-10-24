@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
-import InboxFilters from '@/components/inbox/InboxFilters.vue';
+import ListFilterBar from '@/components/filters/ListFilterBar.vue';
 import InboxLetterTable from '@/components/inbox/InboxLetterTable.vue';
 import SmartPagination from '@/components/SmartPagination.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -65,7 +65,7 @@ function handleClick(item: LetterRecipient) {
         <div class="px-4 py-6">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <Heading class="mb-0!" title="Undangan" description="Daftar surat masuk undangan" />
-                <InboxFilters v-model:search="search" v-model:filter="filter" />
+                <ListFilterBar v-model:search="search" v-model:filter="filter" />
             </div>
 
             <div class="space-y-6">

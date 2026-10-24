@@ -3,6 +3,7 @@ export * from './followup';
 export * from './letter';
 export * from './letter-activity';
 export * from './letter-doc';
+export * from './letter-followup';
 export * from './letter-recipient';
 export * from './memo';
 export * from './model-has-special-disposition';
