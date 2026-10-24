@@ -31,7 +31,7 @@ const fields = computed(() => {
     if (props.showCategory) {
         items.push({
             label: 'Kategori',
-            value: categoryInbox.find((category) => category.value === Number(props.letter.category))?.name ?? '-',
+            value: categoryInbox.find((category) => category.value === props.letter.category)?.name ?? '-',
         });
     }
 

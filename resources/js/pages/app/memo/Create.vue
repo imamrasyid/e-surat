@@ -54,7 +54,7 @@ const form: InertiaForm<FormInput> = useForm<FormInput>({
 });
 useClearErrorsOnChange(form, { debounceMs: 120 });
 
-function getCategoryName(value: number) {
+function getCategoryName(value: string) {
     const found = categoryInbox.find((cat) => cat.value === value);
     return found ? found.name : '-';
 }
@@ -225,7 +225,7 @@ onUnmounted(() => {
                                 </aside>
 
                                 <div class="flex-1">
-                                    <h6 class="text-sm dark:text-gray-300">{{ getCategoryName(Number(letter.category)) }}</h6>
+                                    <h6 class="text-sm dark:text-gray-300">{{ getCategoryName(letter.category) }}</h6>
                                 </div>
                             </div>
                         </div>

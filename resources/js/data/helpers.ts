@@ -1,10 +1,10 @@
 const categoryInbox = [
     {
-        value: 1,
+        value: '1',
         name: 'Primary',
     },
     {
-        value: 2,
+        value: '2',
         name: 'Undangan',
     },
 ];
