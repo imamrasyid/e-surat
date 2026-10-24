@@ -1,0 +1,1 @@
+import{p as e}from"./RovingFocusGroup-BLYD65IH.js";import{g as t,vn as n}from"./runtime-core.esm-bundler-B8D2lM98.js";function r(r){let i=e({nonce:n()});return t(()=>r?.value||i.nonce?.value)}export{r as t};

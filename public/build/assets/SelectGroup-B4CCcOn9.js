@@ -1,1 +1,0 @@
-import{On as e,et as t,k as n,mt as r,qt as i,v as a,xt as o}from"./runtime-core.esm-bundler-B8D2lM98.js";import{t as s}from"./SelectGroup-Z-TKFPpZ.js";var c=n({__name:`SelectGroup`,props:{asChild:{type:Boolean},as:{}},setup(n){let c=n;return(n,l)=>(r(),a(e(s),t({"data-slot":`select-group`},c),{default:i(()=>[o(n.$slots,`default`)]),_:3},16))}});export{c as t};
