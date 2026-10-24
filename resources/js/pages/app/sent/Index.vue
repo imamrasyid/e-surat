@@ -2,14 +2,16 @@
 import Heading from '@/components/Heading.vue';
 import SmartPagination from '@/components/SmartPagination.vue';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFormattedDate } from '@/composables/useFormattedDate';
+import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, PaginatedData } from '@/types';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { Search } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
-import { ref } from 'vue';
+import { shallowRef } from 'vue';
 
 const { formatCreate } = useFormattedDate();
 
@@ -18,7 +20,10 @@ defineProps<{
     sent: PaginatedData<Letter>;
 }>();
 
-const search = ref<string>('');
+const page = usePage();
+const query = new URLSearchParams(page.url.split('?')[1] ?? '');
+
+const search = shallowRef(query.get('search') || '');
 watchDebounced(
     search,
     () => {
@@ -27,6 +32,8 @@ watchDebounced(
             { search: search.value },
             {
                 preserveState: true,
+                preserveScroll: true,
+                replace: true,
             },
         );
     },
@@ -36,14 +43,13 @@ watchDebounced(
     },
 );
 
+function getCategoryName(value: string) {
+    const found = categoryInbox.find((cat) => cat.value === value);
+    return found ? found.name : '-';
+}
+
 function goToDetail(letter_id: string) {
-    router.get(
-        route('sent.show', letter_id),
-        {},
-        {
-            preserveState: true,
-        },
-    );
+    router.get(route('sent.show', letter_id));
 }
 </script>
 
@@ -55,7 +61,7 @@ function goToDetail(letter_id: string) {
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Heading class="mb-0!" title="Surat Terkirim" description="Daftar surat yang telah terkirim" />
                 <InputGroup class="sm:max-w-62.5">
-                    <InputGroupInput id="search-sent-letter" v-model="search" placeholder="Cari..." />
+                    <InputGroupInput id="search-sent-letter" v-model="search" placeholder="Cari" />
                     <InputGroupAddon>
                         <Search />
                     </InputGroupAddon>
@@ -63,7 +69,7 @@ function goToDetail(letter_id: string) {
             </div>
 
             <div class="space-y-6">
-                <div class="overflow-hidden rounded-md border">
+                <ScrollArea class="rounded-lg border">
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
@@ -75,14 +81,12 @@ function goToDetail(letter_id: string) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow
-                                v-for="(item, index) in sent.data"
-                                :key="item.id ?? index"
-                                class="cursor-pointer"
-                                @click="goToDetail(item.letter_id)"
-                            >
+                            <TableRow v-for="item in sent.data" :key="item.id" class="cursor-pointer" @click="goToDetail(item.letter_id)">
                                 <TableCell class="align-top">{{ item.agenda }}</TableCell>
-                                <TableCell class="align-top">{{ item.number }}</TableCell>
+                                <TableCell class="align-top">
+                                    {{ item.number }}
+                                    <p class="text-muted-foreground">Kategori: {{ getCategoryName(item.category) }}</p>
+                                </TableCell>
                                 <TableCell class="align-top">
                                     {{ item.sender }}
                                     <p class="text-muted-foreground line-clamp-1">
@@ -99,8 +103,9 @@ function goToDetail(letter_id: string) {
                             </TableRow>
                         </TableBody>
                     </Table>
-                </div>
-                <SmartPagination :links="sent.links" :total="sent.total" :items-per-page="5" class="justify-end" />
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+                <SmartPagination :links="sent.links" :total="sent.total" :items-per-page="sent.per_page" class="justify-end" />
             </div>
         </div>
     </AppLayout>

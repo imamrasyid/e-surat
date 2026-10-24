@@ -4,12 +4,15 @@ import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useFormattedDate } from '@/composables/useFormattedDate';
+import { useRecipientTimeline } from '@/composables/useRecipientTimeline';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, Letter, TimelineRecipient } from '@/types';
-import { Head, useHttp } from '@inertiajs/vue3';
+import type { BreadcrumbItem, Letter } from '@/types';
+import { Head } from '@inertiajs/vue3';
 import { BadgeCheck, ChevronLeft, FolderPen, Printer, SquarePen, UserRoundPen } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
 import { onMounted, ref } from 'vue';
@@ -19,26 +22,14 @@ const props = defineProps<{
     letter: Letter;
 }>();
 
+const { formatDate, formatDateTime } = useFormattedDate();
+const { data: timelineData, isOpen: isTimelineOpen, open: openTimeline } = useRecipientTimeline();
+
 const createdAt = useDateFormat(props.letter.created_at, 'dddd, DD MMM YYYY, HH.mm', { locales: 'id-ID' });
 
-function getCategoryName(value: number) {
+function getCategoryName(value: string) {
     const found = categoryInbox.find((cat) => cat.value === value);
     return found ? found.name : '-';
-}
-
-const http = useHttp();
-const dialogTimeline = ref(false);
-const timelineData = ref<TimelineRecipient[]>([]);
-
-async function handleRowClick(itemId: number) {
-    try {
-        const response = await http.get(route('api.timeline.recipient', itemId));
-        timelineData.value = response as TimelineRecipient[];
-
-        dialogTimeline.value = true;
-    } catch (err) {
-        console.error('Gagal fetch data:', err);
-    }
 }
 
 const hasHistory = ref(false);
@@ -55,7 +46,7 @@ onMounted(() => {
     <Head title="Lihat Surat Terkirim" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <div class="px-4 py-6 xl:px-12">
+        <div class="px-4 py-6 2xl:px-12">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Heading class="mb-0!" title="Detail Surat" description="Detail data surat terkirim" />
                 <div class="flex items-center justify-between gap-1 text-sm sm:flex-col sm:items-end">
@@ -121,15 +112,15 @@ onMounted(() => {
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Tanggal Surat</dt>
-                    <dd class="max-w-md wrap-break-word">{{ useDateFormat(letter.date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}</dd>
+                    <dd class="max-w-md wrap-break-word">{{ formatDate(letter.date) }}</dd>
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Tanggal Diterima</dt>
-                    <dd class="max-w-md wrap-break-word">{{ useDateFormat(letter.receipt_date, 'DD MMMM YYYY', { locales: 'id-ID' }) }}</dd>
+                    <dd class="max-w-md wrap-break-word">{{ formatDate(letter.receipt_date) }}</dd>
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Kategori</dt>
-                    <dd class="max-w-md wrap-break-word">{{ getCategoryName(Number(letter.category)) }}</dd>
+                    <dd class="max-w-md wrap-break-word">{{ getCategoryName(letter.category) }}</dd>
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
@@ -161,7 +152,7 @@ onMounted(() => {
                     </TooltipProvider>
                 </div>
 
-                <div class="overflow-hidden rounded-md border">
+                <ScrollArea class="rounded-lg border">
                     <Table>
                         <TableHeader class="bg-muted/30">
                             <TableRow class="hover:bg-transparent">
@@ -173,20 +164,24 @@ onMounted(() => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="item in letter.recipients" :key="item.id" class="cursor-pointer" @click="handleRowClick(item.id)">
-                                <TableCell class="align-top">
-                                    {{ item.received_at ? useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
-                                </TableCell>
+                            <TableRow
+                                v-for="item in letter.recipients"
+                                :key="item.id"
+                                class="focus-visible:bg-muted/50 cursor-pointer focus-visible:outline-none"
+                                @click="openTimeline(item.id)"
+                                @keydown.enter.prevent="openTimeline(item.id)"
+                                @keydown.space.prevent="openTimeline(item.id)"
+                            >
+                                <TableCell class="align-top">{{ formatDateTime(item.received_at) }}</TableCell>
                                 <TableCell class="align-top">{{ item.from_position?.name ?? '-' }}</TableCell>
                                 <TableCell class="align-top">{{ item.to_position?.name ?? '-' }}</TableCell>
                                 <TableCell class="align-top">{{ item.instruction ?? '-' }}</TableCell>
-                                <TableCell class="align-top">
-                                    {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
-                                </TableCell>
+                                <TableCell class="align-top">{{ formatDateTime(item.read_at) }}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
-                </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
             </div>
 
             <div class="mt-6 flex flex-col gap-4">
@@ -215,10 +210,10 @@ onMounted(() => {
                     <ItemGroup class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
                         <template v-for="item in letter.docs" :key="item.id">
                             <a :href="item.url" target="_blank" :title="item.name" rel="noopener noreferrer">
-                                <Item variant="outline">
+                                <Item variant="outline" class="rounded-lg">
                                     <ItemMedia variant="image">
                                         <img src="../../../assets/media/pdf.svg" :alt="item.name" class="size-12 dark:hidden" />
-                                        <img src="../../../assets/media/pdf-dark.svg" :alt="item.name" class="size-12 dark:flex" />
+                                        <img src="../../../assets/media/pdf-dark.svg" :alt="item.name" class="hidden size-12 dark:block" />
                                     </ItemMedia>
                                     <ItemContent class="min-w-0 flex-1">
                                         <ItemTitle class="line-clamp-2 min-w-0 font-normal break-all">
@@ -233,6 +228,6 @@ onMounted(() => {
             </div>
         </div>
 
-        <DialogTimeline v-model:open-dialog="dialogTimeline" :data="timelineData" />
+        <DialogTimeline v-model:open-dialog="isTimelineOpen" :data="timelineData" />
     </AppLayout>
 </template>

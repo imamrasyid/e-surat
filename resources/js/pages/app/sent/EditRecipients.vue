@@ -31,7 +31,7 @@ const props = defineProps<{
 }>();
 
 type RecipientRow = {
-    id: number | null;
+    id: number;
     to_position_id: number;
     name: string;
     instruction: string;
@@ -55,7 +55,7 @@ watch(
     (items) => {
         form.recipients = items.map((p) => ({
             id: p.id,
-            to_position_id: p.to_position_id,
+            to_position_id: p.id,
             name: p.name,
             instruction: p.instruction,
         }));

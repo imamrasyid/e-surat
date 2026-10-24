@@ -27,7 +27,7 @@ class SentController extends Controller
     public function index(Request $request): Response
     {
         $sent = Letter::where('type', 'in')
-            ->select('letter_id', 'agenda', 'sender', 'subject', 'number', 'status', 'created_at')
+            ->select('letter_id', 'category', 'agenda', 'sender', 'subject', 'number', 'status', 'created_at')
             ->when($request->input('search'), function (Builder $query, string $search) {
                 $query->where(function (Builder $q) use ($search) {
                     $q->whereLike('agenda', '%'.$search.'%')
@@ -122,7 +122,7 @@ class SentController extends Controller
                 'message' => 'Data surat berhasil diperbarui.',
             ]);
 
-            return redirect()->route('sent.show', $letter_id);
+            return redirect()->route('sent.index');
         } catch (\Throwable $th) {
             Inertia::flash('toast', [
                 'type' => 'error',
@@ -216,7 +216,7 @@ class SentController extends Controller
                 'message' => 'Data penerima surat berhasil diperbarui.',
             ]);
 
-            return redirect()->route('sent.show', $letter_id);
+            return redirect()->route('sent.index');
         } catch (\Throwable $th) {
             Log::error('Error updating letter recipients: '.$th->getMessage());
 
@@ -284,7 +284,7 @@ class SentController extends Controller
                 'message' => 'Lampiran surat berhasil diperbarui.',
             ]);
 
-            return redirect()->route('sent.show', $letter_id);
+            return redirect()->route('sent.index');
         } catch (\Throwable $th) {
             Log::error('Error updating letter documents: '.$th->getMessage());
 
