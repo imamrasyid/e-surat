@@ -33,7 +33,8 @@ export type TwoFactorConfigContent = {
 
 export interface BreadcrumbItem {
     title: string;
-    href: string;
+    route?: string;
+    href?: string;
 }
 
 export interface NavItem {

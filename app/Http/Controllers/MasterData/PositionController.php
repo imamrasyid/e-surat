@@ -41,7 +41,7 @@ class PositionController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Jabatan',
-                    'href' => '/master-data/jabatan',
+                    'route' => 'ref.position.index',
                 ],
             ],
             'data' => fn () => $data,
@@ -63,11 +63,10 @@ class PositionController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Jabatan',
-                    'href' => '/master-data/jabatan',
+                    'route' => 'ref.position.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
-                    'href' => '/master-data/jabatan/create',
                 ],
             ],
             'positions' => fn () => $positions,
@@ -117,11 +116,10 @@ class PositionController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Jabatan',
-                    'href' => '/master-data/jabatan',
+                    'route' => 'ref.position.index',
                 ],
                 [
                     'title' => 'Perbarui',
-                    'href' => '/master-data/jabatan/edit',
                 ],
             ],
             'data' => fn () => $position,

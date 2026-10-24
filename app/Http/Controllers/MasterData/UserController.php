@@ -45,7 +45,7 @@ class UserController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
-                    'href' => '/master-data/pengguna',
+                    'route' => 'ref.user.index',
                 ],
             ],
             'data' => fn () => $data,
@@ -61,7 +61,7 @@ class UserController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
-                    'href' => '/master-data/pengguna',
+                    'route' => 'ref.user.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
@@ -106,7 +106,7 @@ class UserController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
-                    'href' => '/master-data/pengguna',
+                    'route' => 'ref.user.index',
                 ],
                 [
                     'title' => 'Perbarui',
@@ -130,7 +130,7 @@ class UserController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
-                    'href' => '/master-data/pengguna',
+                    'route' => 'ref.user.index',
                 ],
                 [
                     'title' => 'Jabatan',
@@ -152,7 +152,7 @@ class UserController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Pengguna',
-                    'href' => '/master-data/pengguna',
+                    'route' => 'ref.user.index',
                 ],
                 [
                     'title' => 'Role',

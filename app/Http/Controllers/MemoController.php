@@ -33,7 +33,7 @@ class MemoController extends Controller
                 'breadcrumbItems' => [
                     [
                         'title' => 'Nota Dinas',
-                        'href' => '/nota-dinas',
+                        'route' => 'memo.index',
                     ],
                 ],
                 'memo' => fn () => new LengthAwarePaginator([], 0, 15),
@@ -66,7 +66,7 @@ class MemoController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Nota Dinas',
-                    'href' => '/nota-dinas',
+                    'route' => 'memo.index',
                 ],
             ],
             'memo' => fn () => $memo,
@@ -95,11 +95,10 @@ class MemoController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Nota Dinas',
-                    'href' => '/nota-dinas',
+                    'route' => 'memo.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,
@@ -119,11 +118,10 @@ class MemoController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Nota Dinas',
-                    'href' => '/nota-dinas',
+                    'route' => 'memo.index',
                 ],
                 [
                     'title' => 'Penutupan Surat',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,
@@ -264,11 +262,10 @@ class MemoController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Nota Dinas',
-                    'href' => '/nota-dinas',
+                    'route' => 'memo.index',
                 ],
                 [
                     'title' => 'Detail Nota Dinas',
-                    'href' => '',
                 ],
             ],
             'from' => fn () => $from,

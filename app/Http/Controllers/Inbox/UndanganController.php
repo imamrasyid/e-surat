@@ -28,7 +28,7 @@ class UndanganController extends Controller
                 'breadcrumbItems' => [
                     [
                         'title' => 'Undangan',
-                        'href' => '/inbox/undangan',
+                        'route' => 'inbox.undangan.index',
                     ],
                 ],
                 'undangan' => fn () => new LengthAwarePaginator([], 0, 15),
@@ -72,7 +72,7 @@ class UndanganController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Undangan',
-                    'href' => '/inbox/undangan',
+                    'route' => 'inbox.undangan.index',
                 ],
             ],
             'undangan' => fn () => $undangan,
@@ -131,11 +131,10 @@ class UndanganController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Undangan',
-                    'href' => '/inbox/undangan',
+                    'route' => 'inbox.undangan.index',
                 ],
                 [
                     'title' => 'Detail Surat',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,

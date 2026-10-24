@@ -32,7 +32,7 @@ class FollowupController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Followup',
-                    'href' => '/master-data/followup',
+                    'route' => 'ref.followup.index',
                 ],
             ],
             'data' => fn () => $data,
@@ -48,7 +48,7 @@ class FollowupController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Followup',
-                    'href' => '/master-data/followup',
+                    'route' => 'ref.followup.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
@@ -98,7 +98,7 @@ class FollowupController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Followup',
-                    'href' => '/master-data/followup',
+                    'route' => 'ref.followup.index',
                 ],
                 [
                     'title' => 'Perbarui',

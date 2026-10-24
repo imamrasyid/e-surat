@@ -34,7 +34,7 @@ class RoleController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Role',
-                    'href' => '/master-data/roles',
+                    'route' => 'ref.role.index',
                 ],
             ],
             'data' => fn () => $data,
@@ -50,7 +50,7 @@ class RoleController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Role',
-                    'href' => '/master-data/roles',
+                    'route' => 'ref.role.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
@@ -102,7 +102,7 @@ class RoleController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Role',
-                    'href' => '/master-data/roles',
+                    'route' => 'ref.role.index',
                 ],
                 [
                     'title' => 'Perbarui',

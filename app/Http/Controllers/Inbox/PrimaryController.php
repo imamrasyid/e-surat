@@ -28,7 +28,7 @@ class PrimaryController extends Controller
                 'breadcrumbItems' => [
                     [
                         'title' => 'Primary',
-                        'href' => '/inbox/primary',
+                        'route' => 'inbox.primary.index',
                     ],
                 ],
                 'primary' => fn () => new LengthAwarePaginator([], 0, 15),
@@ -72,7 +72,7 @@ class PrimaryController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Primary',
-                    'href' => '/inbox/primary',
+                    'route' => 'inbox.primary.index',
                 ],
             ],
             'primary' => fn () => $primary,
@@ -131,11 +131,10 @@ class PrimaryController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Primary',
-                    'href' => '/inbox/primary',
+                    'route' => 'inbox.primary.index',
                 ],
                 [
                     'title' => 'Detail Surat',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,

@@ -44,7 +44,7 @@ class SentController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Terkirim',
-                    'href' => '/sent',
+                    'route' => 'sent.index',
                 ],
             ],
             'sent' => fn () => $sent,
@@ -69,11 +69,10 @@ class SentController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Terkirim',
-                    'href' => '/sent',
+                    'route' => 'sent.index',
                 ],
                 [
                     'title' => 'Detail Surat',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,
@@ -93,11 +92,10 @@ class SentController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Terkirim',
-                    'href' => '/sent',
+                    'route' => 'sent.index',
                 ],
                 [
                     'title' => 'Perbarui Surat',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,
@@ -169,11 +167,10 @@ class SentController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Terkirim',
-                    'href' => '/sent',
+                    'route' => 'sent.index',
                 ],
                 [
                     'title' => 'Perbarui Penerima',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,
@@ -246,11 +243,10 @@ class SentController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Terkirim',
-                    'href' => '/sent',
+                    'route' => 'sent.index',
                 ],
                 [
                     'title' => 'Perbarui Lampiran',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,

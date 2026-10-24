@@ -32,7 +32,7 @@ class DispositionController extends Controller
                 'breadcrumbItems' => [
                     [
                         'title' => 'Disposisi',
-                        'href' => '/disposition',
+                        'route' => 'dispo.index',
                     ],
                 ],
                 'dispo' => fn () => new LengthAwarePaginator([], 0, 15),
@@ -65,7 +65,7 @@ class DispositionController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Disposisi',
-                    'href' => '/disposition',
+                    'route' => 'dispo.index',
                 ],
             ],
             'dispo' => fn () => $dispo,
@@ -117,11 +117,10 @@ class DispositionController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Disposisi',
-                    'href' => '/disposition',
+                    'route' => 'dispo.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
-                    'href' => '',
                 ],
             ],
             'letter' => fn () => $letter,
@@ -235,11 +234,10 @@ class DispositionController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Disposisi',
-                    'href' => '/disposition',
+                    'route' => 'dispo.index',
                 ],
                 [
                     'title' => 'Detail Disposisi',
-                    'href' => '',
                 ],
             ],
             'from' => fn () => $from,

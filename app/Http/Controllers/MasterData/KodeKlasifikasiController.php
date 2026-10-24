@@ -36,7 +36,7 @@ class KodeKlasifikasiController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Klasifikasi Arsip',
-                    'href' => '/master-data/klasifikasi-arsip',
+                    'route' => 'ref.klasifikasi.index',
                 ],
             ],
             'data' => fn () => $data,
@@ -52,11 +52,10 @@ class KodeKlasifikasiController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Klasifikasi Arsip',
-                    'href' => '/master-data/klasifikasi-arsip',
+                    'route' => 'ref.klasifikasi.index',
                 ],
                 [
                     'title' => 'Tambah Baru',
-                    'href' => '/master-data/klasifikasi-arsip/create',
                 ],
             ],
         ]);
@@ -108,11 +107,10 @@ class KodeKlasifikasiController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Klasifikasi Arsip',
-                    'href' => '/master-data/klasifikasi-arsip',
+                    'route' => 'ref.klasifikasi.index',
                 ],
                 [
                     'title' => 'Perbarui',
-                    'href' => '/master-data/klasifikasi-arsip/edit',
                 ],
             ],
             'data' => fn () => $kode,

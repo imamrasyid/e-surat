@@ -16,7 +16,7 @@ class ArsipController extends Controller
             'breadcrumbItems' => [
                 [
                     'title' => 'Arsip Surat',
-                    'href' => '/archive',
+                    'route' => 'arsip.index',
                 ],
             ],
         ]);
