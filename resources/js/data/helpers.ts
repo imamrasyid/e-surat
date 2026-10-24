@@ -20,4 +20,19 @@ const isActiveHelper = [
     },
 ];
 
-export { categoryInbox, isActiveHelper };
+const statusHelper = [
+    {
+        value: 'all',
+        name: 'Semua',
+    },
+    {
+        value: 'unread',
+        name: 'Belum Dibaca',
+    },
+    {
+        value: 'read',
+        name: 'Dibaca',
+    },
+];
+
+export { categoryInbox, isActiveHelper, statusHelper };
