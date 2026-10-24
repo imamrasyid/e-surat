@@ -9,6 +9,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
+use Spatie\Permission\Models\Permission;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -109,7 +110,7 @@ class HandleInertiaRequests extends Middleware
                     }
 
                     if ($request->user()->hasRole('Super Admin')) {
-                        return \Spatie\Permission\Models\Permission::pluck('name')->toArray();
+                        return Permission::pluck('name')->toArray();
                     }
 
                     return Cache::remember(
