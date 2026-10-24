@@ -7,13 +7,32 @@ import { Forward, Reply } from '@lucide/vue';
 import { now } from '@vueuse/core';
 import { computed } from 'vue';
 
-const props = defineProps<{
-    letter: Letter;
-    recipient: number;
-    context: string;
-}>();
+type FollowUpAction = 'memo' | 'dispo';
 
-const isClosed = computed(() => props.letter.status === 'close');
+const props = withDefaults(
+    defineProps<{
+        letter: Letter;
+        recipient: number;
+        context: string;
+        disabled?: boolean;
+        actions?: FollowUpAction[];
+    }>(),
+    {
+        disabled: false,
+        actions: () => ['memo', 'dispo'] as FollowUpAction[],
+    },
+);
+
+const isDisabled = computed(() => props.disabled || props.letter.status === 'close');
+
+const buttons = computed(() =>
+    props.actions.map((action) => ({
+        action,
+        route: action === 'memo' ? ('memo.create' as const) : ('dispo.create' as const),
+        label: action === 'memo' ? 'Buat Nota Dinas' : 'Buat Disposisi',
+        icon: action === 'memo' ? Reply : Forward,
+    })),
+);
 
 function createFollowUp(routeName: 'memo.create' | 'dispo.create') {
     const key = btoa(String(now().toPrecision(21)) + props.letter.letter_id);
@@ -26,40 +45,22 @@ function createFollowUp(routeName: 'memo.create' | 'dispo.create') {
 <template>
     <TooltipProvider>
         <div class="flex gap-2">
-            <Tooltip>
+            <Tooltip v-for="button in buttons" :key="button.action">
                 <TooltipTrigger as-child>
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         class="cursor-pointer rounded-full"
-                        aria-label="Buat Nota Dinas"
-                        :disabled="isClosed"
-                        @click="createFollowUp('memo.create')"
+                        :aria-label="button.label"
+                        :disabled="isDisabled"
+                        @click="createFollowUp(button.route)"
                     >
-                        <Reply class="size-5" />
+                        <component :is="button.icon" class="size-5" />
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>Buat Nota Dinas</p>
-                </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger as-child>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        class="cursor-pointer rounded-full"
-                        aria-label="Buat Disposisi"
-                        :disabled="isClosed"
-                        @click="createFollowUp('dispo.create')"
-                    >
-                        <Forward class="size-5" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Buat Disposisi</p>
+                    <p>{{ button.label }}</p>
                 </TooltipContent>
             </Tooltip>
         </div>

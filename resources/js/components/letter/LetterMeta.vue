@@ -1,24 +1,42 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { useFormattedDate } from '@/composables/useFormattedDate';
+import { categoryInbox } from '@/data/helpers';
 import type { Letter } from '@/types';
 import { BadgeCheck } from '@lucide/vue';
 import { computed } from 'vue';
 
-const props = defineProps<{
-    letter: Letter;
-}>();
+const props = withDefaults(
+    defineProps<{
+        letter: Letter;
+        showCategory?: boolean;
+    }>(),
+    {
+        showCategory: false,
+    },
+);
 
 const { formatDate } = useFormattedDate();
 
-const fields = computed(() => [
-    { label: 'Nomor Agenda', value: props.letter.agenda },
-    { label: 'Pengirim', value: props.letter.sender },
-    { label: 'Nomor Surat', value: props.letter.number ?? '-' },
-    { label: 'Perihal', value: props.letter.subject },
-    { label: 'Tanggal Surat', value: formatDate(props.letter.date) },
-    { label: 'Tanggal Diterima', value: formatDate(props.letter.receipt_date) },
-]);
+const fields = computed(() => {
+    const items = [
+        { label: 'Nomor Agenda', value: props.letter.agenda },
+        { label: 'Pengirim', value: props.letter.sender },
+        { label: 'Nomor Surat', value: props.letter.number ?? '-' },
+        { label: 'Perihal', value: props.letter.subject },
+        { label: 'Tanggal Surat', value: formatDate(props.letter.date) },
+        { label: 'Tanggal Diterima', value: formatDate(props.letter.receipt_date) },
+    ];
+
+    if (props.showCategory) {
+        items.push({
+            label: 'Kategori',
+            value: categoryInbox.find((category) => category.value === Number(props.letter.category))?.name ?? '-',
+        });
+    }
+
+    return items;
+});
 </script>
 
 <template>
