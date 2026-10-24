@@ -1,1 +1,0 @@
-var e=[{value:1,name:`Primary`},{value:2,name:`Undangan`}];export{e as t};
