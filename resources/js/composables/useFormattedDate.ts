@@ -13,6 +13,26 @@ const shortDateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
     hour12: false,
 });
 
+const fullDateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+});
+
+// en-GB keeps the dd/mm/yy order and the 24-hour colon time (id-ID renders 19.19).
+const numericDateTimeFormatter = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+});
+
 function toDate(value: string | null | undefined): Date | null {
     if (!value) return null;
 
@@ -56,5 +76,17 @@ export function useFormattedDate() {
         return date ? shortDateTimeFormatter.format(date) : '-';
     }
 
-    return { formatCreate, formatDate, formatDateTime };
+    function formatFullDateTime(value: string | null | undefined): string {
+        const date = toDate(value);
+
+        return date ? fullDateTimeFormatter.format(date) : '-';
+    }
+
+    function formatNumericDateTime(value: string | null | undefined): string {
+        const date = toDate(value);
+
+        return date ? numericDateTimeFormatter.format(date) : '-';
+    }
+
+    return { formatCreate, formatDate, formatDateTime, formatFullDateTime, formatNumericDateTime };
 }
