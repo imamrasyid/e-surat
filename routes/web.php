@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('sent.updatedocs');
 });
 
-Route::prefix('api')->group(function () {
+Route::prefix('api')->middleware('auth')->group(function () {
     Route::get('timeline/recipient/{recipient}', [ApiController::class, 'recipientTimeline'])
         ->name('api.timeline.recipient');
 });
