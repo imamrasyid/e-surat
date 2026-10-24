@@ -19,7 +19,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
         ->middleware('wpermission:master.*')
         ->name('ref.master-data');
 
-    Route::prefix('pengguna')->middleware('permission:master.pengguna')->group(function () {
+    Route::prefix('users')->middleware('permission:master.pengguna')->group(function () {
         Route::get('/', [UserController::class, 'index'])
             ->name('ref.user.index');
 
@@ -35,10 +35,10 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
         Route::patch('update/{user}', [UserController::class, 'update'])
             ->name('ref.user.update');
 
-        Route::get('edit/jabatan/{user}', [UserController::class, 'editPosition'])
+        Route::get('edit/position/{user}', [UserController::class, 'editPosition'])
             ->name('ref.user.editPosition');
 
-        Route::post('update/jabatan/{user}', [UserController::class, 'updatePosition'])
+        Route::post('update/position/{user}', [UserController::class, 'updatePosition'])
             ->name('ref.user.updatePosition');
 
         Route::get('edit/role/{user_id}', [UserController::class, 'editRole'])
@@ -47,11 +47,11 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
         Route::post('update/role/{user}', [UserController::class, 'updateRole'])
             ->name('ref.user.updateRole');
 
-        Route::post('update/spesial-jabatan-disposisi/{user}', [UserController::class, 'updateSpecialDisposition'])
+        Route::post('update/spesial-position/{user}', [UserController::class, 'updateSpecialDisposition'])
             ->name('ref.user.updateDisposition');
     });
 
-    Route::prefix('jabatan')->middleware('permission:master.jabatan')->group(function () {
+    Route::prefix('positions')->middleware('permission:master.jabatan')->group(function () {
         Route::get('/', [PositionController::class, 'index'])
             ->name('ref.position.index');
 
@@ -68,7 +68,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
             ->name('ref.position.update');
     });
 
-    Route::prefix('klasifikasi-arsip')->middleware('permission:master.klasifikasi')->group(function () {
+    Route::prefix('classification')->middleware('permission:master.klasifikasi')->group(function () {
         Route::get('/', [KodeKlasifikasiController::class, 'index'])
             ->name('ref.klasifikasi.index');
 

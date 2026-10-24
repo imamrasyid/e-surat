@@ -3,7 +3,7 @@
 use App\Http\Controllers\MemoController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('nota-dinas')->middleware('auth')->group(function () {
+Route::prefix('memo')->middleware('auth')->group(function () {
     Route::get('/', [MemoController::class, 'index'])
         ->middleware('permission:memo.index')
         ->name('memo.index');
