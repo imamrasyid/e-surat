@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFormattedDate } from '@/composables/useFormattedDate';
@@ -48,7 +49,7 @@ function openItem(item: LetterRecipient) {
 </script>
 
 <template>
-    <div class="overflow-hidden rounded-lg border">
+    <ScrollArea class="rounded-lg border">
         <Table>
             <TableHeader class="bg-muted/30">
                 <TableRow class="hover:bg-transparent">
@@ -121,5 +122,6 @@ function openItem(item: LetterRecipient) {
                 </TableRow>
             </TableBody>
         </Table>
-    </div>
+        <ScrollBar orientation="horizontal" />
+    </ScrollArea>
 </template>

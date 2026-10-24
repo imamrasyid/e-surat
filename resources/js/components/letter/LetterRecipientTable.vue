@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import type { LetterRecipient } from '@/types';
@@ -30,7 +31,7 @@ const rows = computed(() =>
             <AccordionItem value="recipients">
                 <AccordionTrigger class="cursor-pointer text-sm">Penerima:</AccordionTrigger>
                 <AccordionContent>
-                    <div class="overflow-hidden rounded-lg border">
+                    <ScrollArea class="rounded-lg border">
                         <Table>
                             <TableHeader class="bg-muted/30">
                                 <TableRow class="hover:bg-transparent">
@@ -62,7 +63,8 @@ const rows = computed(() =>
                                 </TableRow>
                             </TableBody>
                         </Table>
-                    </div>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
                 </AccordionContent>
             </AccordionItem>
         </Accordion>
