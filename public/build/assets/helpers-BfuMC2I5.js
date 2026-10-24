@@ -1,1 +1,0 @@
-var e=[{value:1,name:`Primary`},{value:2,name:`Undangan`}],t=[{value:`all`,name:`Semua`},{value:`unread`,name:`Belum Dibaca`},{value:`read`,name:`Dibaca`}];export{t as n,e as t};
