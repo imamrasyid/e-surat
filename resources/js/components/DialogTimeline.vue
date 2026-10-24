@@ -1,102 +1,102 @@
 <script setup lang="ts">
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { useFormattedDate } from '@/composables/useFormattedDate';
 import type { TimelineRecipient } from '@/types';
-import { useDateFormat } from '@vueuse/core';
-import { ref, watch } from 'vue';
-import { ScrollArea } from './ui/scroll-area';
-import { Separator } from './ui/separator';
+import { computed } from 'vue';
 
 const props = defineProps<{
-    openDialog: boolean;
     data: TimelineRecipient[];
 }>();
 
-const emit = defineEmits<{
-    (e: 'update:openDialog', value: boolean): void;
-}>();
+const open = defineModel<boolean>('openDialog', { required: true });
 
-const dialogTimeline = ref(props.openDialog);
+const { formatDateTime } = useFormattedDate();
 
-watch(
-    () => props.openDialog,
-    (val) => {
-        dialogTimeline.value = val;
-    },
+const TYPE_LABELS: Record<string, string> = {
+    disposition: 'Disposisi',
+    memo: 'Nota Dinas',
+};
+
+const entries = computed(() =>
+    props.data.map((item, index) => ({
+        key: `${item.type}-${item.from_position_id}-${item.to_position_id}-${item.received_at}`,
+        isLast: index === props.data.length - 1,
+        instructions: item.instruction,
+        followup: item.followup,
+        steps: [
+            {
+                key: 'sender',
+                title: 'Dikirim Dari',
+                prefix: '',
+                value: item.from_position.name,
+                timeLabel: formatDateTime(item.received_at),
+                timeIso: item.received_at ?? undefined,
+                dotClass: 'bg-primary',
+            },
+            {
+                key: 'recipient',
+                title: item.type ? `Penerima ${TYPE_LABELS[item.type] ?? item.type}` : 'Penerima',
+                prefix: item.is_cc ? 'cc:' : '',
+                value: item.to_position.name,
+                timeLabel: formatDateTime(item.read_at),
+                timeIso: item.read_at ?? undefined,
+                dotClass: item.read_at ? 'bg-success' : 'bg-destructive',
+            },
+        ],
+    })),
 );
-
-watch(dialogTimeline, (val) => {
-    emit('update:openDialog', val);
-});
 </script>
+
 <template>
-    <Dialog v-model:open="dialogTimeline">
+    <Dialog v-model:open="open">
         <DialogContent class="max-h-[90dvh] grid-rows-[auto_minmax(0,1fr)_auto] p-0">
             <DialogHeader class="p-6 pb-0">
-                <DialogTitle>Timeline</DialogTitle>
+                <DialogTitle>Tindak Lanjut Surat</DialogTitle>
                 <DialogDescription>Linimasa urutan disposisi dan nota dinas surat.</DialogDescription>
                 <Separator class="mt-2" />
             </DialogHeader>
 
-            <ScrollArea class="grid max-h-[650px] px-6">
-                <div v-for="(item, index) in data" :key="index">
+            <ScrollArea class="max-h-162.5 px-6">
+                <div v-for="entry in entries" :key="entry.key">
                     <ul class="flex flex-col">
                         <li
-                            class="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] first:before:top-1/2 last:before:bottom-1/2 dark:before:border-[#3E3E3A]"
+                            v-for="step in entry.steps"
+                            :key="step.key"
+                            class="before:border-border relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-0 before:left-[0.4rem] before:border-l first:before:top-1/2 last:before:bottom-1/2"
                         >
                             <span class="bg-background relative py-1">
-                                <span
-                                    class="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
-                                >
-                                    <span class="bg-primary h-1.5 w-1.5 rounded-full" />
+                                <span class="border-border bg-background flex h-3.5 w-3.5 items-center justify-center rounded-full border shadow-sm">
+                                    <span class="h-1.5 w-1.5 rounded-full" :class="step.dotClass" />
                                 </span>
                             </span>
                             <div class="w-full">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-muted-foreground text-sm">Dikirim dari</p>
-                                        <h6 class="text-sm/6 font-medium">{{ item.from_position.name }}</h6>
+                                        <p class="text-muted-foreground text-xs">{{ step.title }}</p>
+                                        <p class="text-sm/6 font-medium">
+                                            <span v-if="step.prefix" class="text-muted-foreground text-xs font-normal">{{ step.prefix }}</span>
+                                            {{ step.value }}
+                                        </p>
                                     </div>
-                                    <p class="text-xs">
-                                        {{ item.received_at ? useDateFormat(item.received_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
-                                    </p>
-                                </div>
-                            </div>
-                        </li>
-                        <li
-                            class="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] first:before:top-1/2 last:before:bottom-1/2 dark:before:border-[#3E3E3A]"
-                        >
-                            <span class="bg-background relative py-1">
-                                <span
-                                    class="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
-                                >
-                                    <span class="h-1.5 w-1.5 rounded-full" :class="item.read_at ? 'bg-success' : 'bg-destructive'" />
-                                </span>
-                            </span>
-                            <div class="w-full">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-muted-foreground text-sm">Penerima</p>
-                                        <h6 class="text-sm/6 font-medium"><span v-if="item.is_cc">cc: </span>{{ item.to_position.name }}</h6>
-                                    </div>
-                                    <p class="text-xs">
-                                        {{ item.read_at ? useDateFormat(item.read_at, 'DD MMM YYYY, HH:mm', { locales: 'id-ID' }) : '-' }}
-                                    </p>
+                                    <time class="text-xs" :datetime="step.timeIso">{{ step.timeLabel }}</time>
                                 </div>
                             </div>
                         </li>
                     </ul>
-                    <div v-if="item.instruction" class="mb-2">
-                        <p class="text-muted-foreground text-sm">Catatan</p>
-                        <h6 class="text-sm">{{ item.instruction }}</h6>
+                    <div v-if="entry.instructions" class="mb-2">
+                        <p class="text-muted-foreground text-xs">Catatan</p>
+                        <p class="text-sm">{{ entry.instructions }}</p>
                     </div>
-                    <div v-if="item.followup" class="pb-2">
-                        <p class="text-muted-foreground text-sm">Followup</p>
-                        <h6 class="text-sm">{{ item.followup }}</h6>
+                    <div v-if="entry.followup" class="pb-2">
+                        <p class="text-muted-foreground text-xs">Followup</p>
+                        <p class="text-sm">{{ entry.followup }}</p>
                     </div>
-                    <Separator v-if="data && index != data.length - 1" class="my-2" />
+                    <Separator v-if="!entry.isLast" class="my-2" />
                 </div>
 
-                <div v-if="data.length == 0" class="text-center sm:text-start">
+                <div v-if="entries.length === 0" class="text-center">
                     <p class="text-muted-foreground text-sm">Belum ada disposisi atau nota dinas.</p>
                 </div>
             </ScrollArea>
