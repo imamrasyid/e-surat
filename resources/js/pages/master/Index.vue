@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
+import HeadingSmall from '@/components/HeadingSmall.vue';
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { usePermissions } from '@/composables/usePermissions';
+import masterNavItems from '@/data/masterDataMenu';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { type BreadcrumbItem, type NavItem } from '@/types';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed, type ComputedRef } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
 }>();
+
+const { can } = usePermissions();
+
+function hasPermission(permission?: string): boolean {
+    if (!permission) return false;
+    if (permission === '*') return true;
+    return can(permission);
+}
+
+const menuItems: ComputedRef<NavItem[]> = computed(() => masterNavItems.filter((item) => hasPermission(item.permission)));
 </script>
 
 <template>
@@ -15,10 +29,19 @@ defineProps<{
         <Head title="Master Data" />
 
         <MasterLayout>
-            <div class="flex h-[350px] flex-1">
-                <div class="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                    <PlaceholderPattern />
-                </div>
+            <HeadingSmall title="Referensi Aplikasi" description="Silahkan pilih menu yang tersedia" />
+            <div class="-mt-4 grid gap-4 sm:grid-cols-2">
+                <Link v-for="item in menuItems" :key="item.href" :href="route(item.href)">
+                    <Item variant="outline" class="hover:border-primary hover:text-primary rounded-lg">
+                        <ItemMedia variant="icon">
+                            <component :is="item.icon" />
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle>{{ item.title }}</ItemTitle>
+                            <ItemDescription> Kelola data referensi {{ item.title.toLowerCase() }} </ItemDescription>
+                        </ItemContent>
+                    </Item>
+                </Link>
             </div>
         </MasterLayout>
     </AppLayout>
