@@ -52,7 +52,7 @@ const selected = defineModel<SelectOption[]>({ required: true });
         </ComboboxAnchor>
         <ComboboxList align="start" class="w-(--reka-combobox-trigger-width) min-w-(--reka-combobox-trigger-width)">
             <ComboboxInput :id="`search-${id}`" :placeholder="searchPlaceholder" />
-            <ComboboxViewport class="max-h-65 w-full min-w-(--reka-combobox-trigger-width) p-1">
+            <ComboboxViewport class="max-h-65 w-full min-w-(--reka-combobox-trigger-width) overflow-y-auto overscroll-contain p-1">
                 <ComboboxEmpty>Tidak ada data.</ComboboxEmpty>
                 <ComboboxItem v-for="option in options" :key="option.id" :value="option">
                     <div
