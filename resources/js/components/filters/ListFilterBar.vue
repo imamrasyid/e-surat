@@ -6,9 +6,11 @@ import { Search } from '@lucide/vue';
 
 withDefaults(
     defineProps<{
+        searchId?: string;
         searchPlaceholder?: string;
     }>(),
     {
+        searchId: 'search',
         searchPlaceholder: 'Cari',
     },
 );
@@ -20,7 +22,7 @@ const filter = defineModel<string>('filter', { required: true });
 <template>
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
         <InputGroup class="w-full sm:w-62.5">
-            <InputGroupInput v-model="search" aria-label="Cari surat" :placeholder="searchPlaceholder" />
+            <InputGroupInput v-model="search" :id="searchId" aria-label="Cari surat" :placeholder="searchPlaceholder" autocomplete="off" />
             <InputGroupAddon>
                 <Search aria-hidden="true" />
             </InputGroupAddon>
