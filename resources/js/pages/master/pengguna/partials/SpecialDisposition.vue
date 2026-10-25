@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
+import MultiSelectCombobox from '@/components/forms/MultiSelectCombobox.vue';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import type { Position } from '@/types';
 import { useForm } from '@inertiajs/vue3';
-import { Loader2 } from '@lucide/vue';
+import { Loader2, Save } from '@lucide/vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
     user_id: number;
@@ -12,38 +15,44 @@ const props = defineProps<{
     positions: Position[];
 }>();
 
-// form inertia
-const form = useForm({
-    position_ids: [] as number[],
+const form = useForm<{ position_ids: number[] }>({
+    position_ids: [],
 });
 
-// inisialisasi: tandai yang sudah punya hak khusus
-form.position_ids = props.specialDispositions.map((d) => d.id);
+const selectedPositions = ref<{ id: number; name: string }[]>(props.specialDispositions.map(({ id, name }) => ({ id, name })));
+
+watch(
+    selectedPositions,
+    (items) => {
+        form.position_ids = items.map(({ id }) => id);
+    },
+    { deep: true, immediate: true },
+);
 
 const submit = () => {
     form.post(route('ref.user.updateDisposition', props.user_id));
 };
 </script>
+
 <template>
     <form @submit.prevent="submit" class="flex flex-col space-y-6">
         <HeadingSmall title="Disposisi Khusus" description="Referensi jabatan untuk disposisi khusus" />
 
-        <Card>
-            <CardContent class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                <div v-for="(item, index) in positions" :key="index" class="flex space-x-2">
-                    <input :id="'position' + index" type="checkbox" class="cursor-pointer" :value="item.id" v-model="form.position_ids" />
-                    <label
-                        :for="'position' + index"
-                        class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                        {{ item.name }}
-                    </label>
-                </div>
-            </CardContent>
-        </Card>
+        <div class="grid gap-2">
+            <Label for="special-disposition">Jabatan Disposisi Khusus</Label>
+            <MultiSelectCombobox
+                id="special-disposition"
+                v-model="selectedPositions"
+                :options="positions"
+                placeholder="Pilih jabatan disposisi khusus"
+                search-placeholder="Cari jabatan..."
+            />
+            <InputError :message="form.errors.position_ids" />
+        </div>
 
-        <Button type="submit" :disabled="form.processing">
-            <Loader2 v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+        <Button type="submit" :disabled="form.processing" class="w-full cursor-pointer lg:w-50">
+            <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+            <Save v-else class="size-4" />
             Simpan
         </Button>
     </form>

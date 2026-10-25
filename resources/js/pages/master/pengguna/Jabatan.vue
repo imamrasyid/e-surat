@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import SelectCombobox from '@/components/forms/SelectCombobox.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Position, User } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from '@lucide/vue';
+import { Loader2, Save, Undo2 } from '@lucide/vue';
+import { onMounted, ref, watch } from 'vue';
 import SpecialDisposition from './partials/SpecialDisposition.vue';
 
 const props = defineProps<{
@@ -21,8 +22,24 @@ const props = defineProps<{
     specialDispositions: Position[];
 }>();
 
-const form = useForm({
-    positionId: '',
+const form = useForm<{ positionId: number | null }>({
+    positionId: null,
+});
+
+const selectedPosition = ref<{ id: number; name: string } | null>(null);
+
+watch(selectedPosition, (position) => {
+    form.positionId = position?.id ?? null;
+});
+
+const hasHistory = ref(false);
+
+const goBack = () => {
+    window.history.back();
+};
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
 });
 
 const submit = () => {
@@ -38,7 +55,7 @@ const submit = () => {
             <div class="flex flex-col space-y-6">
                 <HeadingSmall title="Jabatan Pengguna" description="Referensi jabatan pengguna" />
 
-                <Card class="sm:w-[350px]">
+                <Card>
                     <CardHeader>
                         <CardTitle>{{ data.name }}</CardTitle>
                         <CardDescription>
@@ -50,33 +67,26 @@ const submit = () => {
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="position">Atur Jabatan Baru</Label>
-                        <Select id="position" v-model="form.positionId">
-                            <SelectTrigger class="mt-1 w-full sm:w-[350px]">
-                                <SelectValue placeholder="Select a position" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup class="w-full sm:w-[350px]">
-                                    <SelectItem v-for="item in positions" :key="item.id" :value="item.id">{{ item.name }}</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        <InputError class="mt-1" :message="form.errors.positionId" />
+                        <SelectCombobox
+                            id="position"
+                            v-model="selectedPosition"
+                            :options="positions"
+                            placeholder="Pilih jabatan"
+                            search-placeholder="Cari jabatan..."
+                        />
+                        <InputError :message="form.errors.positionId" />
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <Button :disabled="form.processing">
-                            <Loader2 v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    <div class="flex flex-col gap-4 lg:flex-row">
+                        <Button type="submit" :disabled="!selectedPosition || form.processing">
+                            <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                            <Save v-else class="size-4" />
                             Simpan Jabatan
                         </Button>
-
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
+                        <Button v-if="hasHistory" type="button" variant="outline" @click="goBack">
+                            <Undo2 class="size-4" />
+                            Batal
+                        </Button>
                     </div>
                 </form>
             </div>
