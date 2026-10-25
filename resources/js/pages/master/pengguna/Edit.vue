@@ -9,7 +9,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, User } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from '@lucide/vue';
+import { Loader2, Send, Undo2 } from '@lucide/vue';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -22,6 +23,16 @@ const form = useForm({
     password: '',
     password_confirmation: '',
     is_active: props.data.is_active,
+});
+
+const hasHistory = ref(false);
+
+const goBack = () => {
+    window.history.back();
+};
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
 });
 
 const submit = () => {
@@ -43,7 +54,7 @@ const submit = () => {
                         <Input
                             id="name"
                             type="text"
-                            class="mt-1 block w-full sm:w-[350px]"
+                            class="w-full"
                             required
                             autofocus
                             :tabindex="1"
@@ -59,7 +70,7 @@ const submit = () => {
                         <Input
                             id="username"
                             type="text"
-                            class="mt-1 block w-full sm:w-[350px]"
+                            class="w-full"
                             required
                             :tabindex="2"
                             autocomplete="off"
@@ -74,7 +85,7 @@ const submit = () => {
                         <Input
                             id="password"
                             type="password"
-                            class="mt-1 block w-full sm:w-[350px]"
+                            class="w-full"
                             :tabindex="3"
                             autocomplete="new-password"
                             v-model="form.password"
@@ -88,7 +99,7 @@ const submit = () => {
                         <Input
                             id="password_confirmation"
                             type="password"
-                            class="mt-1 block w-full sm:w-[350px]"
+                            class="w-full"
                             :tabindex="4"
                             autocomplete="new-password"
                             v-model="form.password_confirmation"
@@ -102,23 +113,19 @@ const submit = () => {
                             <Checkbox id="status" v-model="form.is_active" />
                             <span>Aktifkan</span>
                         </Label>
-                        <InputError class="mt-1" :message="form.errors.is_active" />
+                        <InputError :message="form.errors.is_active" />
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <Button :disabled="form.processing">
-                            <Loader2 v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    <div class="mt-12 flex flex-col gap-4 lg:flex-row lg:justify-end">
+                        <Button v-if="hasHistory" type="button" variant="outline" class="w-full cursor-pointer lg:w-40" @click="goBack">
+                            <Undo2 class="size-4" />
+                            Batal
+                        </Button>
+                        <Button type="submit" :disabled="form.processing" class="w-full cursor-pointer lg:w-50">
+                            <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                            <Send v-else class="size-4" />
                             Simpan Pembaruan
                         </Button>
-
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
                     </div>
                 </form>
             </div>

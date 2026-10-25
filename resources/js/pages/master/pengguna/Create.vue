@@ -8,7 +8,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from '@lucide/vue';
+import { Loader2, Send, Undo2 } from '@lucide/vue';
+import { onMounted, ref } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
@@ -17,8 +18,16 @@ defineProps<{
 const form = useForm({
     name: '',
     username: '',
-    password: '',
-    password_confirmation: '',
+});
+
+const hasHistory = ref(false);
+
+const goBack = () => {
+    window.history.back();
+};
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
 });
 
 const submit = () => {
@@ -32,7 +41,10 @@ const submit = () => {
 
         <MasterLayout>
             <div class="flex flex-col space-y-6">
-                <HeadingSmall title="Tambah Baru" description="Buat data pengguna" />
+                <div class="space-y-1">
+                    <HeadingSmall title="Tambah Baru" description="Buat data pengguna" />
+                    <p class="text-muted-foreground text-xs">Password awal akan diset otomatis menjadi "password".</p>
+                </div>
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
@@ -40,7 +52,7 @@ const submit = () => {
                         <Input
                             id="name"
                             type="text"
-                            class="mt-1 block w-full sm:w-[350px]"
+                            class="w-full"
                             required
                             autofocus
                             :tabindex="1"
@@ -56,7 +68,7 @@ const submit = () => {
                         <Input
                             id="username"
                             type="text"
-                            class="mt-1 block w-full sm:w-[350px]"
+                            class="w-full"
                             required
                             :tabindex="2"
                             autocomplete="off"
@@ -66,50 +78,16 @@ const submit = () => {
                         <InputError :message="form.errors.username" />
                     </div>
 
-                    <div class="grid gap-2">
-                        <Label for="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            class="mt-1 block w-full sm:w-[350px]"
-                            required
-                            :tabindex="3"
-                            autocomplete="new-password"
-                            v-model="form.password"
-                            placeholder="Password"
-                        />
-                        <InputError :message="form.errors.password" />
-                    </div>
-
-                    <div class="grid gap-2">
-                        <Label for="password_confirmation">Confirm password</Label>
-                        <Input
-                            id="password_confirmation"
-                            type="password"
-                            class="mt-1 block w-full sm:w-[350px]"
-                            required
-                            :tabindex="4"
-                            autocomplete="new-password"
-                            v-model="form.password_confirmation"
-                            placeholder="Confirm password"
-                        />
-                        <InputError :message="form.errors.password_confirmation" />
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <Button :disabled="form.processing">
-                            <Loader2 v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    <div class="mt-12 flex flex-col gap-4 lg:flex-row lg:justify-end">
+                        <Button v-if="hasHistory" type="button" variant="outline" class="w-full cursor-pointer lg:w-40" @click="goBack">
+                            <Undo2 class="size-4" />
+                            Batal
+                        </Button>
+                        <Button type="submit" :disabled="form.processing" class="w-full cursor-pointer lg:w-50">
+                            <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                            <Send v-else class="size-4" />
                             Simpan
                         </Button>
-
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
                     </div>
                 </form>
             </div>

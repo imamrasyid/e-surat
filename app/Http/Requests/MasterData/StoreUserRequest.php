@@ -5,7 +5,6 @@ namespace App\Http\Requests\MasterData;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
 {
@@ -27,7 +26,6 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'lowercase', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
 
@@ -47,8 +45,6 @@ class StoreUserRequest extends FormRequest
             'username.lowercase' => 'Username harus berupa huruf kecil.',
             'username.max' => 'Username maksimal 255 karakter.',
             'username.unique' => 'Username sudah digunakan.',
-            'password.required' => 'Password wajib diisi.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ];
     }
 }

@@ -8,16 +8,16 @@ use Illuminate\Support\Facades\Hash;
 class CreateUserAction
 {
     /**
-     * Create a new user record with hashed password.
+     * Create a new user record with default hashed password.
      *
-     * @param  array{name: string, username: string, password: string}  $data
+     * @param  array{name: string, username: string}  $data
      */
     public function handle(array $data): User
     {
         return User::create([
             'name' => $data['name'],
             'username' => $data['username'],
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make('password'),
         ]);
     }
 }

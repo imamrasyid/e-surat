@@ -29,6 +29,7 @@ class UserController extends Controller
     {
         $data = User::query()
             ->select('id', 'name', 'username', 'email', 'is_active')
+            ->where('id', '!=', User::SUPER_ADMIN_ID)
             ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $search = $request->input('search');
                 $query->where(function (Builder $q) use ($search) {
@@ -43,6 +44,10 @@ class UserController extends Controller
 
         return Inertia::render('master/pengguna/Index', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Pengguna',
                     'route' => 'ref.user.index',
@@ -60,6 +65,10 @@ class UserController extends Controller
         return Inertia::render('master/pengguna/Create', [
             'breadcrumbItems' => [
                 [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
+                [
                     'title' => 'Pengguna',
                     'route' => 'ref.user.index',
                 ],
@@ -75,7 +84,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request, CreateUserAction $action): RedirectResponse
     {
-        /** @var array{name: string, username: string, password: string} $validated */
+        /** @var array{name: string, username: string} $validated */
         $validated = $request->validated();
 
         try {
@@ -100,10 +109,23 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user): Response
+    public function edit(User $user): Response|RedirectResponse
     {
+        if ($user->id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         return Inertia::render('master/pengguna/Edit', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Pengguna',
                     'route' => 'ref.user.index',
@@ -116,8 +138,17 @@ class UserController extends Controller
         ]);
     }
 
-    public function editPosition(User $user): Response
+    public function editPosition(User $user): Response|RedirectResponse
     {
+        if ($user->id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         $currentPosition = $user->currentPosition()->first()?->only('name');
 
         $positions = Position::query()
@@ -128,6 +159,10 @@ class UserController extends Controller
 
         return Inertia::render('master/pengguna/Jabatan', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Pengguna',
                     'route' => 'ref.user.index',
@@ -143,13 +178,26 @@ class UserController extends Controller
         ]);
     }
 
-    public function editRole(string $user_id): Response
+    public function editRole(string $user_id): Response|RedirectResponse
     {
+        if ((int) $user_id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         $user = User::with('roles')->select('id', 'email', 'name')->findOrFail($user_id);
         $roles = Role::query()->select('id', 'name')->get();
 
         return Inertia::render('master/pengguna/Role', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Pengguna',
                     'route' => 'ref.user.index',
@@ -171,6 +219,15 @@ class UserController extends Controller
         User $user,
         UpdateUserAction $action
     ): RedirectResponse {
+        if ($user->id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         /** @var array{name: string, username: string, is_active: bool, password?: string|null} $validated */
         $validated = $request->validated();
 
@@ -198,6 +255,15 @@ class UserController extends Controller
         User $user,
         UpdateUserPositionAction $action
     ): RedirectResponse {
+        if ($user->id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         $validated = $request->validate([
             'positionId' => ['required', 'exists:'.Position::class.',id'],
         ], [
@@ -229,6 +295,15 @@ class UserController extends Controller
         User $user,
         UpdateUserSpecialDispositionAction $action
     ): RedirectResponse {
+        if ($user->id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         $validated = $request->validate([
             'position_ids' => ['nullable', 'array'],
             'position_ids.*' => ['exists:'.Position::class.',id'],
@@ -261,6 +336,15 @@ class UserController extends Controller
         User $user,
         UpdateUserRoleAction $action
     ): RedirectResponse {
+        if ($user->id === User::SUPER_ADMIN_ID) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Akun Super Admin tidak dapat diubah.',
+            ]);
+
+            return back();
+        }
+
         $validated = $request->validate([
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:'.Role::class.',id'],

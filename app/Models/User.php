@@ -39,6 +39,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     use HasFactory, HasRoles, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
+     * Id akun Super Admin dari seeder. Akun ini tidak boleh diedit lewat master data.
+     */
+    public const SUPER_ADMIN_ID = 1;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
