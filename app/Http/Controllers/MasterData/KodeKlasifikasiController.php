@@ -35,6 +35,10 @@ class KodeKlasifikasiController extends Controller
         return Inertia::render('master/klasifikasi-arsip/Index', [
             'breadcrumbItems' => [
                 [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
+                [
                     'title' => 'Klasifikasi Arsip',
                     'route' => 'ref.klasifikasi.index',
                 ],
@@ -50,6 +54,10 @@ class KodeKlasifikasiController extends Controller
     {
         return Inertia::render('master/klasifikasi-arsip/Create', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Klasifikasi Arsip',
                     'route' => 'ref.klasifikasi.index',
@@ -105,6 +113,10 @@ class KodeKlasifikasiController extends Controller
     {
         return Inertia::render('master/klasifikasi-arsip/Edit', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Klasifikasi Arsip',
                     'route' => 'ref.klasifikasi.index',

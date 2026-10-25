@@ -31,6 +31,10 @@ class FollowupController extends Controller
         return Inertia::render('master/followup/Index', [
             'breadcrumbItems' => [
                 [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
+                [
                     'title' => 'Followup',
                     'route' => 'ref.followup.index',
                 ],
@@ -46,6 +50,10 @@ class FollowupController extends Controller
     {
         return Inertia::render('master/followup/Create', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Followup',
                     'route' => 'ref.followup.index',
@@ -96,6 +104,10 @@ class FollowupController extends Controller
     {
         return Inertia::render('master/followup/Edit', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Followup',
                     'route' => 'ref.followup.index',

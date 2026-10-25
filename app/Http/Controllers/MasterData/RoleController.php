@@ -33,6 +33,10 @@ class RoleController extends Controller
         return Inertia::render('master/role/Index', [
             'breadcrumbItems' => [
                 [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
+                [
                     'title' => 'Role',
                     'route' => 'ref.role.index',
                 ],
@@ -48,6 +52,10 @@ class RoleController extends Controller
     {
         return Inertia::render('master/role/Create', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Role',
                     'route' => 'ref.role.index',
@@ -100,6 +108,10 @@ class RoleController extends Controller
 
         return Inertia::render('master/role/Edit', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Role',
                     'route' => 'ref.role.index',

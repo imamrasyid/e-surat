@@ -40,6 +40,10 @@ class PositionController extends Controller
         return Inertia::render('master/jabatan/Index', [
             'breadcrumbItems' => [
                 [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
+                [
                     'title' => 'Jabatan',
                     'route' => 'ref.position.index',
                 ],
@@ -61,6 +65,10 @@ class PositionController extends Controller
 
         return Inertia::render('master/jabatan/Create', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Jabatan',
                     'route' => 'ref.position.index',
@@ -114,6 +122,10 @@ class PositionController extends Controller
     {
         return Inertia::render('master/jabatan/Edit', [
             'breadcrumbItems' => [
+                [
+                    'title' => 'Master Data',
+                    'route' => 'ref.master-data',
+                ],
                 [
                     'title' => 'Jabatan',
                     'route' => 'ref.position.index',

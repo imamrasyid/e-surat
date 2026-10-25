@@ -12,7 +12,7 @@ Route::prefix('master-data')->middleware('auth')->group(function () {
     Route::get('/', function () {
         return Inertia::render('master/Index', [
             'breadcrumbItems' => [
-                ['title' => 'Master Data'],
+                ['title' => 'Master Data', 'route' => 'ref.master-data'],
             ],
         ]);
     })
