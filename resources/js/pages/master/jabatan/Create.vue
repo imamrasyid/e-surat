@@ -1,24 +1,40 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import SelectCombobox from '@/components/forms/SelectCombobox.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Position } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from '@lucide/vue';
+import { Loader2, Save, Undo2 } from '@lucide/vue';
+import { onMounted, ref, watch } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
     positions: Position[];
 }>();
 
-const form = useForm({
+const form = useForm<{ name: string; parent_id: number | null }>({
     name: '',
-    parent_id: '',
+    parent_id: null,
+});
+
+const selectedParent = ref<{ id: number; name: string } | null>(null);
+
+watch(selectedParent, (position) => {
+    form.parent_id = position?.id ?? null;
+});
+
+const hasHistory = ref(false);
+const goBack = () => {
+    window.history.back();
+};
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
 });
 
 const submit = () => {
@@ -28,55 +44,41 @@ const submit = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Tambah Referensi Jabatan" />
+        <Head title="Tambah Baru Jabatan" />
 
         <MasterLayout>
             <div class="flex flex-col space-y-6">
-                <HeadingSmall title="Tambah Baru" description="Buat referensi jabatan" />
+                <HeadingSmall title="Tambah Baru" description="Buat baru referensi jabatan" />
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="nama">Nama Jabatan</Label>
-                        <Input
-                            id="nama"
-                            type="text"
-                            class="mt-1 block w-full sm:w-[350px]"
-                            v-model="form.name"
-                            autocomplete="off"
-                            placeholder="Masukkan nama jabatan"
-                        />
+                        <Input id="nama" type="text" class="w-full" v-model="form.name" autocomplete="off" placeholder="Masukkan nama jabatan" />
                         <InputError class="mt-1" :message="form.errors.name" />
                     </div>
 
                     <div class="grid gap-2">
                         <Label for="parent">Parent ID</Label>
-                        <Select id="parent" v-model="form.parent_id">
-                            <SelectTrigger class="mt-1 w-full sm:w-[350px]">
-                                <SelectValue placeholder="Select a parent" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup class="w-full sm:w-[350px]">
-                                    <SelectItem v-for="item in positions" :key="item.id" :value="item.id">{{ item.name }}</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                        <SelectCombobox
+                            id="parent"
+                            v-model="selectedParent"
+                            :options="positions"
+                            placeholder="Pilih parent"
+                            search-placeholder="Cari jabatan..."
+                        />
                         <InputError class="mt-1" :message="form.errors.parent_id" />
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <Button :disabled="form.processing">
-                            <Loader2 v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    <div class="flex flex-col gap-4 lg:flex-row">
+                        <Button type="submit" :disabled="form.processing">
+                            <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                            <Save v-else class="size-4" />
                             Simpan
                         </Button>
-
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
+                        <Button v-if="hasHistory" type="button" variant="outline" @click="goBack">
+                            <Undo2 class="size-4" />
+                            Batal
+                        </Button>
                     </div>
                 </form>
             </div>

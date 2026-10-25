@@ -10,7 +10,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Permission, Role } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2 } from '@lucide/vue';
+import { Loader2, Save, Undo2 } from '@lucide/vue';
+import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
 
 const props = defineProps<{
@@ -26,6 +27,15 @@ const getRowCount = (cols: number) => {
 
 const form = useForm({
     name: props.data.name,
+});
+
+const hasHistory = ref(false);
+const goBack = () => {
+    window.history.back();
+};
+
+onMounted(() => {
+    hasHistory.value = window.history.length > 1;
 });
 
 const submit = () => {
@@ -60,7 +70,7 @@ const submitPermission = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Perbarui Referensi Role" />
+        <Head title="Perbarui Role" />
 
         <MasterLayout>
             <div class="flex flex-col space-y-6">
@@ -69,31 +79,20 @@ const submitPermission = () => {
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
                         <Label for="nama">Nama</Label>
-                        <Input
-                            id="nama"
-                            type="text"
-                            class="mt-1 block w-full sm:w-[350px]"
-                            v-model="form.name"
-                            autocomplete="off"
-                            placeholder="Masukkan nama role"
-                        />
+                        <Input id="nama" type="text" class="w-full" v-model="form.name" autocomplete="off" placeholder="Masukkan nama role" />
                         <InputError class="mt-1" :message="form.errors.name" />
                     </div>
 
-                    <div class="flex items-center gap-4">
+                    <div class="flex flex-col gap-4 lg:flex-row">
                         <Button type="submit" :disabled="form.processing">
-                            <Loader2 v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
-                            Simpan Pembaruan
+                            <Loader2 v-if="form.processing" class="size-4 animate-spin" />
+                            <Save v-else class="size-4" />
+                            Simpan
                         </Button>
-
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
+                        <Button v-if="hasHistory" type="button" variant="outline" @click="goBack">
+                            <Undo2 class="size-4" />
+                            Batal
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -102,26 +101,23 @@ const submitPermission = () => {
 
             <form @submit.prevent="submitPermission" class="flex flex-col space-y-6">
                 <HeadingSmall title="Permissions" description="Edit referensi permissions" />
-                <Card>
+                <Card class="bg-input/30 rounded-lg">
                     <CardContent
-                        class="grid [grid-template-rows:repeat(auto-fill,minmax(0,1fr))] gap-4 sm:grid-flow-col sm:[grid-template-rows:repeat(calc(var(--row-sm)),minmax(0,1fr))] md:[grid-template-rows:repeat(calc(var(--row-md)),minmax(0,1fr))]"
+                        class="grid grid-rows-[repeat(auto-fill,minmax(0,1fr))] gap-4 sm:grid-flow-col sm:grid-rows-[repeat(calc(var(--row-sm)),minmax(0,1fr))] md:grid-rows-[repeat(calc(var(--row-md)),minmax(0,1fr))]"
                         :style="{
                             '--row-sm': getRowCount(2),
                             '--row-md': getRowCount(3),
                         }"
                     >
-                        <div v-for="(item, index) in permissions" :key="index" class="flex space-x-2">
+                        <div v-for="item in permissions" :key="item.id" class="flex space-x-2">
                             <input
-                                :id="'permission' + index"
+                                :id="`permission-${item.id}`"
                                 type="checkbox"
                                 class="cursor-pointer"
                                 :value="item.id"
                                 v-model="formPermission.permissions"
                             />
-                            <label
-                                :for="'permission' + index"
-                                class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
+                            <label :for="`permission-${item.id}`" class="cursor-pointer text-sm font-normal select-none">
                                 {{ item.name }}
                             </label>
                         </div>
@@ -129,7 +125,8 @@ const submitPermission = () => {
                 </Card>
 
                 <Button type="submit" :disabled="formPermission.processing">
-                    <Loader2 v-if="formPermission.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 v-if="formPermission.processing" class="size-4 animate-spin" />
+                    <Save v-else class="size-4" />
                     Simpan Permission
                 </Button>
             </form>
