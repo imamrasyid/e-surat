@@ -86,7 +86,7 @@ function openItem(item: LetterRecipient) {
                     @keydown.space.prevent="openItem(row.item)"
                 >
                     <TableCell class="align-top">{{ row.item.letter?.agenda }}</TableCell>
-                    <TableCell class="align-top">{{ row.item.letter?.number }}</TableCell>
+                    <TableCell class="align-top">{{ row.item.letter?.number ?? '-' }}</TableCell>
                     <TableCell class="align-top">
                         {{ row.item.letter?.sender }}
                         <p class="text-muted-foreground line-clamp-1" :title="row.item.letter?.subject">

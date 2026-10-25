@@ -84,7 +84,7 @@ function goToDetail(letter_id: string) {
                             <TableRow v-for="item in sent.data" :key="item.id" class="cursor-pointer" @click="goToDetail(item.letter_id)">
                                 <TableCell class="align-top">{{ item.agenda }}</TableCell>
                                 <TableCell class="align-top">
-                                    {{ item.number }}
+                                    {{ item.number ?? '-' }}
                                     <p class="text-muted-foreground">Kategori: {{ getCategoryName(item.category) }}</p>
                                 </TableCell>
                                 <TableCell class="align-top">

@@ -104,7 +104,7 @@ onMounted(() => {
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Nomor Surat</dt>
-                    <dd class="max-w-md wrap-break-word">{{ letter.number }}</dd>
+                    <dd class="max-w-md wrap-break-word">{{ letter.number ?? '-' }}</dd>
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Perihal</dt>
