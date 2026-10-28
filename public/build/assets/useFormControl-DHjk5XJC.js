@@ -1,1 +1,0 @@
-import{En as e,g as t}from"./runtime-core.esm-bundler-B8D2lM98.js";import{i as n}from"./useForwardExpose-D3jgeZFk.js";function r(r){return t(()=>!e(r)||!!n(r)?.closest(`form`))}export{r as t};
