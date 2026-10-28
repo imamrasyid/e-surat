@@ -1,107 +1,272 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
-import { Button } from '@/components/ui/button';
 import { useAppearance } from '@/composables/useAppearance';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowRight, Info, LayoutDashboard, LogIn, Moon, Sun } from '@lucide/vue';
-import { computed } from 'vue';
+import { ArrowRight, Moon, Sun } from '@lucide/vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { mountWelcomeGate } from './welcome/gate-motion';
+import './welcome/tokens.css';
 
 const page = usePage();
-const user = computed(() => page.props.auth?.user);
+const signedIn = computed(() => Boolean(page.props.auth?.user));
+const actionHref = computed(() => (signedIn.value ? route('dashboard') : route('login')));
 const { resolvedAppearance, updateAppearance } = useAppearance();
 
 function toggleTheme() {
     updateAppearance(resolvedAppearance.value === 'dark' ? 'light' : 'dark');
 }
+
+const year = new Date().getFullYear();
+const gate = ref<HTMLElement | null>(null);
+let motion: ReturnType<typeof mountWelcomeGate> | null = null;
+
+onMounted(() => {
+    if (gate.value) {
+        motion = mountWelcomeGate(gate.value);
+    }
+});
+
+onBeforeUnmount(() => motion?.revert());
 </script>
 
 <template>
-    <Head title="e-Surat • Sistem Persuratan & Disposisi Elektronik" />
+    <Head title="e-Surat · Selamat Datang" />
 
-    <div
-        class="bg-background text-foreground selection:bg-primary/20 selection:text-primary relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
-    >
-        <!-- Subtle background decoration -->
-        <div class="pointer-events-none absolute inset-0 overflow-hidden">
-            <div
-                class="bg-primary/[0.03] dark:bg-primary/[0.06] absolute -top-1/2 left-1/2 h-[800px] w-[800px] -translate-x-1/2 rounded-full blur-3xl"
-            />
-            <div class="bg-primary/[0.02] dark:bg-primary/[0.04] absolute -bottom-1/3 left-1/4 h-[600px] w-[600px] rounded-full blur-3xl" />
-        </div>
+    <div ref="gate" id="top" class="wl-page wl-gate flex min-h-svh flex-col gap-8 px-4 py-4 sm:px-6 sm:py-6">
+        <header class="flex min-h-11 items-center justify-between gap-4">
+            <Link :href="route('home')" class="flex items-center gap-3 text-(--wl-ink)" aria-label="e-Surat" data-load>
+                <span class="grid size-10 place-items-center rounded-lg bg-(--wl-ink) text-(--wl-ground)">
+                    <AppLogoIcon class="size-5" />
+                </span>
+                <span class="text-(length:--wl-step-body) font-semibold tracking-[-0.02em]">e-Surat</span>
+            </Link>
 
-        <!-- Theme toggle (top-right) -->
-        <div class="absolute top-6 right-6 z-10">
-            <button
-                type="button"
-                class="border-border/60 bg-background/80 text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-9 items-center justify-center rounded-lg border backdrop-blur-sm transition-colors"
-                :title="resolvedAppearance === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'"
-                @click="toggleTheme"
-            >
-                <Sun v-if="resolvedAppearance === 'dark'" class="size-4.5" />
-                <Moon v-else class="size-4.5" />
-                <span class="sr-only">Toggle Theme</span>
-            </button>
-        </div>
-
-        <!-- Main content -->
-        <main class="relative z-10 flex flex-col items-center px-6 text-center">
-            <!-- Logo -->
-            <div class="mb-8 flex items-center justify-center">
-                <div
-                    class="bg-primary text-primary-foreground shadow-primary/20 flex size-16 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 sm:size-20 sm:rounded-3xl"
+            <div class="flex items-center gap-3 sm:gap-6">
+                <Link
+                    :href="route('about')"
+                    class="text-(length:--wl-step-small) text-(--wl-muted) transition-colors hover:text-(--wl-ink) hover:underline hover:underline-offset-[5px]"
+                    data-load
                 >
-                    <AppLogoIcon class="size-8 fill-current text-white sm:size-10" />
+                    Tentang aplikasi
+                </Link>
+                <Link
+                    :href="actionHref"
+                    class="text-(length:--wl-step-small) text-(--wl-muted) transition-colors hover:text-(--wl-ink) hover:underline hover:underline-offset-[5px]"
+                    data-load
+                >
+                    {{ signedIn ? 'Dashboard' : 'Masuk' }}
+                </Link>
+                <button
+                    type="button"
+                    class="grid size-11 place-items-center rounded-lg bg-(--wl-paper) text-(--wl-ink) transition-colors hover:bg-(--wl-ink) hover:text-(--wl-ground)"
+                    :aria-label="resolvedAppearance === 'dark' ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'"
+                    data-load
+                    @click="toggleTheme"
+                >
+                    <Sun v-if="resolvedAppearance === 'dark'" class="size-5" />
+                    <Moon v-else class="size-5" />
+                </button>
+            </div>
+        </header>
+
+        <main class="flex flex-1 flex-col gap-14">
+            <section class="grid min-h-[min(60svh,620px)] gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" aria-labelledby="wl-gate-title">
+                <div class="flex flex-col justify-center rounded-lg bg-(--wl-paper) p-6 sm:p-10 lg:p-14">
+                    <h1
+                        id="wl-gate-title"
+                        class="max-w-[10ch] text-(length:--wl-step-display) leading-[0.9] font-semibold tracking-tighter text-balance"
+                        data-gate-reveal
+                    >
+                        Selamat datang
+                    </h1>
+                    <p
+                        class="mt-5 max-w-[30ch] text-(length:--wl-step-subhead) leading-[1.3] tracking-[-0.01em] text-pretty sm:mt-8"
+                        data-gate-reveal
+                    >
+                        e-Surat, sistem persuratan dan disposisi elektronik untuk tata kelola surat yang lebih cepat, rapi, dan efisien.
+                    </p>
+                    <div class="mt-7 flex flex-wrap items-center gap-6 sm:mt-10" data-gate-reveal>
+                        <Link
+                            class="flex min-h-14 items-center gap-3 rounded-xl bg-(--wl-accent) px-5 text-(length:--wl-step-body) font-semibold text-(--wl-paper) transition-[background-color,color,transform] duration-200 hover:bg-(--wl-ink) active:scale-[0.98]"
+                            :href="actionHref"
+                        >
+                            <span>{{ signedIn ? 'Buka dashboard' : 'Masuk ke sistem' }}</span>
+                            <ArrowRight class="size-4" aria-hidden="true" />
+                        </Link>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Greeting -->
-            <h1 class="text-foreground mb-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Selamat Datang di
-                <span class="text-primary">e-Surat</span>
-            </h1>
+                <div class="wl-gate-accent grid place-items-center overflow-clip rounded-lg bg-(--wl-accent) p-5 text-(--wl-accent-ink) sm:p-6">
+                    <svg class="wl-scene aspect-square w-full max-w-120" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="wl-stage" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#ffffff" stop-opacity=".12" />
+                                <stop offset=".45" stop-color="#ffffff" stop-opacity="0" />
+                                <stop offset="1" stop-color="#00240f" stop-opacity=".22" />
+                            </linearGradient>
+                            <radialGradient id="wl-glow" cx="50%" cy="46%" r="56%">
+                                <stop offset="0" stop-color="#ffffff" stop-opacity=".18" />
+                                <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+                            </radialGradient>
+                            <radialGradient id="wl-ground-shadow" cx="50%" cy="50%" r="50%">
+                                <stop offset="0" stop-color="#03180c" stop-opacity=".5" />
+                                <stop offset="1" stop-color="#03180c" stop-opacity="0" />
+                            </radialGradient>
+                            <linearGradient id="wl-trail" x1="46" y1="46" x2="356" y2="356" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#e6ffe9" stop-opacity=".35" />
+                                <stop offset=".45" stop-color="#c8ffd6" stop-opacity=".85" />
+                                <stop offset="1" stop-color="#f6fff0" stop-opacity=".45" />
+                            </linearGradient>
+                            <linearGradient id="wl-paper" x1="140" y1="118" x2="252" y2="300" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#f8fff1" />
+                                <stop offset=".55" stop-color="#e7f8dc" />
+                                <stop offset="1" stop-color="#cdeac2" />
+                            </linearGradient>
+                            <linearGradient id="wl-paper-side" x1="238" y1="150" x2="256" y2="296" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#3fae67" />
+                                <stop offset="1" stop-color="#0a3a20" />
+                            </linearGradient>
+                            <linearGradient id="wl-paper-base" x1="150" y1="296" x2="250" y2="302" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#0f4a2a" />
+                                <stop offset="1" stop-color="#041d10" />
+                            </linearGradient>
+                            <linearGradient id="wl-fold" x1="210" y1="118" x2="238" y2="146" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#d8efcc" />
+                                <stop offset="1" stop-color="#a9d6a0" />
+                            </linearGradient>
+                            <radialGradient id="wl-seal-face" cx="38%" cy="30%" r="78%">
+                                <stop offset="0" stop-color="#ffe39a" />
+                                <stop offset=".5" stop-color="#e8ac3c" />
+                                <stop offset="1" stop-color="#8a4f06" />
+                            </radialGradient>
+                            <linearGradient id="wl-plane-light" x1="82" y1="11" x2="298" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#f8fff0" />
+                                <stop offset="1" stop-color="#b6f0bd" />
+                            </linearGradient>
+                            <linearGradient id="wl-plane-mid" x1="74" y1="107" x2="291" y2="131" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#8fe8a4" />
+                                <stop offset="1" stop-color="#2f9e52" />
+                            </linearGradient>
+                            <linearGradient id="wl-plane-body" x1="1" y1="58" x2="298" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#57c47a" />
+                                <stop offset="1" stop-color="#08301b" />
+                            </linearGradient>
+                            <linearGradient id="wl-plane-shade" x1="82" y1="35" x2="298" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#0f4a2a" />
+                                <stop offset="1" stop-color="#03200f" />
+                            </linearGradient>
+                            <path
+                                id="wl-seal-alt"
+                                d="M258.00 213.60C262.29 213.60 267.04 213.38 270.86 214.96C274.68 216.54 277.88 220.06 280.91 223.09C283.94 226.12 287.46 229.32 289.04 233.14C290.62 236.96 290.40 241.71 290.40 246.00C290.40 250.29 290.62 255.04 289.04 258.86C287.46 262.68 283.94 265.88 280.91 268.91C277.88 271.94 274.68 275.46 270.86 277.04C267.04 278.62 262.29 278.40 258.00 278.40C253.71 278.40 248.96 278.62 245.14 277.04C241.32 275.46 238.12 271.94 235.09 268.91C232.06 265.88 228.54 262.68 226.96 258.86C225.38 255.04 225.60 250.29 225.60 246.00C225.60 241.71 225.38 236.96 226.96 233.14C228.54 229.32 232.06 226.12 235.09 223.09C238.12 220.06 241.32 216.54 245.14 214.96C248.96 213.38 253.71 213.60 258.00 213.60Z"
+                            />
+                        </defs>
 
-            <p class="text-muted-foreground mx-auto mb-10 max-w-md text-base leading-relaxed sm:text-lg">
-                Sistem Persuratan &amp; Disposisi Elektronik untuk tata kelola surat yang lebih cepat, rapi, dan efisien.
-            </p>
+                        <ellipse cx="200" cy="198" rx="186" ry="178" fill="url(#wl-glow)" />
 
-            <!-- CTA Buttons -->
-            <div class="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
-                <!-- Logged-in: go to Dashboard -->
-                <Button v-if="user" as-child size="lg" class="shadow-primary/20 gap-2 shadow-md">
-                    <Link :href="route('dashboard')">
-                        <LayoutDashboard class="size-4.5" />
-                        Buka Dashboard
-                    </Link>
-                </Button>
+                        <ellipse class="wl-ground" cx="200" cy="322" rx="138" ry="26" stroke="#eafff1" stroke-opacity=".22" stroke-width="1" />
+                        <ellipse class="wl-doc-shadow" cx="206" cy="316" rx="96" ry="15" fill="url(#wl-ground-shadow)" />
 
-                <!-- Not logged-in: go to Login -->
-                <Button v-else as-child size="lg" class="shadow-primary/20 gap-2 shadow-md">
-                    <Link :href="route('login')">
-                        <LogIn class="size-4.5" />
-                        Masuk ke Sistem
-                    </Link>
-                </Button>
+                        <path
+                            id="wl-agenda-orbit"
+                            class="wl-trail"
+                            d="M200 32 A168 168 0 1 1 199.9 32"
+                            stroke="url(#wl-trail)"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                        />
 
-                <!-- About / Tentang link -->
-                <Button as-child variant="outline" size="lg" class="gap-2">
-                    <Link :href="route('about')">
-                        <Info class="size-4.5" />
-                        Tentang Aplikasi
-                    </Link>
-                </Button>
-            </div>
+                        <g class="wl-node" fill="#eafff1">
+                            <circle class="wl-node-pulse" cx="200" cy="32" r="5" stroke="#eafff1" stroke-width="1.5" />
+                            <circle cx="200" cy="32" r="3.5" stroke="none" />
+                        </g>
+                        <g class="wl-node" fill="#eafff1">
+                            <circle class="wl-node-pulse" cx="345.5" cy="284" r="5" stroke="#eafff1" stroke-width="1.5" />
+                            <circle cx="345.5" cy="284" r="3.5" stroke="none" />
+                        </g>
+                        <g class="wl-node" fill="#eafff1">
+                            <circle class="wl-node-pulse" cx="54.5" cy="284" r="5" stroke="#eafff1" stroke-width="1.5" />
+                            <circle cx="54.5" cy="284" r="3.5" stroke="none" />
+                        </g>
+
+                        <g class="wl-plane" transform="translate(200 32)">
+                            <g transform="translate(-51 -24.14) scale(0.34)">
+                                <path fill="url(#wl-plane-shade)" opacity=".45" d="M82.8 35 L298.7 129.6 L79 92 Z" />
+                                <path fill="url(#wl-plane-light)" d="M82.8 35 L134.8 11.5 L298.7 129.6 Z" />
+                                <path fill="url(#wl-plane-mid)" d="M76.8 107.1 L291.2 126.7 L74.7 131 Z" />
+                                <path fill="url(#wl-plane-body)" d="M298.8 130.4 L1.9 103.3 L55.9 58.3 Z" />
+                            </g>
+                        </g>
+
+                        <g class="wl-doc">
+                            <path d="M238 144 L256 160 V302 L238 286 Z" fill="url(#wl-paper-side)" />
+                            <path d="M140 286 H238 L256 302 H158 Z" fill="url(#wl-paper-base)" />
+                            <path d="M140 118 H212 L238 144 V286 H140 Z" fill="url(#wl-paper)" />
+                            <path d="M212 118 L238 144 H212 Z" fill="url(#wl-fold)" />
+                            <path d="M140 118 H212 L238 144" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.5" />
+                            <path
+                                class="wl-doc-line"
+                                d="M158 170 H226"
+                                stroke="#0b3a22"
+                                stroke-opacity=".32"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                            />
+                            <path
+                                class="wl-doc-line"
+                                d="M158 192 H226"
+                                stroke="#0b3a22"
+                                stroke-opacity=".32"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                            />
+                            <path
+                                class="wl-doc-line"
+                                d="M158 214 H198"
+                                stroke="#0b3a22"
+                                stroke-opacity=".32"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                            />
+                            <rect class="wl-doc-stamp" x="158" y="238" width="52" height="24" rx="4" fill="#0b3a22" opacity=".88" />
+                            <rect class="wl-doc-stamp" x="166" y="248" width="36" height="4" rx="2" fill="#eafff1" />
+
+                            <g class="wl-seal">
+                                <path
+                                    class="wl-seal-layer"
+                                    d="M258.00 210.00C261.57 210.00 264.47 218.37 268.72 220.13C272.96 221.89 280.93 218.02 283.46 220.54C285.98 223.07 282.11 231.04 283.87 235.28C285.63 239.53 294.00 242.43 294.00 246.00C294.00 249.57 285.63 252.47 283.87 256.72C282.11 260.96 285.98 268.93 283.46 271.46C280.93 273.98 272.96 270.11 268.72 271.87C264.47 273.63 261.57 282.00 258.00 282.00C254.43 282.00 251.53 273.63 247.28 271.87C243.04 270.11 235.07 273.98 232.54 271.46C230.02 268.93 233.89 260.96 232.13 256.72C230.37 252.47 222.00 249.57 222.00 246.00C222.00 242.43 230.37 239.53 232.13 235.28C233.89 231.04 230.02 223.07 232.54 220.54C235.07 218.02 243.04 221.89 247.28 220.13C251.53 218.37 254.43 210.00 258.00 210.00Z"
+                                    fill="#5c3407"
+                                    transform="translate(7 9)"
+                                />
+                                <path
+                                    class="wl-seal-layer"
+                                    d="M258.00 210.00C261.57 210.00 264.47 218.37 268.72 220.13C272.96 221.89 280.93 218.02 283.46 220.54C285.98 223.07 282.11 231.04 283.87 235.28C285.63 239.53 294.00 242.43 294.00 246.00C294.00 249.57 285.63 252.47 283.87 256.72C282.11 260.96 285.98 268.93 283.46 271.46C280.93 273.98 272.96 270.11 268.72 271.87C264.47 273.63 261.57 282.00 258.00 282.00C254.43 282.00 251.53 273.63 247.28 271.87C243.04 270.11 235.07 273.98 232.54 271.46C230.02 268.93 233.89 260.96 232.13 256.72C230.37 252.47 222.00 249.57 222.00 246.00C222.00 242.43 230.37 239.53 232.13 235.28C233.89 231.04 230.02 223.07 232.54 220.54C235.07 218.02 243.04 221.89 247.28 220.13C251.53 218.37 254.43 210.00 258.00 210.00Z"
+                                    fill="#96600f"
+                                    transform="translate(4 5)"
+                                />
+                                <path
+                                    class="wl-seal-layer"
+                                    d="M258.00 210.00C261.57 210.00 264.47 218.37 268.72 220.13C272.96 221.89 280.93 218.02 283.46 220.54C285.98 223.07 282.11 231.04 283.87 235.28C285.63 239.53 294.00 242.43 294.00 246.00C294.00 249.57 285.63 252.47 283.87 256.72C282.11 260.96 285.98 268.93 283.46 271.46C280.93 273.98 272.96 270.11 268.72 271.87C264.47 273.63 261.57 282.00 258.00 282.00C254.43 282.00 251.53 273.63 247.28 271.87C243.04 270.11 235.07 273.98 232.54 271.46C230.02 268.93 233.89 260.96 232.13 256.72C230.37 252.47 222.00 249.57 222.00 246.00C222.00 242.43 230.37 239.53 232.13 235.28C233.89 231.04 230.02 223.07 232.54 220.54C235.07 218.02 243.04 221.89 247.28 220.13C251.53 218.37 254.43 210.00 258.00 210.00Z"
+                                    fill="url(#wl-seal-face)"
+                                />
+                                <circle cx="258" cy="246" r="21.5" stroke="#5c3407" stroke-opacity=".4" stroke-width="1.5" />
+                                <path
+                                    class="wl-check"
+                                    d="M245 247 L254 257 L273 233"
+                                    stroke="#062b17"
+                                    stroke-width="5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </section>
         </main>
 
-        <!-- Footer -->
-        <footer class="text-muted-foreground/60 absolute bottom-6 z-10 flex items-center gap-1.5 text-xs">
-            <span>&copy; {{ new Date().getFullYear() }} e-Surat</span>
-            <span class="text-border">·</span>
-            <Link href="/about" class="hover:text-muted-foreground transition-colors">
-                <span class="inline-flex items-center gap-1">
-                    Tentang
-                    <ArrowRight class="size-3" />
-                </span>
-            </Link>
+        <footer class="flex flex-wrap justify-between gap-3 text-(length:--wl-step-small) text-(--wl-muted)">
+            <span data-load>© {{ year }} e-Surat. Seluruh hak cipta dilindungi.</span>
+            <span data-load>Dibuat untuk mempermudah tata kelola persuratan.</span>
         </footer>
     </div>
 </template>
