@@ -1,6 +1,19 @@
 # Repository Guidelines
 
-Indonesian government e-surat (electronic letter) management system. Two rules above all: **query the knowledge graph before exploring code** (see `## graphify`), and **verify before declaring done** (see `## Definition of Done`).
+Indonesian government e-surat (electronic letter) management system. Three rules above all: **read the matching skill before editing** (see `## Skills`), **query the knowledge graph before exploring code** (see `## graphify`), and **verify before declaring done** (see `## Definition of Done`).
+
+## Skills
+
+Read the matching skill **before the first edit** in that layer. Skills live at `.agents/skills/<name>/SKILL.md`; invoke `/skill:<name>` when your client supports it. Subagents are no exception — paste the required skill name into the prompt.
+
+| Touching | Read |
+|---|---|
+| Backend — `app/`, `bootstrap/`, `config/`, `database/`, `routes/`, `tests/`, `resources/views/` (Blade) | `laravel-best-practices` |
+| Frontend — `resources/js/`, `resources/css/` | `vue-best-practices` |
+
+- Both layers in one change → read both, and still follow the consistency-first rule: reuse the patterns already in the codebase (Actions with `handle()`, FormRequests, typed Inertia props mirrored in `resources/js/types/models/*`).
+- Paths outside those lists (README, CI workflow, `phpunit.xml`, root manifests) need no skill.
+- A skill that contradicts an existing project pattern: keep the project pattern and call out the deviation, unless it is a correctness or security defect.
 
 ## graphify
 
