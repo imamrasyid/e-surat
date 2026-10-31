@@ -1,1 +1,0 @@
-import{On as e,Zn as t,b as n,k as r,mt as i,xt as a}from"./runtime-core.esm-bundler-B8D2lM98.js";import{g as o}from"./shared-DXG4aK15.js";var s=r({__name:`CardContent`,props:{class:{type:[Boolean,null,String,Object,Array]}},setup(r){let s=r;return(r,c)=>(i(),n(`div`,{"data-slot":`card-content`,class:t(e(o)(`px-6`,s.class))},[a(r.$slots,`default`)],2))}});export{s as t};
