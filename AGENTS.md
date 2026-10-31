@@ -1,8 +1,32 @@
 # Repository Guidelines
 
+Indonesian government e-surat (electronic letter) management system. Two rules above all: **query the knowledge graph before exploring code** (see `## graphify`), and **verify before declaring done** (see `## Definition of Done`).
+
+## graphify
+
+This project has a knowledge graph at `graphify-out/` (god nodes, communities, cross-file edges). It is **scoped to `app/`, `bootstrap/`, `config/`, `database/`, `resources/`, `routes/`, `tests/`, and `AGENTS.md`** — declared in `/.graphifyignore` (allowlist, git-ignored). It deliberately EXCLUDES `public/`, `.github/`, root manifests (`composer.json`, `package.json`, …), and this README. Do not widen or change the scope without editing `/.graphifyignore`; `graphify update .`, `graphify extract`, and the post-commit hook all honor it.
+
+**Query first, read second.** When `graphify-out/graph.json` exists, run `graphify query "<question>"` BEFORE your first grep/search/source-read for any codebase question. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for one concept. These return a scoped subgraph, far smaller than grepping. Read raw files only for lines the graph already located. Put this rule in every subagent prompt that explores code.
+
+**At session start**, run `graphify reflect --if-stale` (cheap, no LLM) and read `graphify-out/reflections/LESSONS.md` for preferred sources and known dead ends.
+
+**Never update the graph unprompted.** After modifying code, do NOT run `graphify update .` on your own. Run it only when (a) the user explicitly asks for it, or (b) the user asks to commit — in which case ASK first, before staging or committing:
+
+> "Update the knowledge graph before committing? (`graphify update .` — AST-only, no API cost)"
+
+Run the update only if they say yes; if they say no, commit without it. `graphify-out/` is git-ignored, so the update never becomes part of the commit itself. If the post-commit hook is installed (`graphify hook install`), a background AST rebuild may run after the commit — dirty `graphify-out/` files are then expected, not an error.
+
+Rules:
+
+- `graphify-out/` is GENERATED and git-ignored. Never hand-edit it. `graph.json` is rewritten whole each build, so large diffs between runs are normal.
+- Dirty graph files are not a reason to skip graphify. Only skip it when the task IS about stale/incorrect graph output, or the user explicitly says so.
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review, or when query/path/explain don't surface enough context.
+- Portable launcher form (`graphify …`) works cross-platform; the resolved interpreter path lives in `graphify-out/.graphify_python` and is an implementation detail — don't hardcode it in docs.
+- Never hand-write a `## graphify` heading elsewhere in this file: it is the install marker `graphify codex install` / friends replace in place.
+
 ## Project Overview
 
-Indonesian government e-surat (electronic letter) management system built on **Laravel ^13 + Inertia v3 + Vue 3 (TypeScript)**. Manages the lifecycle of official letters: compose/send (`surat`), internal memos (`nota dinas`), dispositions (`disposisi`), inbox (primary + invitations/`undangan`), archive (`arsip`), plus master data (users/pengguna, positions/jabatan, roles & permissions, archive classification codes, follow-ups). Auth is **Laravel Fortify** (email/password, 2FA, passkeys) layered with **spatie/laravel-permission** for RBAC.
+Built on **Laravel ^13 + Inertia v3 + Vue 3 (TypeScript)**. Manages the lifecycle of official letters: compose/send (`surat`), internal memos (`nota dinas`), dispositions (`disposisi`), inbox (primary + invitations/`undangan`), archive (`arsip`), plus master data (users/pengguna, positions/jabatan, roles & permissions, archive classification codes, follow-ups). Auth is **Laravel Fortify** (email/password, 2FA, passkeys) layered with **spatie/laravel-permission** for RBAC.
 
 Derived from the Laravel Vue starter kit — README says "Laravel 12" but `composer.json` requires `laravel/framework ^13.0`; trust composer.json.
 
@@ -43,6 +67,7 @@ Key facts:
 | `app/Actions/<Domain>/` | Business logic; domains: `Letter`, `Memo`, `Disposition`, `Dashboard`, `MasterData/{User,Role,Position,KodeKlasifikasi,Followup}`, `Fortify` |
 | `app/Models/` | Eloquent models (Indonesian table names, e.g. `letters`, `ref_agenda_surat`, `model_has_special_dispositions`) |
 | `app/Services/` | Cross-cutting services (`LetterActivityService`) |
+| `bootstrap/` | `app.php` middleware aliases + web stack; `providers.php` |
 | `routes/` | Module route files (see above) |
 | `resources/js/pages/` | Inertia pages; mirrors routes: `app/{sent,memo,disposition,primary,undangan}`, `archive/`, `master/`, `settings/`, `auth/` |
 | `resources/js/components/` | Shared components; `ui/` is generated shadcn-style (reka-ui) — **do not edit** |
@@ -63,6 +88,7 @@ composer lint             # pint --parallel    ;  lint:check is --test (no fixes
 composer types:check      # phpstan analyse (larastan)
 composer test             # config:clear + lint:check + types:check + php artisan test
 composer ci:check         # npm run check + npm run types:check + @test (what CI runs)
+graphify update .         # refresh knowledge graph — on request, or after ASKING at commit time (AST-only, free)
 ```
 
 ## Code Conventions & Common Patterns
@@ -95,6 +121,7 @@ composer ci:check         # npm run check + npm run types:check + @test (what CI
 | `resources/js/app.ts` | Inertia bootstrap, page resolution, ziggy/theme/toast init |
 | `vite.config.ts` | `lazyPlugins`, lint (`denyWarnings`, `no-console`) and fmt (150 cols, 4-space, single quotes, tailwind sort) config |
 | `composer.json` / `package.json` | All scripts (above) and dependency versions |
+| `.graphifyignore` | Knowledge-graph scope (allowlist); read before any graph rebuild |
 
 ## Runtime/Tooling Preferences
 
@@ -112,3 +139,12 @@ composer ci:check         # npm run check + npm run types:check + @test (what CI
 - **Coverage reality**: starter-kit auth/settings/dashboard flows are tested; the core e-surat domain (letters, memos, dispositions, archive, master data) is largely untested. When touching those flows, add Feature coverage rather than relying on existing tests.
 - CI (`.github/workflows/tests.yml`, push to `main`/PR): ubuntu, PHP 8.4 + Node 22, `composer setup`, then `composer ci:check` (vp check → vue-tsc → pint --test → phpstan → artisan test). Make sure new code passes `composer test` locally.
 - `phpunit.xml` forces `APP_ENV=testing` and `DB_CONNECTION=sqlite` (`:memory:`) with `force="true"` — `.env` DB values never leak into tests; `php artisan test` is safe to run anytime and leaves the dev DB untouched.
+
+## Definition of Done
+
+Before considering any change complete:
+
+1. `composer test` passes locally (config:clear → lint:check → types:check → phpstan → artisan test).
+2. Backend prop/route changes are mirrored in `resources/js/types/models/*` — otherwise `npm run types:check` fails.
+3. Touching the core e-surat domain (letters, memos, dispositions, archive, master data)? Add Pest Feature coverage — that domain is largely untested.
+4. Knowledge graph left alone unless asked: do NOT run `graphify update .` on your own. When the user asks to commit, ASK whether to update first; run it only on their yes (or an explicit request).
