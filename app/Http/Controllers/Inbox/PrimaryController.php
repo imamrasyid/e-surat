@@ -27,7 +27,7 @@ class PrimaryController extends Controller
             return Inertia::render('app/primary/Index', [
                 'breadcrumbItems' => [
                     [
-                        'title' => 'Primary',
+                        'title' => 'Utama',
                         'route' => 'inbox.primary.index',
                     ],
                 ],
@@ -71,7 +71,7 @@ class PrimaryController extends Controller
         return Inertia::render('app/primary/Index', [
             'breadcrumbItems' => [
                 [
-                    'title' => 'Primary',
+                    'title' => 'Utama',
                     'route' => 'inbox.primary.index',
                 ],
             ],
@@ -130,7 +130,7 @@ class PrimaryController extends Controller
         return Inertia::render('app/primary/Show', [
             'breadcrumbItems' => [
                 [
-                    'title' => 'Primary',
+                    'title' => 'Utama',
                     'route' => 'inbox.primary.index',
                 ],
                 [

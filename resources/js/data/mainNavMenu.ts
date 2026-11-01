@@ -27,7 +27,7 @@ const platformItems: NavItem[] = [
 
 const inboxItems: NavItem[] = [
     {
-        title: 'Primary',
+        title: 'Utama',
         href: 'inbox.primary.index',
         icon: Inbox,
         current: 'inbox.primary.*',

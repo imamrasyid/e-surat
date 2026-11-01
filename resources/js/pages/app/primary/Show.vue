@@ -29,12 +29,12 @@ function goBack() {
 </script>
 
 <template>
-    <Head title="Lihat Surat Masuk | Primary" />
+    <Head title="Lihat Surat Masuk Utama" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6 2xl:px-12">
             <div class="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                <Heading class="mb-0!" title="Surat Masuk" description="Detail data surat masuk primary" />
+                <Heading class="mb-0!" title="Surat Masuk" description="Detail data surat masuk utama" />
                 <div class="sm:text-end">
                     <p class="text-muted-foreground text-xs">{{ createdAt }}</p>
                     <p class="text-sm">Oleh {{ letter.sender_user?.name ?? '-' }}</p>

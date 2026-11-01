@@ -59,12 +59,12 @@ function handleClick(item: LetterRecipient) {
 </script>
 
 <template>
-    <Head title="Surat Masuk | Primary" />
+    <Head title="Surat Masuk Utama" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <Heading class="mb-0!" title="Primary" description="Daftar surat masuk primary" />
+                <Heading class="mb-0!" title="Utama" description="Daftar surat masuk utama" />
                 <ListFilterBar v-model:search="search" v-model:filter="filter" />
             </div>
 

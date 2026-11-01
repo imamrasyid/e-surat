@@ -1,7 +1,7 @@
 const categoryInbox = [
     {
         value: '1',
-        name: 'Primary',
+        name: 'Utama',
     },
     {
         value: '2',
