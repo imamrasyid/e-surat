@@ -18,9 +18,36 @@ export function mountWelcomeGate(root: HTMLElement) {
         gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
             const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
+            // The chrome links are Button-styled, so they carry `transition-all`. A CSS
+            // transition on an animated property makes GSAP read a lagging computed opacity as
+            // the tween's end value, which left links frozen at a partial opacity. `set` first
+            // (with transitions off), then `to`, keeps the reveal deterministic; clearProps
+            // hands every animated property back to CSS once it finishes.
+            const chrome = gsap.utils.toArray<HTMLElement>('[data-load]');
+            const reveal = gsap.utils.toArray<HTMLElement>('[data-gate-reveal]');
+
+            gsap.set(chrome, { autoAlpha: 0, y: 12, transition: 'none' });
+            gsap.set(reveal, { autoAlpha: 0, y: 18, transition: 'none' });
+
             intro
-                .from('[data-load]', { autoAlpha: 0, y: 12, duration: 0.6, stagger: 0.07 })
-                .from('[data-gate-reveal]', { autoAlpha: 0, y: 18, duration: 0.7, stagger: 0.09 }, 0.12)
+                .to(chrome, {
+                    autoAlpha: 1,
+                    y: 0,
+                    duration: 0.6,
+                    stagger: 0.07,
+                    clearProps: 'opacity,visibility,transform,transition',
+                })
+                .to(
+                    reveal,
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 0.7,
+                        stagger: 0.09,
+                        clearProps: 'opacity,visibility,transform,transition',
+                    },
+                    0.12,
+                )
                 .fromTo(
                     '.wl-gate-accent',
                     { clipPath: 'inset(0% 0% 100% 0%)' },
