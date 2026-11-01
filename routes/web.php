@@ -26,6 +26,9 @@ Route::get('dashboard', [DashboardController::class, 'index'])
 Route::get('dashboard/chart-data', [DashboardController::class, 'chartData'])
     ->middleware(['auth'])->name('dashboard.chart-data');
 
+Route::get('dashboard/user-chart-data', [DashboardController::class, 'userChartData'])
+    ->middleware(['auth'])->name('dashboard.user-chart-data');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('compose', [ComposeController::class, 'create'])
         ->middleware('permission:compose.create')

@@ -1,44 +1,19 @@
 <script setup lang="ts">
-import { CheckCircle2, Clock, Inbox } from '@lucide/vue';
+import type { DashboardMetric } from '@/types/dashboard';
+import { computed } from 'vue';
 import DashboardStatCard from './DashboardStatCard.vue';
 
-interface Props {
-    totalLetters: number;
-    inProcessLetters: number;
-    completedLetters: number;
-}
+const props = defineProps<{
+    metrics: DashboardMetric[];
+}>();
 
-const props = defineProps<Props>();
+const gridClasses = computed(() =>
+    props.metrics.length === 3 ? 'grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3' : 'grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4',
+);
 </script>
 
 <template>
-    <div class="grid auto-rows-min gap-4 md:grid-cols-3 lg:gap-8">
-        <DashboardStatCard
-            title="Surat Masuk"
-            description="Jumlah seluruh surat masuk"
-            :value="props.totalLetters"
-            variant="primary"
-            :icon="Inbox"
-            icon-animation="pulse"
-        />
-
-        <DashboardStatCard
-            title="Surat Dalam Proses"
-            description="Belum ada tindak lanjut surat"
-            :value="props.inProcessLetters"
-            variant="warning"
-            :icon="Clock"
-            icon-animation="spin"
-            animation-duration="3s"
-        />
-
-        <DashboardStatCard
-            title="Surat Selesai"
-            description="Surat yang telah selesai diproses"
-            :value="props.completedLetters"
-            variant="success"
-            :icon="CheckCircle2"
-            icon-animation="pulse"
-        />
+    <div :class="gridClasses">
+        <DashboardStatCard v-for="metric in metrics" :key="metric.key" :metric="metric" />
     </div>
 </template>

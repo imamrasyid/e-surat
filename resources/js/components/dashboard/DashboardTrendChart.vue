@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { type ChartConfig, ChartContainer, ChartCrosshair, ChartTooltip } from '@/components/ui/chart';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ChartDataItem } from '@/types/dashboard';
-import { Clock, TrendingUp } from '@lucide/vue';
-import { CurveType } from '@unovis/ts';
-import { VisArea, VisAxis, VisLine, VisXYContainer } from '@unovis/vue';
+import { Clock } from '@lucide/vue';
+import { VisAxis, VisGroupedBar, VisXYContainer } from '@unovis/vue';
 import { computed, shallowRef, watch } from 'vue';
+import DashboardChartHeader from './DashboardChartHeader.vue';
 import { formatDateLabel, formatDateTooltipLabel, formatNumber } from './utils';
 
 interface Props {
     initialData: ChartDataItem[];
+    total: number;
 }
 
 const props = defineProps<Props>();
@@ -26,6 +26,8 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
+const barColor = 'var(--color-primary)';
+
 const numTicks = computed(() => {
     switch (selectedRange.value) {
         case '7':
@@ -36,6 +38,10 @@ const numTicks = computed(() => {
             return 12;
     }
 });
+
+function setRange(value: string): void {
+    selectedRange.value = value;
+}
 
 function tooltipTemplate(d: ChartDataItem): string {
     return `<div class="border-border/50 bg-background min-w-[120px] rounded-lg border px-3 py-2 text-xs shadow-xl">
@@ -73,54 +79,46 @@ watch(selectedRange, async (days, _prev, onCleanup) => {
 </script>
 
 <template>
-    <Card class="mt-4 shadow-none lg:mt-8">
-        <CardHeader>
-            <CardTitle class="flex items-center gap-2">
-                <TrendingUp class="text-primary h-5 w-5" />
-                Tren Surat Masuk
-            </CardTitle>
-            <CardDescription>Grafik jumlah surat masuk berdasarkan waktu</CardDescription>
-            <CardAction>
-                <Select v-model="selectedRange">
-                    <SelectTrigger class="w-[160px]">
-                        <SelectValue placeholder="Pilih periode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="90">3 Bulan Terakhir</SelectItem>
-                        <SelectItem value="30">30 Hari Terakhir</SelectItem>
-                        <SelectItem value="7">7 Hari Terakhir</SelectItem>
-                    </SelectContent>
-                </Select>
-            </CardAction>
-        </CardHeader>
-        <CardContent>
-            <div v-if="isLoading" class="flex h-[300px] items-center justify-center">
-                <Clock class="text-muted-foreground h-8 w-8 animate-spin" />
+    <Card class="dark:bg-input/30 min-w-0 gap-0 py-0 shadow-none">
+        <DashboardChartHeader
+            title="Tren Surat Masuk"
+            description="Grafik jumlah surat masuk berdasarkan waktu"
+            total-label="Seluruh Surat Masuk"
+            :total="props.total"
+            :range="selectedRange"
+            @update:range="setRange"
+        />
+        <CardContent class="p-4 sm:p-6">
+            <div v-if="isLoading" class="text-muted-foreground flex h-62.5 items-center justify-center gap-2" role="status" aria-live="polite">
+                <Clock class="h-5 w-5" aria-hidden="true" />
+                <span class="text-sm">Memuat data tren surat…</span>
             </div>
-            <ChartContainer v-else :config="chartConfig" :cursor="true" class="h-[300px] w-full">
-                <VisXYContainer :data="chartData" :padding="{ top: 10 }">
-                    <VisArea
+            <ChartContainer
+                v-else
+                :config="chartConfig"
+                :cursor="true"
+                class="aspect-auto h-62.5 w-full min-w-0"
+                role="img"
+                aria-label="Diagram batang jumlah surat masuk berdasarkan waktu"
+            >
+                <VisXYContainer :data="chartData" :y-domain="[0, undefined]">
+                    <VisGroupedBar
                         :x="(_: ChartDataItem, i: number) => i"
                         :y="(d: ChartDataItem) => d.surat_masuk"
-                        color="var(--color-primary)"
-                        :opacity="0.15"
-                        :curve-type="CurveType.MonotoneX"
-                    />
-                    <VisLine
-                        :x="(_: ChartDataItem, i: number) => i"
-                        :y="(d: ChartDataItem) => d.surat_masuk"
-                        color="var(--color-primary)"
-                        :line-width="2"
-                        :curve-type="CurveType.MonotoneX"
+                        :color="barColor"
+                        :bar-padding="0.1"
+                        :rounded-corners="false"
                     />
                     <VisAxis
                         type="x"
                         :tick-format="(i: number) => (chartData[i] ? formatDateLabel(chartData[i].date) : '')"
                         :num-ticks="numTicks"
+                        :tick-line="false"
+                        :domain-line="false"
                         :grid-line="false"
                     />
-                    <VisAxis type="y" :grid-line="true" :num-ticks="5" />
-                    <ChartCrosshair :template="tooltipTemplate" color="var(--color-primary)" />
+                    <VisAxis type="y" :num-ticks="3" :tick-line="false" :domain-line="false" />
+                    <ChartCrosshair :template="tooltipTemplate" color="transparent" />
                     <ChartTooltip />
                 </VisXYContainer>
             </ChartContainer>

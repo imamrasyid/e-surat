@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import DashboardStats from '@/components/dashboard/DashboardStats.vue';
-import DashboardTrendChart from '@/components/dashboard/DashboardTrendChart.vue';
+import DashboardRoleOverview from '@/components/dashboard/DashboardRoleOverview.vue';
 import Heading from '@/components/Heading.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem } from '@/types';
-import type { ChartDataItem } from '@/types/dashboard';
+import type { AppPageProps, BreadcrumbItem } from '@/types';
+import type { ChartDataItem, DashboardPayload, UserChartPayload } from '@/types/dashboard';
 import { Head, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-interface Props {
-    totalLetters: number;
-    inProcessLetters: number;
-    completedLetters: number;
+type Props = {
+    dashboard: DashboardPayload;
     chartData: ChartDataItem[];
-}
+    userChartData: UserChartPayload | null;
+};
 
 const props = defineProps<Props>();
 
@@ -23,24 +22,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const page = usePage();
-const authUser = page.props.auth.user;
+const page = usePage<AppPageProps<Props>>();
+const userName = computed(() => page.props.auth.user.name);
 </script>
 
 <template>
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="px-4 py-6">
-            <Heading :title="`Halo, ${authUser.name}`" description="Selamat datang" />
+        <div class="mx-auto w-full max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
+            <Heading :title="`Halo, ${userName}`" description="Ringkasan aktivitas dan persuratan" />
 
-            <DashboardStats
-                :total-letters="props.totalLetters"
-                :in-process-letters="props.inProcessLetters"
-                :completed-letters="props.completedLetters"
+            <DashboardRoleOverview
+                :dashboard="props.dashboard"
+                :chart-data="props.chartData"
+                :user-chart-data="props.userChartData"
+                :inbox="page.props.inbox"
             />
-
-            <DashboardTrendChart :initial-data="props.chartData" />
         </div>
     </AppLayout>
 </template>

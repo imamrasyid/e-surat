@@ -1,63 +1,30 @@
 <script setup lang="ts">
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { computed, type Component } from 'vue';
+import type { DashboardMetric } from '@/types/dashboard';
+import { computed } from 'vue';
 import { formatNumber } from './utils';
 
-interface Props {
-    title: string;
-    description: string;
-    value: number;
-    variant?: 'primary' | 'warning' | 'success';
-    icon: Component;
-    iconAnimation?: 'pulse' | 'spin';
-    animationDuration?: string;
-}
+const props = defineProps<{
+    metric: DashboardMetric;
+}>();
 
-const props = withDefaults(defineProps<Props>(), {
-    variant: 'primary',
-    iconAnimation: undefined,
-    animationDuration: undefined,
-});
-
-const variantClasses = computed(() => {
-    switch (props.variant) {
-        case 'warning':
-            return 'border-warning/10 bg-gradient-to-br from-warning/10 to-card text-warning';
-        case 'success':
-            return 'border-success/10 bg-gradient-to-br from-success/10 to-card text-success';
-        case 'primary':
-        default:
-            return 'border-primary/10 bg-gradient-to-br from-primary/10 to-card text-primary';
-    }
-});
-
-const iconClasses = computed(() => [
-    'h-7.5 w-7.5',
-    props.iconAnimation === 'pulse' && 'animate-pulse',
-    props.iconAnimation === 'spin' && 'animate-spin',
-]);
-
-const iconStyle = computed(() => {
-    if (props.animationDuration) {
-        return { animationDuration: props.animationDuration };
-    }
-    return undefined;
-});
-
-const formattedValue = computed(() => formatNumber(props.value));
+const formattedValue = computed(() => formatNumber(props.metric.value));
 </script>
 
 <template>
-    <Card class="shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-sm" :class="variantClasses">
+    <Card class="hover:border-primary/40 dark:bg-input/30 gap-4 shadow-none transition-colors duration-200">
         <CardHeader>
-            <CardTitle>{{ props.title }}</CardTitle>
-            <CardDescription>{{ props.description }}</CardDescription>
+            <CardTitle>{{ props.metric.title }}</CardTitle>
+            <CardDescription>{{ props.metric.description }}</CardDescription>
             <CardAction>
-                <component :is="props.icon" :class="iconClasses" :style="iconStyle" />
+                <component :is="props.metric.icon" class="size-5 shrink-0" aria-hidden="true" />
             </CardAction>
         </CardHeader>
-        <CardContent>
-            <div class="text-3xl font-bold">{{ formattedValue }} <span class="text-sm font-normal">Surat</span></div>
+        <CardContent class="mt-auto">
+            <div class="text-3xl font-bold tabular-nums">
+                {{ formattedValue
+                }}<span v-if="props.metric.unit" class="text-muted-foreground ml-1 text-sm font-medium">{{ props.metric.unit }}</span>
+            </div>
         </CardContent>
     </Card>
 </template>
