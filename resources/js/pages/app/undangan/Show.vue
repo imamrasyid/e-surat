@@ -29,7 +29,7 @@ function goBack() {
 </script>
 
 <template>
-    <Head title="Lihat Surat Masuk | Undangan" />
+    <Head title="Lihat Surat Masuk Undangan" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6 2xl:px-12">

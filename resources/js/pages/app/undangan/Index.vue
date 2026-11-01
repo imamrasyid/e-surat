@@ -59,7 +59,7 @@ function handleClick(item: LetterRecipient) {
 </script>
 
 <template>
-    <Head title="Surat Masuk | Undangan" />
+    <Head title="Surat Masuk Undangan" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6">

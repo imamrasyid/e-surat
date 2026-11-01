@@ -59,7 +59,7 @@ function handleClick(item: LetterFollowUpItem) {
 </script>
 
 <template>
-    <Head title="Surat Masuk | Disposisi" />
+    <Head title="Disposisi Surat" />
 
     <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="px-4 py-6">
