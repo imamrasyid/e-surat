@@ -2,6 +2,7 @@
 
 namespace App\Actions\Letter;
 
+use App\Events\InboxItemCreated;
 use App\Models\Letter;
 use App\Models\LetterDoc;
 use App\Models\LetterRecipient;
@@ -63,7 +64,7 @@ class CreateComposeLetterAction
 
             // INSERT PENERIMA
             foreach ($validated['penerima'] as $penerima) {
-                LetterRecipient::create([
+                $recipient = LetterRecipient::create([
                     'letter_id' => $letter->id,
                     'from_user_id' => $user->id,
                     'from_position_id' => $currentPosition->id,
@@ -71,6 +72,8 @@ class CreateComposeLetterAction
                     'instruction' => $validated['catatan'] ?? null,
                     'received_at' => now(),
                 ]);
+
+                InboxItemCreated::dispatch($recipient);
             }
 
             // Hapus cache badge inbox penerima surat

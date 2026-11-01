@@ -4,12 +4,17 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ComposeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SentController;
+use App\Http\Controllers\TelegramWebhookController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
+
+// Webhook Telegram: tanpa auth, diamankan oleh header secret token.
+// CSRF dikecualikan di bootstrap/app.php.
+Route::post('telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
 
 Route::get('/about', function () {
     return Inertia::render('about/Index');

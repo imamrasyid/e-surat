@@ -2,6 +2,7 @@
 
 namespace App\Actions\Memo;
 
+use App\Events\InboxItemCreated;
 use App\Models\Letter;
 use App\Models\Memo;
 use App\Models\Position;
@@ -38,6 +39,9 @@ class CloseMemoAction
             $letter->update([
                 'status' => 'close',
             ]);
+
+            // Nota dinas penutupan tetap dihitung sebagai nota dinas baru.
+            InboxItemCreated::dispatch($memo);
 
             // Hapus cache badge inbox posisi penerima memo penutupan
             InboxCountsCache::forgetPositions([$validated['to_position_id']]);

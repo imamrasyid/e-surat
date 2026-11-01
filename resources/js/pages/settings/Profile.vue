@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import TelegramLinkModal from '@/components/TelegramLinkModal.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,10 +9,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 interface Props {
     mustVerifyEmail: boolean;
     status?: string;
+    telegramConnected: boolean;
 }
 
 defineProps<Props>();
@@ -36,6 +39,13 @@ const submit = () => {
     form.patch(route('profile.update'), {
         preserveScroll: true,
     });
+};
+
+const telegramUnlinkForm = useForm({});
+const showTelegramModal = ref(false);
+
+const disconnectTelegram = () => {
+    telegramUnlinkForm.delete(route('telegram.unlink'), { preserveScroll: true });
 };
 </script>
 
@@ -112,6 +122,40 @@ const submit = () => {
                         </Transition>
                     </div>
                 </form>
+            </div>
+
+            <div class="flex flex-col space-y-6">
+                <HeadingSmall title="Notifikasi Telegram" description="Hubungkan akun Telegram" />
+
+                <div class="space-y-3">
+                    <p class="text-muted-foreground text-sm" data-testid="telegram-status">
+                        <template v-if="telegramConnected">
+                            Akun Telegram sudah tersambung. Pemberitahuan dikirim otomatis ke chat Telegram.
+                        </template>
+                        <template v-else>
+                            Akun Telegram belum tersambung untuk menerima pemberitahuan surat masuk, disposisi, dan nota dinas.
+                        </template>
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <Button v-if="!telegramConnected" type="button" data-testid="telegram-link" @click="showTelegramModal = true">
+                            Hubungkan Telegram
+                        </Button>
+
+                        <Button
+                            v-else
+                            type="button"
+                            variant="destructive"
+                            :disabled="telegramUnlinkForm.processing"
+                            data-testid="telegram-unlink"
+                            @click="disconnectTelegram"
+                        >
+                            Putuskan Telegram
+                        </Button>
+                    </div>
+                </div>
+
+                <TelegramLinkModal v-model:isOpen="showTelegramModal" />
             </div>
         </SettingsLayout>
     </AppLayout>

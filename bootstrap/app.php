@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // Webhook Telegram tidak membawa token CSRF; diamankan oleh header
+        // X-Telegram-Bot-Api-Secret-Token yang divalidasi controller.
+        $middleware->validateCsrfTokens(except: ['telegram/webhook']);
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

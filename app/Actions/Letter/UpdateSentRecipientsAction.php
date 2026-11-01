@@ -2,6 +2,7 @@
 
 namespace App\Actions\Letter;
 
+use App\Events\InboxItemCreated;
 use App\Models\Letter;
 use App\Models\LetterRecipient;
 use App\Models\Position;
@@ -43,26 +44,44 @@ class UpdateSentRecipientsAction
 
             foreach ($recipients as $recipient) {
                 if (! empty($recipient['id'])) {
-                    // Update penerima yang sudah ada
-                    LetterRecipient::where('id', $recipient['id'])
+                    $existing = LetterRecipient::where('id', $recipient['id'])
                         ->where('letter_id', $letter->id)
-                        ->update([
-                            'to_position_id' => $recipient['to_position_id'],
-                            'instruction' => $recipient['instruction'] ?? null,
-                        ]);
-                } else {
-                    // Tambah penerima baru
-                    $newRecipient = LetterRecipient::create([
-                        'letter_id' => $letter->id,
-                        'from_user_id' => $user->id,
-                        'from_position_id' => $currentPosition?->id,
+                        ->first();
+
+                    if ($existing === null) {
+                        continue;
+                    }
+
+                    // Pindah jabatan tujuan diperlakukan sebagai assignment baru:
+                    // status baca direset dan pemberitahuan dikirim ke jabatan baru.
+                    $reassigned = (int) $existing->to_position_id !== (int) $recipient['to_position_id'];
+
+                    $existing->update([
                         'to_position_id' => $recipient['to_position_id'],
                         'instruction' => $recipient['instruction'] ?? null,
-                        'received_at' => now(),
+                        ...($reassigned ? ['received_at' => now(), 'read_at' => null] : []),
                     ]);
 
-                    $newRecipients[] = $newRecipient;
+                    if ($reassigned) {
+                        InboxItemCreated::dispatch($existing);
+                    }
+
+                    continue;
                 }
+
+                // Tambah penerima baru
+                $newRecipient = LetterRecipient::create([
+                    'letter_id' => $letter->id,
+                    'from_user_id' => $user->id,
+                    'from_position_id' => $currentPosition?->id,
+                    'to_position_id' => $recipient['to_position_id'],
+                    'instruction' => $recipient['instruction'] ?? null,
+                    'received_at' => now(),
+                ]);
+
+                $newRecipients[] = $newRecipient;
+
+                InboxItemCreated::dispatch($newRecipient);
             }
 
             // Log aktivitas perubahan penerima

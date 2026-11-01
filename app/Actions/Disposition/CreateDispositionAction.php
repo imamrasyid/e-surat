@@ -2,6 +2,7 @@
 
 namespace App\Actions\Disposition;
 
+use App\Events\InboxItemCreated;
 use App\Models\Disposition;
 use App\Models\LetterDoc;
 use App\Models\Position;
@@ -33,7 +34,7 @@ class CreateDispositionAction
         DB::transaction(function () use ($validated, $user, $currentPosition, $followups, $lampiranFiles): void {
             // INSERT PENERIMA
             foreach ($validated['penerima'] as $penerima) {
-                Disposition::create([
+                $disposition = Disposition::create([
                     'letter_id' => $validated['letter_id_primary'],
                     'letter_recipient_id' => $validated['letter_recipient_id'],
                     'from_user_id' => $user->id,
@@ -43,11 +44,13 @@ class CreateDispositionAction
                     'followup' => $followups,
                     'received_at' => now(),
                 ]);
+
+                InboxItemCreated::dispatch($disposition);
             }
 
             if (! empty($validated['penerima_cc'])) {
                 foreach ($validated['penerima_cc'] as $penerima) {
-                    Disposition::create([
+                    $ccDisposition = Disposition::create([
                         'letter_id' => $validated['letter_id_primary'],
                         'letter_recipient_id' => $validated['letter_recipient_id'],
                         'is_cc' => 1,
@@ -56,6 +59,8 @@ class CreateDispositionAction
                         'to_position_id' => $penerima['id'],
                         'received_at' => now(),
                     ]);
+
+                    InboxItemCreated::dispatch($ccDisposition);
                 }
             }
 

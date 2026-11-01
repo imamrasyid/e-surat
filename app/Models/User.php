@@ -22,6 +22,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $username
  * @property string $email
  * @property bool $is_active
+ * @property string|null $telegram_chat_id
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -32,7 +33,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $updated_at
  */
 #[Fillable(['name', 'username', 'email', 'is_active', 'password'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'telegram_chat_id'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -76,6 +77,14 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function currentPosition(): MorphToMany
     {
         return $this->positions()->wherePivot('is_active', true);
+    }
+
+    /**
+     * Chat ID Telegram tujuan notifikasi; null bila akun belum ditautkan.
+     */
+    public function routeNotificationForTelegram(): ?string
+    {
+        return filled($this->telegram_chat_id) ? (string) $this->telegram_chat_id : null;
     }
 
     /**

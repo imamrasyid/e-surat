@@ -2,6 +2,7 @@
 
 namespace App\Actions\Memo;
 
+use App\Events\InboxItemCreated;
 use App\Models\LetterDoc;
 use App\Models\Memo;
 use App\Models\Position;
@@ -28,7 +29,7 @@ class CreateMemoAction
         DB::transaction(function () use ($validated, $user, $currentPosition, $lampiranFiles): void {
             // INSERT PENERIMA
             foreach ($validated['penerima'] as $penerima) {
-                Memo::create([
+                $memo = Memo::create([
                     'letter_id' => $validated['letter_id_primary'],
                     'letter_recipient_id' => $validated['letter_recipient_id'],
                     'from_user_id' => $user->id,
@@ -37,11 +38,13 @@ class CreateMemoAction
                     'instruction' => $validated['catatan'] ?? null,
                     'received_at' => now(),
                 ]);
+
+                InboxItemCreated::dispatch($memo);
             }
 
             if (! empty($validated['penerima_cc'])) {
                 foreach ($validated['penerima_cc'] as $penerima) {
-                    Memo::create([
+                    $ccMemo = Memo::create([
                         'letter_id' => $validated['letter_id_primary'],
                         'letter_recipient_id' => $validated['letter_recipient_id'],
                         'is_cc' => 1,
@@ -50,6 +53,8 @@ class CreateMemoAction
                         'to_position_id' => $penerima['id'],
                         'received_at' => now(),
                     ]);
+
+                    InboxItemCreated::dispatch($ccMemo);
                 }
             }
 
