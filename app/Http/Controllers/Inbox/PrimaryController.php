@@ -66,6 +66,9 @@ class PrimaryController extends Controller
             })
             ->orderBy('received_at', 'desc')
             ->paginate(15)
+            ->through(fn (LetterRecipient $recipient): LetterRecipient => $recipient
+                ->append('activities')
+                ->makeHidden(['activityDispo', 'activityMemo']))
             ->withQueryString();
 
         return Inertia::render('app/primary/Index', [

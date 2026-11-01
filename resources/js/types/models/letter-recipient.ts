@@ -28,10 +28,16 @@ export interface LetterRecipient {
     toPosition?: Position | null;
     dispositions?: Disposition[];
     memos?: Memo[];
-    activity_dispo?: Disposition[];
-    activityDispo?: Disposition[];
-    activity_memo?: Memo[];
-    activityMemo?: Memo[];
+    activities?: RecipientActivity[];
+}
+
+export type RecipientActivityType = 'disposisi' | 'nota_dinas';
+
+export interface RecipientActivity {
+    type: RecipientActivityType;
+    id: number;
+    received_at: string | null;
+    created_at: string | null;
 }
 
 export interface TimelineRecipient {

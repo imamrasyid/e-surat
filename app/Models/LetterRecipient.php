@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property-read Letter|null $letter
  * @property-read Position|null $fromPosition
  * @property-read Position|null $toPosition
+ * @property-read array<int, array{type: string, id: int, received_at: Carbon|null, created_at: Carbon|null}> $activities
  */
 #[Fillable([
     'letter_id',
@@ -67,7 +68,7 @@ class LetterRecipient extends Model
     public function activityDispo(): HasMany
     {
         return $this->hasMany(Disposition::class)
-            ->select('id', 'letter_recipient_id')
+            ->select('id', 'letter_recipient_id', 'received_at', 'created_at')
             ->orderBy('received_at');
     }
 
@@ -77,8 +78,37 @@ class LetterRecipient extends Model
     public function activityMemo(): HasMany
     {
         return $this->hasMany(Memo::class)
-            ->select('id', 'letter_recipient_id')
+            ->select('id', 'letter_recipient_id', 'received_at', 'created_at')
             ->orderBy('received_at');
+    }
+
+    /**
+     * Aktivitas tindak lanjut (disposisi dan nota dinas) yang sudah digabung
+     * dan diurutkan berdasarkan waktu aktivitasnya.
+     *
+     * @return array<int, array{type: string, id: int, received_at: Carbon|null, created_at: Carbon|null}>
+     */
+    public function getActivitiesAttribute(): array
+    {
+        $dispositions = $this->activityDispo->map(fn (Disposition $disposition): array => [
+            'type' => 'disposisi',
+            'id' => $disposition->id,
+            'received_at' => $disposition->received_at,
+            'created_at' => $disposition->created_at,
+        ]);
+
+        $memos = $this->activityMemo->map(fn (Memo $memo): array => [
+            'type' => 'nota_dinas',
+            'id' => $memo->id,
+            'received_at' => $memo->received_at,
+            'created_at' => $memo->created_at,
+        ]);
+
+        return $dispositions
+            ->concat($memos)
+            ->sortBy(fn (array $activity): int => ($activity['received_at'] ?? $activity['created_at'])->getTimestamp())
+            ->values()
+            ->all();
     }
 
     /**

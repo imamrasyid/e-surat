@@ -21,18 +21,11 @@ const MAX_ACTIVITIES = 4;
 
 const rows = computed(() =>
     props.items.map((item) => {
-        const activities = [
-            ...(item.activity_dispo ?? []).map((disposition) => ({
-                key: `disposition-${disposition.id}`,
-                label: 'D',
-                className: 'bg-primary',
-            })),
-            ...(item.activity_memo ?? []).map((memo) => ({
-                key: `memo-${memo.id}`,
-                label: 'ND',
-                className: 'bg-warning',
-            })),
-        ];
+        const activities = (item.activities ?? []).map((activity) => ({
+            key: `${activity.type}-${activity.id}`,
+            label: activity.type === 'disposisi' ? 'D' : 'ND',
+            className: activity.type === 'disposisi' ? 'bg-primary' : 'bg-warning',
+        }));
 
         return {
             item,
