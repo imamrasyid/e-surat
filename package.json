@@ -36,8 +36,8 @@
         "@tailwindcss/vite": "^4.3.3",
         "@vitejs/plugin-vue": "^6.0.9",
         "typescript": "^6.0.3",
-        "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-        "vite-plus": "1.0.0-rc.1",
+        "vite": "npm:@voidzero-dev/vite-plus-core@1.5.0",
+        "vite-plus": "1.5.0",
         "vue-tsc": "^3.3.11"
     },
     "optionalDependencies": {
@@ -45,6 +45,6 @@
         "lightningcss-linux-x64-gnu": "^1.33.0"
     },
     "overrides": {
-        "vite": "npm:@voidzero-dev/vite-plus-core@latest"
+        "vite": "npm:@voidzero-dev/vite-plus-core@1.5.0"
     }
 }
