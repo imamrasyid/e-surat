@@ -38,18 +38,14 @@ function toggleTheme() {
                 :key="section.href"
                 :href="section.href"
                 data-load
-                class="text-muted-foreground text-sm underline-offset-4 hover:text-foreground hover:underline"
+                class="text-muted-foreground hover:text-foreground text-sm underline-offset-4 hover:underline"
             >
                 {{ section.label }}
             </a>
         </nav>
 
         <div class="flex items-center gap-1.5 sm:gap-2">
-            <Link
-                :href="route('home')"
-                data-load
-                class="text-muted-foreground text-sm underline-offset-4 hover:text-foreground hover:underline"
-            >
+            <Link :href="route('home')" data-load class="text-muted-foreground hover:text-foreground text-sm underline-offset-4 hover:underline">
                 Beranda
             </Link>
 

@@ -9,9 +9,7 @@ const [sequence, classification, year] = primaryLetter.agenda.split('/');
         <div class="flex items-center justify-between gap-3 border-b px-4 py-3 sm:px-5">
             <span class="text-muted-foreground text-[11px] font-medium tracking-[0.16em] uppercase">Surat masuk</span>
 
-            <span
-                class="bg-primary/10 text-primary relative inline-flex h-6 w-23 items-center justify-center rounded-full text-[11px] font-medium"
-            >
+            <span class="bg-primary/10 text-primary relative inline-flex h-6 w-23 items-center justify-center rounded-full text-[11px] font-medium">
                 <span data-hero-status-layer class="absolute inset-0 grid place-items-center">Open</span>
                 <span data-hero-status-layer aria-hidden="true" class="absolute inset-0 grid place-items-center opacity-0">Disposisi</span>
                 <span data-hero-status-layer aria-hidden="true" class="absolute inset-0 grid place-items-center opacity-0">Close</span>
