@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CompanyFeatureMiddleware;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\WildcardPermissionMiddleware;
@@ -20,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // Reverse proxy di host yang sama (compose mem-publish ke 127.0.0.1)
+        // perlu ditercaya agar APP_URL/HTTPS dan IP klien benar.
+        $middleware->trustProxies(at: ['127.0.0.1', '::1']);
+
         // Webhook Telegram tidak membawa token CSRF; diamankan oleh header
         // X-Telegram-Bot-Api-Secret-Token yang divalidasi controller.
         $middleware->validateCsrfTokens(except: ['telegram/webhook']);
@@ -36,6 +41,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
 
             'wpermission' => WildcardPermissionMiddleware::class,
+
+            // Feature gate per server; feature nonaktif menghasilkan 404.
+            'feature' => CompanyFeatureMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

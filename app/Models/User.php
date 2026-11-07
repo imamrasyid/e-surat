@@ -40,7 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     use HasFactory, HasRoles, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
-     * Id akun Super Admin dari seeder. Akun ini tidak boleh diedit lewat master data.
+     * Id akun administrator default hasil `DatabaseSeeder`. Akun ini tidak boleh
+     * diedit lewat master data, jadi jalankan seeder sebelum membuat user lain.
      */
     public const SUPER_ADMIN_ID = 1;
 

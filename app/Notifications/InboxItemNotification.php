@@ -7,6 +7,7 @@ use App\Models\LetterRecipient;
 use App\Models\Memo;
 use App\Models\User;
 use App\Notifications\Channels\TelegramChannel;
+use App\Services\CompanyFeature;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -45,11 +46,11 @@ class InboxItemNotification extends Notification implements ShouldQueue
 
         $channels = [];
 
-        if (filled($notifiable->routeNotificationFor('mail'))) {
+        if (app(CompanyFeature::class)->enabled('email') && filled($notifiable->routeNotificationFor('mail'))) {
             $channels[] = 'mail';
         }
 
-        if (filled($notifiable->routeNotificationForTelegram())) {
+        if (app(CompanyFeature::class)->enabled('telegram') && filled($notifiable->routeNotificationForTelegram())) {
             $channels[] = TelegramChannel::class;
         }
 

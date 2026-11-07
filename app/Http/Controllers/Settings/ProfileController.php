@@ -6,6 +6,7 @@ use App\Actions\Telegram\CreateTelegramLinkTokenAction;
 use App\Actions\Telegram\RenderTelegramQrAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Services\CompanyFeature;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class ProfileController extends Controller
     /**
      * Show the user's profile settings page.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request, CompanyFeature $features): Response
     {
         $user = $request->user();
 
@@ -27,6 +28,7 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
             'telegramConnected' => filled($user->telegram_chat_id),
+            'telegramEnabled' => $features->enabled('telegram'),
         ]);
     }
 
@@ -37,8 +39,13 @@ class ProfileController extends Controller
     public function linkTelegram(
         Request $request,
         CreateTelegramLinkTokenAction $tokens,
-        RenderTelegramQrAction $qrCode
+        RenderTelegramQrAction $qrCode,
+        CompanyFeature $features
     ): JsonResponse {
+        // Route sudah memakai middleware `feature:telegram`; pemeriksaan ini
+        // menjaga enforcement tetap ada bila route dipanggil lewat jalur lain.
+        abort_unless($features->enabled('telegram'), 404);
+
         $botUsername = $this->telegramBotUsername();
 
         if ($botUsername === '' || blank(config('services.telegram.bot_token'))) {

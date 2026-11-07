@@ -15,6 +15,7 @@ interface Props {
     mustVerifyEmail: boolean;
     status?: string;
     telegramConnected: boolean;
+    telegramEnabled: boolean;
 }
 
 defineProps<Props>();
@@ -124,7 +125,7 @@ const disconnectTelegram = () => {
                 </form>
             </div>
 
-            <div class="flex flex-col space-y-6">
+            <div v-if="telegramEnabled" class="flex flex-col space-y-6">
                 <HeadingSmall title="Notifikasi Telegram" description="Hubungkan akun Telegram" />
 
                 <div class="space-y-3">

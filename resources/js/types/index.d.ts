@@ -52,6 +52,7 @@ export type AppPageProps<T extends Record<string, unknown> = Record<string, unkn
     quote: { message: string; author: string };
     auth: Auth;
     inbox: { primary: number; undangan: number; disposisi: number; memo: number };
+    features: Record<string, boolean>;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
 };

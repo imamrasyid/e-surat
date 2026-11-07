@@ -5,7 +5,7 @@ export interface LetterDoc {
     agenda_id: number | null;
     letter_id: number;
     name: string;
-    url: string;
+    download_url: string;
     is_active: boolean;
     created_at: string;
     updated_at: string;

@@ -17,7 +17,7 @@ defineProps<{
                 <AccordionTrigger class="cursor-pointer text-sm">Lampiran:</AccordionTrigger>
                 <AccordionContent>
                     <ItemGroup v-if="docs.length > 0" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
-                        <a v-for="doc in docs" :key="doc.id" :href="doc.url" target="_blank" :title="doc.name" rel="noopener noreferrer">
+                        <a v-for="doc in docs" :key="doc.id" :href="doc.download_url" target="_blank" :title="doc.name" rel="noopener noreferrer">
                             <Item variant="outline" class="rounded-lg">
                                 <ItemMedia variant="image">
                                     <img :src="pdfIcon" :alt="doc.name" class="size-12 dark:hidden" />

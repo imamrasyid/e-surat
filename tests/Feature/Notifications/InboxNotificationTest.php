@@ -21,6 +21,10 @@ use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
+// Skenario lama mengasumsikan kanal email dan Telegram aktif; perilaku
+// fail-closed diuji di CompanyFeatureGateTest.
+beforeEach(fn () => config(['company.features' => ['email', 'telegram']]));
+
 function inboxUserOn(Position $position, array $attributes = []): User
 {
     $user = User::factory()->create($attributes);

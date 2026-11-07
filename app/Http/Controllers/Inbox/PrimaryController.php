@@ -127,7 +127,7 @@ class PrimaryController extends Controller
         $letter = $recipient->letter()->with([
             'senderUser:id,name',
             'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
-            'docs:id,letter_id,name,url',
+            'docs:id,letter_id,name',
         ])->firstOrFail();
 
         return Inertia::render('app/primary/Show', [

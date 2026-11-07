@@ -8,12 +8,14 @@ use App\Models\Memo;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\InboxCountsCache;
+use App\Services\LetterDocStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class CreateMemoAction
 {
+    public function __construct(private readonly LetterDocStorage $storage) {}
+
     /**
      * Create memo recipients, cc recipients, and upload attachments.
      *
@@ -68,15 +70,10 @@ class CreateMemoAction
 
             // INSERT LAMPIRAN
             foreach ($lampiranFiles as $lampiran) {
-                $path = 'attachment/'.$validated['letter_receipt_date'];
-                $filename = 'MMO'.now()->format('His').'_'.$lampiran->getClientOriginalName();
-                Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-
-                $storeUrl = "/storage/{$path}/{$filename}";
                 LetterDoc::create([
                     'letter_id' => $validated['letter_id_primary'],
-                    'name' => $filename,
-                    'url' => $storeUrl,
+                    'name' => $lampiran->getClientOriginalName(),
+                    'path' => $this->storage->store($lampiran),
                 ]);
             }
         });

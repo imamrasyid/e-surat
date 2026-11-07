@@ -11,9 +11,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::post('settings/telegram/link', [ProfileController::class, 'linkTelegram'])->name('telegram.link');
-    Route::get('settings/telegram/status', [ProfileController::class, 'telegramStatus'])->name('telegram.status');
-    Route::delete('settings/telegram', [ProfileController::class, 'unlinkTelegram'])->name('telegram.unlink');
+    Route::middleware('feature:telegram')->group(function () {
+        Route::post('settings/telegram/link', [ProfileController::class, 'linkTelegram'])->name('telegram.link');
+        Route::get('settings/telegram/status', [ProfileController::class, 'telegramStatus'])->name('telegram.status');
+        Route::delete('settings/telegram', [ProfileController::class, 'unlinkTelegram'])->name('telegram.unlink');
+    });
 
     Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
 });

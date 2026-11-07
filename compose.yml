@@ -1,0 +1,43 @@
+# Satu project compose = satu perusahaan. Port, domain, dan path data
+# berbeda per server; image selalu sama untuk semua perusahaan.
+name: esurat-${COMPANY_KEY:-local}
+
+x-esurat: &esurat
+    image: ${ESURAT_IMAGE:-esurat:local}
+    build:
+        context: .
+        dockerfile: Dockerfile
+    env_file:
+        - .env
+    extra_hosts:
+        # DB/mail di host: gunakan host.docker.internal (bukan 127.0.0.1).
+        - host.docker.internal:host-gateway
+    restart: unless-stopped
+    volumes:
+        - ${DATA_PATH:-./data}/storage:/app/storage
+    logging:
+        driver: json-file
+        options:
+            max-size: '10m'
+            max-file: '3'
+
+services:
+    app:
+        <<: *esurat
+        ports:
+            # 127.0.0.1 = hanya host proxy yang bisa mengakses (TLS di host).
+            # 0.0.0.0    = akses langsung lewat IP:port tanpa proxy.
+            - ${APP_BIND_IP:-127.0.0.1}:${APP_HTTP_PORT:-8080}:8080
+        healthcheck:
+            test: ['CMD', 'php', '-r', "exit(@file_get_contents('http://127.0.0.1:8080/up') === false ? 1 : 0);"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
+        stop_grace_period: 30s
+
+    worker:
+        <<: *esurat
+        command: ['php', 'artisan', 'queue:work', '--queue=notifications,default', '--tries=3', '--timeout=60', '--max-time=3600']
+        # Harus lebih besar dari --timeout agar job tidak terpotong saat recreate.
+        stop_grace_period: 90s

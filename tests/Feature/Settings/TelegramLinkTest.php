@@ -11,6 +11,9 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
 
+// Feature gate harus aktif agar route Telegram dapat diakses.
+beforeEach(fn () => config(['company.features' => ['telegram']]));
+
 function telegramSettingsConfig(): void
 {
     config([

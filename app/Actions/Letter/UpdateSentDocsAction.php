@@ -5,15 +5,15 @@ namespace App\Actions\Letter;
 use App\Models\Letter;
 use App\Models\LetterDoc;
 use App\Models\RefAgendaSurat;
-use App\Models\RefKdKlasifikasi;
 use App\Services\LetterActivityService;
+use App\Services\LetterDocStorage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class UpdateSentDocsAction
 {
+    public function __construct(private readonly LetterDocStorage $storage) {}
+
     /**
      * Update sent letter attachments (delete marked docs, upload new docs, and log activity).
      *
@@ -35,10 +35,7 @@ class UpdateSentDocsAction
                     ->get();
 
                 foreach ($docsToDelete as $doc) {
-                    $storagePath = str_replace('/storage/', '', $doc->url);
-                    if (Storage::disk('public')->exists($storagePath)) {
-                        Storage::disk('public')->delete($storagePath);
-                    }
+                    $this->storage->delete($doc->path);
 
                     $doc->update(['is_active' => false]);
                 }
@@ -47,22 +44,13 @@ class UpdateSentDocsAction
             // Tambah lampiran baru
             if (! empty($lampiranFiles)) {
                 $agenda = RefAgendaSurat::where('nomor_agenda', $letter->agenda)->firstOrFail();
-                /** @var RefKdKlasifikasi $klasifikasi */
-                $klasifikasi = $agenda->klasifikasi;
-
-                $receiptDate = Carbon::parse($letter->receipt_date)->format('Y-m-d');
 
                 foreach ($lampiranFiles as $lampiran) {
-                    $path = 'attachment/'.$receiptDate;
-                    $filename = $klasifikasi->kode.$agenda->nomor_urut.'_'.$lampiran->getClientOriginalName();
-                    Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-
-                    $storeUrl = "/storage/{$path}/{$filename}";
                     LetterDoc::create([
                         'agenda_id' => $agenda->id,
                         'letter_id' => $letter->id,
-                        'name' => $filename,
-                        'url' => $storeUrl,
+                        'name' => $lampiran->getClientOriginalName(),
+                        'path' => $this->storage->store($lampiran),
                     ]);
                 }
             }

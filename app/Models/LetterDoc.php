@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -12,21 +14,34 @@ use Illuminate\Support\Carbon;
  * @property int|null $agenda_id
  * @property int $letter_id
  * @property string $name
- * @property string $url
+ * @property string|null $path
+ * @property string|null $url
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read string $download_url
  * @property-read Letter|null $letter
  */
 #[Fillable([
     'agenda_id',
     'letter_id',
     'name',
-    'url',
+    'path',
     'is_active',
 ])]
+#[Hidden(['path', 'url'])]
+#[Appends(['download_url'])]
 class LetterDoc extends Model
 {
+    /**
+     * Endpoint unduhan yang memeriksa akses ke surat; URL publik tidak pernah
+     * disimpan sehingga lampiran tetap privat di object storage.
+     */
+    public function getDownloadUrlAttribute(): string
+    {
+        return route('letter.docs.download', $this->id);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

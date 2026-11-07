@@ -13,6 +13,9 @@ use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
+// Kanal Telegram hanya dipakai bila feature aktif pada server.
+beforeEach(fn () => config(['company.features' => ['telegram']]));
+
 function telegramChannelItem(): LetterRecipient
 {
     $creator = User::factory()->create();
@@ -96,4 +99,21 @@ it('throws when telegram rejects the message so the queue can retry', function (
 
     expect(fn () => $user->notifyNow(new InboxItemNotification($item)))
         ->toThrow(RequestException::class);
+});
+
+it('skips the telegram channel when the feature is disabled on the server', function () {
+    Http::preventStrayRequests();
+    Http::fake();
+
+    config([
+        'services.telegram.bot_token' => 'test-token',
+        'company.features' => [],
+    ]);
+
+    $user = telegramChannelUser('123123123');
+    $item = telegramChannelItem();
+
+    $user->notifyNow(new InboxItemNotification($item));
+
+    Http::assertNothingSent();
 });

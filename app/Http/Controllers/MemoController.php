@@ -255,7 +255,7 @@ class MemoController extends Controller
         $recipients = $this->getTimeline($recipient->letter_id);
 
         $letter = $recipient->letter()->with([
-            'docs:id,letter_id,name,url',
+            'docs:id,letter_id,name',
         ])->firstOrFail();
 
         return Inertia::render('app/memo/Show', [

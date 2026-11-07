@@ -64,19 +64,27 @@ npm install
 npm run build          # wajib: public/build tidak di-track (gitignored)
 ```
 
-### Akun hasil seeding (opsional)
+### Data awal (opsional)
 
 ```bash
-php artisan migrate --seed
+php artisan migrate
+php artisan db:seed --class=DatabaseSeeder   # permission + master data + admin default
 ```
 
-Seeder membuat permission, role `Super Admin` / `Pengelola` / `Pengguna`, dan satu user super admin:
+`DatabaseSeeder` membuat administrator default yang sama di semua server:
 
-| Field    | Nilai                                                     |
-| -------- | --------------------------------------------------------- |
-| Username | `superadmin`                                              |
-| Email    | `msbhdn@icloud.com`                                       |
-| Password | `password` (default factory — **ganti sebelum produksi**) |
+| Field    | Nilai                            |
+| -------- | -------------------------------- |
+| Username | `superadmin`                     |
+| Name     | `Super Administrator`            |
+| Password | `password` (ganti setelah login) |
+| Email    | kosong (login memakai username)  |
+
+Ganti password setelah login pertama. Seeder idempotent dan tidak mereset
+password yang sudah diganti. Master data awal (role, jabatan, tindak lanjut,
+klasifikasi) sama untuk semua perusahaan dan disesuaikan lewat UI Master Data.
+Untuk data contoh di lingkungan lokal saja, jalankan
+`php artisan db:seed --class=DemoDataSeeder` (akun demo memakai password `password`).
 
 ## Menjalankan Development
 
@@ -88,18 +96,19 @@ Menjalankan tiga proses sekaligus via `concurrently`: `php artisan serve`, `php 
 
 ## Perintah Penting
 
-| Perintah                       | Fungsi                                                                         |
-| ------------------------------ | ------------------------------------------------------------------------------ |
-| `composer setup`               | Bootstrap lengkap dari nol (install, `.env`, key, migrate, npm install, build) |
-| `composer dev`                 | Server + queue worker + Vite dev server                                        |
-| `npm run dev`                  | Vite dev server saja                                                           |
-| `npm run build`                | Build produksi ke `public/build`                                               |
-| `npm run check` / `check:fix`  | Lint + format TS/Vue (`vp check`)                                              |
-| `npm run types:check`          | Type-check frontend (`vue-tsc --noEmit`)                                       |
-| `composer lint` / `lint:check` | Pint (format / cek tanpa mengubah file)                                        |
-| `composer types:check`         | PHPStan (Larastan)                                                             |
-| `composer test`                | `config:clear` → `lint:check` → `types:check` → `php artisan test`             |
-| `composer ci:check`            | Yang dijalankan CI: `npm run check` → `npm run types:check` → `composer test`  |
+| Perintah                              | Fungsi                                                                         |
+| ------------------------------------- | ------------------------------------------------------------------------------ |
+| `composer setup`                      | Bootstrap lengkap dari nol (install, `.env`, key, migrate, npm install, build) |
+| `composer dev`                        | Server + queue worker + Vite dev server                                        |
+| `npm run dev`                         | Vite dev server saja                                                           |
+| `npm run build`                       | Build produksi ke `public/build`                                               |
+| `npm run check` / `check:fix`         | Lint + format TS/Vue (`vp check`)                                              |
+| `npm run types:check`                 | Type-check frontend (`vue-tsc --noEmit`)                                       |
+| `composer lint` / `lint:check`        | Pint (format / cek tanpa mengubah file)                                        |
+| `composer types:check`                | PHPStan (Larastan)                                                             |
+| `composer test`                       | `config:clear` → `lint:check` → `types:check` → `php artisan test`             |
+| `composer ci:check`                   | Yang dijalankan CI: `npm run check` → `npm run types:check` → `composer test`  |
+| `php artisan company:validate-config` | Preflight feature/ruleset sebelum deploy                                       |
 
 ## Arsitektur
 
@@ -129,12 +138,13 @@ flowchart LR
 │   ├── Actions/                 # Logika bisnis: Letter, Memo, Disposition, Dashboard, MasterData, Fortify
 │   ├── Http/
 │   │   ├── Controllers/         # Controller tipis (MasterData/, Inbox/, Settings/)
-│   │   ├── Middleware/          # HandleInertiaRequests, HandleAppearance, WildcardPermissionMiddleware
+│   │   ├── Middleware/          # HandleInertiaRequests, HandleAppearance, WildcardPermissionMiddleware, CompanyFeatureMiddleware
 │   │   └── Requests/            # Satu FormRequest per operasi tulis
 │   ├── Models/                  # Eloquent: letters, memo, dispositions, ref_agenda_surat, ref_kd_klasifikasi, …
-│   └── Services/                # LetterActivityService, InboxCountsCache, PermissionsCache
+│   ├── Console/Commands/        # company:validate-config, letter-docs:migrate-storage
+│   └── Services/                # CompanyFeature, LetterDocStorage, LetterAccess, LetterActivityService, cache
 ├── bootstrap/app.php            # Alias middleware + web stack
-├── database/                    # Migrations, seeders (Permissions, RoleSeeder), factories
+├── database/                    # Migrations, seeders (Permissions, MasterDataSeeder), factories
 ├── public/                      # Document root; public/build hasil build (tidak di-track)
 ├── resources/
 │   ├── css/app.css
@@ -176,20 +186,41 @@ Cakupan saat ini: alur auth, settings, dashboard, cache badge inbox, dan cache p
 
 ## Deployment
 
+Satu server melayani satu perusahaan. Image/tag sama untuk semua perusahaan;
+perbedaan hanya pada environment (feature, ruleset, port/domain, storage).
+Dua jalur:
+
+- **Docker + FrankenPHP (VM Ubuntu, default):** image dibangun sekali per tag
+  oleh `.github/workflows/release.yml`, rollout manual. Mulai dari
+  [`docs/runbook-docker-frankenphp.md`](docs/runbook-docker-frankenphp.md).
+- **Laravel Cloud:** satu environment per perusahaan, bucket privat + managed
+  worker. Lihat [`docs/deployment.md`](docs/deployment.md).
+
 ```bash
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan storage:link          # dokumen surat disimpan di disk `public`
-npm ci && npm run build           # public/build gitignored — wajib di-build di server
-php artisan config:cache
-php artisan queue:work            # QUEUE_CONNECTION=database
+cp deploy/docker/.env.example .env     # isi COMPANY_*, DB, mail, port/domain
+docker compose run --rm app php artisan company:validate-config
+docker compose run --rm app php artisan migrate --force
+docker compose run --rm app php artisan db:seed --class=DatabaseSeeder   # termasuk admin default
+docker compose up -d
 ```
 
 Catatan:
 
-- `public/build` sengaja **tidak di-commit** (lihat `.gitignore`). Tanpa `npm run build`, Inertia gagal memuat manifest Vite.
-- `php artisan route:cache` belum bisa dipakai karena beberapa route didefinisikan sebagai closure; gunakan `config:cache` saja.
-- File `.env` produksi perlu `APP_ENV=production`, `APP_DEBUG=false`, kredensial database, dan konfigurasi mail/queue.
+- Lampiran surat disimpan di disk privat default: volume host
+  `DATA_PATH/storage/app/private` (mode VM) atau bucket privat (`FILESYSTEM_DISK=s3`).
+  Hanya endpoint unduhan yang memeriksa akses yang menyajikan file; jangan
+  memakai `php artisan storage:link`.
+- `public/build` sengaja **tidak di-commit** (lihat `.gitignore`); image
+  membangunnya pada stage Node 26.
+- `php artisan route:cache` belum bisa dipakai karena beberapa route
+  didefinisikan sebagai closure; gunakan `config:cache` saja (dijalankan
+  entrypoint container).
+- File `.env` produksi perlu `APP_ENV=production`, `APP_DEBUG=false`,
+  `COMPANY_KEY`, `COMPANY_FEATURES`, `COMPANY_RULESET`,
+  kredensial database/cache/queue, dan konfigurasi mail.
+- `php artisan company:validate-config` wajib lulus sebelum container melayani
+  trafik; feature/ruleset yang tidak dikenal menghentikan start. Feature `email`
+  mensyaratkan mailer nyata dan `MAIL_FROM_ADDRESS`.
 
 ## Lisensi
 

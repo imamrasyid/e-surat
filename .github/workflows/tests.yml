@@ -36,3 +36,58 @@ jobs:
 
       - name: Run CI Checks
         run: composer ci:check
+
+  company-features:
+    name: features [${{ matrix.features }}]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        features:
+          - ""
+          - email
+          - telegram
+          - email,telegram
+
+    env:
+      COMPANY_KEY: company-a
+      COMPANY_FEATURES: ${{ matrix.features }}
+      COMPANY_RULESET: default
+      MAIL_MAILER: smtp
+      MAIL_HOST: smtp.example.test
+      MAIL_PORT: "587"
+      MAIL_FROM_ADDRESS: no-reply@example.test
+      TELEGRAM_BOT_TOKEN: test-token
+      TELEGRAM_BOT_USERNAME: test_bot
+      TELEGRAM_WEBHOOK_SECRET: test-secret
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: "8.4"
+          tools: composer:v2
+          coverage: none
+
+      - name: Install application
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Validate feature configuration
+        run: php artisan company:validate-config
+
+      - name: Validate feature configuration after config:cache
+        run: |
+          php artisan config:cache
+          php artisan company:validate-config
+          php artisan config:clear
+
+      - name: Run company feature tests
+        run: php artisan test tests/Feature/Company

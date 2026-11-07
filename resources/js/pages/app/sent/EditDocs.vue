@@ -165,7 +165,7 @@ onMounted(() => {
                                         :class="{ 'border-input border-b border-dashed pb-4': index !== existingDocs.length - 1 }"
                                     >
                                         <a
-                                            :href="item.url"
+                                            :href="item.download_url"
                                             target="_blank"
                                             class="mr-2 flex min-w-0 flex-1 items-center gap-2 text-sm hover:underline"
                                         >

@@ -33,7 +33,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Lampiran privat hanya disajikan LetterDocDownloadController yang
+            // memeriksa akses; route /storage/{path} bawaan framework tidak dipakai.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

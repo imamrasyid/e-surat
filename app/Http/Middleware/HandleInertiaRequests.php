@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Position;
+use App\Services\CompanyFeature;
 use App\Services\InboxCountsCache;
 use App\Services\PermissionsCache;
 use Illuminate\Foundation\Inspiring;
@@ -129,6 +130,9 @@ class HandleInertiaRequests extends Middleware
                 'disposisi' => fn () => $disposisi,
                 'memo' => fn () => $memo,
             ],
+            // Status feature untuk UX saja; enforcement tetap di route,
+            // controller/Action, dan notification.
+            'features' => fn (): array => app(CompanyFeature::class)->known(),
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

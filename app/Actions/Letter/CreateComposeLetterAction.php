@@ -11,13 +11,15 @@ use App\Models\RefAgendaSurat;
 use App\Models\RefKdKlasifikasi;
 use App\Models\User;
 use App\Services\InboxCountsCache;
+use App\Services\LetterDocStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CreateComposeLetterAction
 {
+    public function __construct(private readonly LetterDocStorage $storage) {}
+
     /**
      * Create and store a new compose letter along with its agenda, recipients, and attachments.
      *
@@ -81,16 +83,11 @@ class CreateComposeLetterAction
 
             // INSERT LAMPIRAN
             foreach ($lampiranFiles as $lampiran) {
-                $path = 'attachment/'.$validated['tglDiterimaStr'];
-                $filename = $klasifikasi->kode.$nomorUrutBaru.'_'.$lampiran->getClientOriginalName();
-                Storage::disk('public')->putFileAs($path, $lampiran, $filename);
-
-                $storeUrl = "/storage/{$path}/{$filename}";
                 LetterDoc::create([
                     'agenda_id' => $agenda->id,
                     'letter_id' => $letter->id,
-                    'name' => $filename,
-                    'url' => $storeUrl,
+                    'name' => $lampiran->getClientOriginalName(),
+                    'path' => $this->storage->store($lampiran),
                 ]);
             }
 

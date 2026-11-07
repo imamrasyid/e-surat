@@ -1,0 +1,24 @@
+# Jangan pernah mengirim kode, secret, atau data runtime ke image.
+.git
+.gitignore
+.github
+.agents
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+public/build
+storage/*
+!storage/.gitignore
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+database/*.sqlite
+docs
+graphify-out
+deploy
+tests
+.phpunit.cache
+.phpunit.result.cache
+*.log
+serve-smoke.log

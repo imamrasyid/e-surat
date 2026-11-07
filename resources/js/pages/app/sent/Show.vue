@@ -209,7 +209,7 @@ onMounted(() => {
                 <div class="flex w-full flex-col">
                     <ItemGroup class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
                         <template v-for="item in letter.docs" :key="item.id">
-                            <a :href="item.url" target="_blank" :title="item.name" rel="noopener noreferrer">
+                            <a :href="item.download_url" target="_blank" :title="item.name" rel="noopener noreferrer">
                                 <Item variant="outline" class="rounded-lg">
                                     <ItemMedia variant="image">
                                         <img src="../../../assets/media/pdf.svg" :alt="item.name" class="size-12 dark:hidden" />
