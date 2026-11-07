@@ -208,7 +208,7 @@ Catatan:
 
 - Lampiran surat disimpan di disk privat default: volume host
   `DATA_PATH/storage/app/private` (mode VM) atau bucket privat (`FILESYSTEM_DISK=s3`).
-  Hanya endpoint unduhan yang memeriksa akses yang menyajikan file; jangan
+  Hanya endpoint unduhan/pratinjau yang memeriksa akses yang menyajikan file; jangan
   memakai `php artisan storage:link`.
 - `public/build` sengaja **tidak di-commit** (lihat `.gitignore`); image
   membangunnya pada stage Node 26.

@@ -60,7 +60,8 @@ Storage lampiran punya dua mode yang sah:
 
 Jangan memakai disk `public`, `public/build` yang di-commit, atau
 `php artisan storage:link` untuk lampiran. Lampiran hanya disajikan endpoint
-`letter.docs.download` setelah pemeriksaan akses.
+`letter.docs.download` (unduhan) dan `letter.docs.preview` (pratinjau inline)
+setelah pemeriksaan akses.
 
 Tambahan:
 
@@ -180,8 +181,9 @@ dengan `cloud deploy:monitor -n` dan cek `/up`, worker, serta log.
 - Path dihasilkan server: `letter-docs/<Y/m>/<ULID>.<ext>`.
 - Kolom `name` menyimpan nama asli; kolom `path` menyimpan lokasi objek.
 - URL publik `/storage/...` tidak lagi dibaca aplikasi.
-- Unduhan dialirkan lewat aplikasi setelah pemeriksaan akses, sehingga tidak ada
-  URL publik, symlink, atau temporary URL yang bisa melewati otorisasi.
+- Unduhan dan pratinjau dialirkan lewat aplikasi setelah pemeriksaan akses,
+  sehingga tidak ada URL publik, symlink, atau temporary URL yang bisa
+  melewati otorisasi.
 - Route `/storage/{path}` bawaan framework dimatikan (`serve => false`) untuk
   disk privat.
 
