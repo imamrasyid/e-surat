@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import AppLogo from '@/components/AppLogo.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { Link } from '@inertiajs/vue3';
 import { Moon, Sun } from '@lucide/vue';
@@ -23,13 +23,10 @@ function toggleTheme() {
         <Link
             :href="route('home')"
             data-load
-            class="focus-visible:ring-ring focus-visible:ring-offset-background flex items-center gap-2.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            class="focus-visible:ring-ring focus-visible:ring-offset-background flex items-center gap-2.5 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             aria-label="e-Surat — beranda"
         >
-            <span class="bg-primary text-primary-foreground grid size-9 place-items-center rounded-lg">
-                <AppLogoIcon class="size-5" />
-            </span>
-            <span class="text-sm font-semibold tracking-tight">e-Surat</span>
+            <AppLogo />
         </Link>
 
         <nav class="hidden items-center gap-4 lg:flex" aria-label="Bagian halaman">

@@ -3,10 +3,10 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 </script>
 
 <template>
-    <div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
-        <AppLogoIcon class="size-5 fill-current text-white dark:text-black" />
+    <div class="bg-background dark:bg-input/30 text-foreground flex aspect-square size-10 items-center justify-center rounded-lg border">
+        <AppLogoIcon class="text-foreground size-5 fill-current" />
     </div>
     <div class="ml-1 grid flex-1 text-left text-sm">
-        <span class="mb-0.5 truncate leading-tight font-semibold">e-Surat</span>
+        <span class="mb-0.5 truncate leading-tight font-semibold">eSurat</span>
     </div>
 </template>

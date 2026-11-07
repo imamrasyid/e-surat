@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import AppLogo from '@/components/AppLogo.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowRight, Moon, Sun } from '@lucide/vue';
@@ -38,14 +38,11 @@ onBeforeUnmount(() => motion?.revert());
             <header class="bg-card dark:bg-input/30 flex flex-wrap items-center justify-between gap-4 rounded-xl border px-4 py-3">
                 <Link
                     :href="route('home')"
-                    class="focus-visible:ring-ring focus-visible:ring-offset-background flex items-center gap-3 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    class="focus-visible:ring-ring focus-visible:ring-offset-background flex items-center gap-2.5 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                     aria-label="e-Surat"
                     data-load
                 >
-                    <span class="bg-primary text-primary-foreground grid size-10 place-items-center rounded-lg">
-                        <AppLogoIcon class="size-5" />
-                    </span>
-                    <span class="text-sm font-semibold tracking-tight">e-Surat</span>
+                    <AppLogo />
                 </Link>
 
                 <nav class="flex items-center gap-1 sm:gap-2" aria-label="Navigasi utama">
