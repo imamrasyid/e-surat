@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import DialogTimeline from '@/components/DialogTimeline.vue';
 import Heading from '@/components/Heading.vue';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item';
@@ -8,12 +18,13 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFormattedDate } from '@/composables/useFormattedDate';
+import { usePermissions } from '@/composables/usePermissions';
 import { useRecipientTimeline } from '@/composables/useRecipientTimeline';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { BadgeCheck, ChevronLeft, FolderPen, Printer, SquarePen, UserRoundPen } from '@lucide/vue';
+import { Head, router } from '@inertiajs/vue3';
+import { BadgeCheck, ChevronLeft, FolderPen, Printer, SquarePen, Trash2, UserRoundPen } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
 import { onMounted, ref } from 'vue';
 
@@ -35,6 +46,23 @@ function getCategoryName(value: string) {
 const hasHistory = ref(false);
 const goBack = () => {
     window.history.back();
+};
+
+const { can } = usePermissions();
+const showDeleteDialog = ref(false);
+const isDeleting = ref(false);
+
+const confirmDelete = () => {
+    router.delete(route('sent.destroy', props.letter.letter_id), {
+        preserveScroll: true,
+        onStart: () => {
+            isDeleting.value = true;
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+            showDeleteDialog.value = false;
+        },
+    });
 };
 
 onMounted(() => {
@@ -226,7 +254,29 @@ onMounted(() => {
                     </ItemGroup>
                 </div>
             </div>
+
+            <div v-if="can('sent.update')" class="mt-10 flex justify-end border-t pt-6">
+                <Button variant="destructive" class="cursor-pointer" :disabled="isDeleting" @click="showDeleteDialog = true">
+                    <Trash2 />
+                    Hapus Surat
+                </Button>
+            </div>
         </div>
+
+        <AlertDialog v-model:open="showDeleteDialog">
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Yakin menghapus surat?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Surat <strong>{{ letter.subject }}</strong> beserta penerima, disposisi, memo, dan lampirannya akan dihapus (soft delete).
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel :disabled="isDeleting">Batal</AlertDialogCancel>
+                    <AlertDialogAction :disabled="isDeleting" @click="confirmDelete">Ya, Hapus</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
 
         <DialogTimeline v-model:open-dialog="isTimelineOpen" :data="timelineData" />
     </AppLayout>

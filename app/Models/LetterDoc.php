@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read string $download_url
  * @property-read Letter|null $letter
  */
@@ -33,6 +35,8 @@ use Illuminate\Support\Carbon;
 #[Appends(['download_url'])]
 class LetterDoc extends Model
 {
+    use SoftDeletes;
+
     /**
      * Endpoint unduhan yang memeriksa akses ke surat; URL publik tidak pernah
      * disimpan sehingga lampiran tetap privat di object storage.

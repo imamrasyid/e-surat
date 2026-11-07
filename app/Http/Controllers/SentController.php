@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Letter\DeleteSentLetterAction;
 use App\Actions\Letter\UpdateSentDocsAction;
 use App\Actions\Letter\UpdateSentLetterAction;
 use App\Actions\Letter\UpdateSentRecipientsAction;
@@ -77,6 +78,36 @@ class SentController extends Controller
             ],
             'letter' => fn () => $letter,
         ]);
+    }
+
+    /**
+     * Soft delete the specified letter and its related records.
+     */
+    public function destroy(string $letter_id, DeleteSentLetterAction $action): RedirectResponse
+    {
+        $letter = Letter::where('letter_id', $letter_id)
+            ->where('type', 'in')
+            ->firstOrFail();
+
+        try {
+            $action->handle($letter);
+
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'Surat berhasil dihapus.',
+            ]);
+
+            return redirect()->route('sent.index');
+        } catch (\Throwable $th) {
+            Log::error('Error deleting letter: '.$th->getMessage());
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Gagal menghapus surat: '.$th->getMessage(),
+            ]);
+
+            return redirect()->back();
+        }
     }
 
     /**

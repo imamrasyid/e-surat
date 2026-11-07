@@ -57,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('sent.editletter');
 
     Route::put('sent/{letter_id}/edit-letter', [SentController::class, 'updateLetter'])
-        ->middleware('permission:sent.edit')
+        ->middleware('permission:sent.update')
         ->name('sent.updateletter');
 
     Route::get('sent/{letter_id}/edit-recipients', [SentController::class, 'editRecipients'])
@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('sent.editrecipients');
 
     Route::put('sent/{letter_id}/edit-recipients', [SentController::class, 'updateRecipients'])
-        ->middleware('permission:sent.edit')
+        ->middleware('permission:sent.update')
         ->name('sent.updaterecipients');
 
     Route::get('sent/{letter_id}/edit-docs', [SentController::class, 'editDocs'])
@@ -73,8 +73,12 @@ Route::middleware(['auth'])->group(function () {
         ->name('sent.editdocs');
 
     Route::post('sent/{letter_id}/edit-docs', [SentController::class, 'updateDocs'])
-        ->middleware('permission:sent.edit')
+        ->middleware('permission:sent.update')
         ->name('sent.updatedocs');
+
+    Route::delete('sent/{letter_id}', [SentController::class, 'destroy'])
+        ->middleware('permission:sent.update')
+        ->name('sent.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {
