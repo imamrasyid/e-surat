@@ -24,7 +24,7 @@ concurrency:
 jobs:
   quality:
     name: quality gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       RELEASE: ${{ inputs.release || github.ref_name }}
 
@@ -63,7 +63,7 @@ jobs:
   image:
     name: build + push image
     needs: quality
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       RELEASE: ${{ inputs.release || github.ref_name }}
 
