@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read string $download_url
+ * @property-read string $preview_url
  * @property-read Letter|null $letter
  */
 #[Fillable([
@@ -32,7 +33,7 @@ use Illuminate\Support\Carbon;
     'is_active',
 ])]
 #[Hidden(['path', 'url'])]
-#[Appends(['download_url'])]
+#[Appends(['download_url', 'preview_url'])]
 class LetterDoc extends Model
 {
     use SoftDeletes;
@@ -44,6 +45,15 @@ class LetterDoc extends Model
     public function getDownloadUrlAttribute(): string
     {
         return route('letter.docs.download', $this->id);
+    }
+
+    /**
+     * Endpoint pratinjau inline dengan otorisasi yang sama seperti unduhan;
+     * browser merender PDF dari route ini, bukan dari path storage.
+     */
+    public function getPreviewUrlAttribute(): string
+    {
+        return route('letter.docs.preview', $this->id);
     }
 
     /**

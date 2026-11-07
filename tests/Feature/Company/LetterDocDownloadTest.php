@@ -110,5 +110,49 @@ it('never exposes the storage path and derives the download url', function () {
 
     expect($serialized)->not->toHaveKey('path')
         ->and($serialized)->not->toHaveKey('url')
-        ->and($serialized['download_url'])->toBe(route('letter.docs.download', $doc->id));
+        ->and($serialized['download_url'])->toBe(route('letter.docs.download', $doc->id))
+        ->and($serialized['preview_url'])->toBe(route('letter.docs.preview', $doc->id));
+});
+
+it('streams the attachment inline so the browser can render it', function () {
+    $doc = letterDocForDownload();
+
+    $response = $this->actingAs(User::findOrFail($doc->letter->created_by))
+        ->get(route('letter.docs.preview', $doc));
+
+    $response->assertOk()
+        ->assertStreamedContent('%PDF-1.4 lampiran rahasia')
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertHeader('X-Content-Type-Options', 'nosniff');
+
+    expect($response->headers->get('Content-Disposition'))->toStartWith('inline')
+        ->and($response->headers->get('Cache-Control'))
+        ->toContain('private')
+        ->toContain('no-store');
+});
+
+it('forbids users without access to the letter from previewing', function () {
+    $doc = letterDocForDownload();
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('letter.docs.preview', $doc))
+        ->assertForbidden();
+});
+
+it('forbids guests from previewing', function () {
+    $doc = letterDocForDownload();
+
+    $this->get(route('letter.docs.preview', $doc))->assertRedirect('/login');
+});
+
+it('returns 404 when previewing an inactive or missing attachment', function () {
+    $doc = letterDocForDownload();
+    $creator = User::findOrFail($doc->letter->created_by);
+
+    $doc->update(['is_active' => false]);
+    $this->actingAs($creator)->get(route('letter.docs.preview', $doc))->assertNotFound();
+
+    $doc->update(['is_active' => true]);
+    Storage::disk('local')->delete((string) $doc->path);
+    $this->actingAs($creator)->get(route('letter.docs.preview', $doc))->assertNotFound();
 });

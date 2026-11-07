@@ -2,6 +2,7 @@
 import Heading from '@/components/Heading.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import LetterDocPreview from '@/components/letter/LetterDocPreview.vue';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, Letter } from '@/types';
+import type { BreadcrumbItem, Letter, LetterDoc } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ChevronLeft, Loader2, Plus, Save, Trash2 } from '@lucide/vue';
 import { onMounted, ref } from 'vue';
@@ -88,6 +89,14 @@ const confirmDelete = () => {
         deleteTarget.value = null;
         showDeleteDialog.value = false;
     }
+};
+
+const isPreviewOpen = ref(false);
+const selectedDoc = ref<LetterDoc | null>(null);
+
+const openPreview = (doc: LetterDoc) => {
+    selectedDoc.value = doc;
+    isPreviewOpen.value = true;
 };
 
 const hasHistory = ref(false);
@@ -164,17 +173,18 @@ onMounted(() => {
                                         class="flex items-center justify-between"
                                         :class="{ 'border-input border-b border-dashed pb-4': index !== existingDocs.length - 1 }"
                                     >
-                                        <a
-                                            :href="item.download_url"
-                                            target="_blank"
-                                            class="mr-2 flex min-w-0 flex-1 items-center gap-2 text-sm hover:underline"
+                                        <button
+                                            type="button"
+                                            class="mr-2 flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left text-sm hover:underline"
+                                            :title="`Pratinjau ${item.name}`"
+                                            @click="openPreview(item)"
                                         >
                                             <img class="block size-10 shrink-0 dark:hidden" src="../../../assets/media/pdf.svg" alt="pdf icon" />
                                             <img class="hidden size-10 shrink-0 dark:block" src="../../../assets/media/pdf-dark.svg" alt="pdf icon" />
                                             <span class="line-clamp-2 min-w-0 break-all">
                                                 {{ item.name }}
                                             </span>
-                                        </a>
+                                        </button>
                                         <Button
                                             type="button"
                                             size="xs"
@@ -283,5 +293,7 @@ onMounted(() => {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+
+        <LetterDocPreview v-model:open="isPreviewOpen" :doc="selectedDoc" />
     </AppLayout>
 </template>

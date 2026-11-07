@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DialogTimeline from '@/components/DialogTimeline.vue';
 import Heading from '@/components/Heading.vue';
+import LetterDocPreview from '@/components/letter/LetterDocPreview.vue';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,7 +23,7 @@ import { usePermissions } from '@/composables/usePermissions';
 import { useRecipientTimeline } from '@/composables/useRecipientTimeline';
 import { categoryInbox } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, Letter } from '@/types';
+import type { BreadcrumbItem, Letter, LetterDoc } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { BadgeCheck, ChevronLeft, FolderPen, Printer, SquarePen, Trash2, UserRoundPen } from '@lucide/vue';
 import { useDateFormat } from '@vueuse/core';
@@ -42,6 +43,14 @@ function getCategoryName(value: string) {
     const found = categoryInbox.find((cat) => cat.value === value);
     return found ? found.name : '-';
 }
+
+const isPreviewOpen = ref(false);
+const selectedDoc = ref<LetterDoc | null>(null);
+
+const openPreview = (doc: LetterDoc) => {
+    selectedDoc.value = doc;
+    isPreviewOpen.value = true;
+};
 
 const hasHistory = ref(false);
 const goBack = () => {
@@ -237,7 +246,12 @@ onMounted(() => {
                 <div class="flex w-full flex-col">
                     <ItemGroup class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
                         <template v-for="item in letter.docs" :key="item.id">
-                            <a :href="item.download_url" target="_blank" :title="item.name" rel="noopener noreferrer">
+                            <button
+                                type="button"
+                                class="w-full cursor-pointer text-left"
+                                :title="`Pratinjau ${item.name}`"
+                                @click="openPreview(item)"
+                            >
                                 <Item variant="outline" class="rounded-lg">
                                     <ItemMedia variant="image">
                                         <img src="../../../assets/media/pdf.svg" :alt="item.name" class="size-12 dark:hidden" />
@@ -249,7 +263,7 @@ onMounted(() => {
                                         </ItemTitle>
                                     </ItemContent>
                                 </Item>
-                            </a>
+                            </button>
                         </template>
                     </ItemGroup>
                 </div>
@@ -277,6 +291,8 @@ onMounted(() => {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+
+        <LetterDocPreview v-model:open="isPreviewOpen" :doc="selectedDoc" />
 
         <DialogTimeline v-model:open-dialog="isTimelineOpen" :data="timelineData" />
     </AppLayout>

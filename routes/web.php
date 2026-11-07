@@ -3,7 +3,7 @@
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\ComposeController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LetterDocDownloadController;
+use App\Http\Controllers\LetterDocController;
 use App\Http\Controllers\SentController;
 use App\Http\Controllers\TelegramWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -83,8 +83,11 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     // Lampiran privat: akses diperiksa di controller terhadap surat terkait.
-    Route::get('letter-docs/{doc}/download', LetterDocDownloadController::class)
+    Route::get('letter-docs/{doc}/download', [LetterDocController::class, 'download'])
         ->name('letter.docs.download');
+
+    Route::get('letter-docs/{doc}/preview', [LetterDocController::class, 'preview'])
+        ->name('letter.docs.preview');
 
     Route::get('api/timeline/recipient/{recipient}', [ApiController::class, 'recipientTimeline'])
         ->name('api.timeline.recipient');

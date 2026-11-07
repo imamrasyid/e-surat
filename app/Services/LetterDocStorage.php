@@ -72,4 +72,16 @@ class LetterDocStorage
     {
         return Storage::disk()->download($path, $name);
     }
+
+    /**
+     * Alirkan file privat secara inline agar dirender browser pada dialog
+     * pratinjau. Respons tetap privat dan tidak disimpan cache bersama.
+     */
+    public function preview(string $path, string $name): StreamedResponse
+    {
+        return Storage::disk()->response($path, $name, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
 }

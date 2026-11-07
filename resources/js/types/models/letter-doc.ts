@@ -6,6 +6,7 @@ export interface LetterDoc {
     letter_id: number;
     name: string;
     download_url: string;
+    preview_url: string;
     is_active: boolean;
     created_at: string;
     updated_at: string;
