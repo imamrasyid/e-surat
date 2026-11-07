@@ -2,6 +2,8 @@
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
 import type { BreadcrumbItem, Role, User } from '@/types';
@@ -18,6 +20,22 @@ const props = defineProps<{
 const form = useForm({
     roles: props.data.roles?.map((role) => role.id) ?? [],
 });
+
+const toggleRole = (id: number, checked: boolean | 'indeterminate') => {
+    const index = form.roles.indexOf(id);
+
+    if (checked === true) {
+        if (index === -1) {
+            form.roles.push(id);
+        }
+
+        return;
+    }
+
+    if (index !== -1) {
+        form.roles.splice(index, 1);
+    }
+};
 
 const hasHistory = ref(false);
 
@@ -42,24 +60,22 @@ const submit = () => {
             <div class="flex flex-col space-y-6">
                 <HeadingSmall title="Role Pengguna" description="Referensi role pengguna" />
 
-                <Card class="p-0">
-                    <CardHeader class="p-4">
-                        <CardTitle>{{ data.name }}</CardTitle>
-                        <CardDescription>{{ data.email }}</CardDescription>
-                    </CardHeader>
-                </Card>
-
                 <form @submit.prevent="submit" class="flex flex-col space-y-6">
-                    <Card>
+                    <Card class="dark:bg-input/30 shadow-none">
                         <CardContent class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                            <div v-for="item in roles" :key="item.id" class="flex space-x-2">
-                                <input :id="'role' + item.id" type="checkbox" class="cursor-pointer" :value="item.id" v-model="form.roles" />
-                                <label
-                                    :for="'role' + item.id"
-                                    class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                    {{ item.name }}
-                                </label>
+                            <CardHeader class="col-span-full mb-4 gap-0.5 p-0">
+                                <CardTitle class="text-sm font-medium">{{ data.name }}</CardTitle>
+                                <CardDescription class="text-xs">{{ data.username }} {{ data.email ? `(${data.email})` : '' }}</CardDescription>
+                            </CardHeader>
+                            <div v-for="item in roles" :key="item.id" class="flex items-center gap-2">
+                                <Checkbox
+                                    :id="'role' + item.id"
+                                    :model-value="form.roles.includes(item.id)"
+                                    @update:model-value="(checked) => toggleRole(item.id, checked)"
+                                />
+                                <Label :for="'role' + item.id" class="cursor-pointer font-normal">
+                                    <span class="break-all">{{ item.name }}</span>
+                                </Label>
                             </div>
                         </CardContent>
                     </Card>

@@ -189,7 +189,7 @@ class UserController extends Controller
             return back();
         }
 
-        $user = User::with('roles')->select('id', 'email', 'name')->findOrFail($user_id);
+        $user = User::with('roles')->select('id', 'username', 'email', 'name')->findOrFail($user_id);
         $roles = Role::query()->select('id', 'name')->get();
 
         return Inertia::render('master/pengguna/Role', [

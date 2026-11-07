@@ -17,7 +17,9 @@ const formattedValue = computed(() => formatNumber(props.metric.value));
             <CardTitle>{{ props.metric.title }}</CardTitle>
             <CardDescription>{{ props.metric.description }}</CardDescription>
             <CardAction>
-                <component :is="props.metric.icon" class="size-5 shrink-0" aria-hidden="true" />
+                <div class="bg-primary/10 flex size-9 items-center justify-center gap-2 rounded-md border">
+                    <component :is="props.metric.icon" class="text-primary size-4 shrink-0" aria-hidden="true" />
+                </div>
             </CardAction>
         </CardHeader>
         <CardContent class="mt-auto">

@@ -55,11 +55,11 @@ const submit = () => {
             <div class="flex flex-col space-y-6">
                 <HeadingSmall title="Jabatan Pengguna" description="Referensi jabatan pengguna" />
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ data.name }}</CardTitle>
-                        <CardDescription>
-                            Jabatan saat ini: <strong>{{ currentPosition?.name ?? '-' }}</strong>
+                <Card class="dark:bg-input/30 shadow-none">
+                    <CardHeader class="gap-0.5">
+                        <CardTitle class="text-sm font-medium">{{ data.name }}</CardTitle>
+                        <CardDescription class="text-xs">
+                            Jabatan saat ini: <span class="font-medium">{{ currentPosition?.name ?? '-' }}</span>
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -78,7 +78,7 @@ const submit = () => {
                     </div>
 
                     <div class="flex flex-col gap-4 lg:flex-row">
-                        <Button type="submit" :disabled="!selectedPosition || form.processing">
+                        <Button type="submit" class="w-full cursor-pointer lg:w-50" :disabled="!selectedPosition || form.processing">
                             <Loader2 v-if="form.processing" class="size-4 animate-spin" />
                             <Save v-else class="size-4" />
                             Simpan Jabatan

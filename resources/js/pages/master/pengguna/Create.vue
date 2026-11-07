@@ -41,10 +41,7 @@ const submit = () => {
 
         <MasterLayout>
             <div class="flex flex-col space-y-6">
-                <div class="space-y-1">
-                    <HeadingSmall title="Tambah Baru" description="Buat data pengguna" />
-                    <p class="text-muted-foreground text-xs">Password awal akan diset otomatis menjadi "password".</p>
-                </div>
+                <HeadingSmall title="Tambah Baru" description="Buat data pengguna" />
 
                 <form @submit.prevent="submit" class="space-y-6">
                     <div class="grid gap-2">
@@ -77,6 +74,8 @@ const submit = () => {
                         />
                         <InputError :message="form.errors.username" />
                     </div>
+
+                    <p class="text-muted-foreground text-xs">Password awal akan diset otomatis menjadi "password".</p>
 
                     <div class="mt-12 flex flex-col gap-4 lg:flex-row lg:justify-end">
                         <Button v-if="hasHistory" type="button" variant="outline" class="w-full cursor-pointer lg:w-40" @click="goBack">

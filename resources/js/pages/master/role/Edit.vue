@@ -3,6 +3,7 @@ import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -63,6 +64,22 @@ const formPermission = useForm({
     permissions: props.rolePermissions.map((permision) => permision.id),
 });
 
+const togglePermission = (id: number, checked: boolean | 'indeterminate') => {
+    const index = formPermission.permissions.indexOf(id);
+
+    if (checked === true) {
+        if (index === -1) {
+            formPermission.permissions.push(id);
+        }
+
+        return;
+    }
+
+    if (index !== -1) {
+        formPermission.permissions.splice(index, 1);
+    }
+};
+
 const submitPermission = () => {
     formPermission.patch(route('ref.role.updatePermission', props.data.id));
 };
@@ -101,7 +118,7 @@ const submitPermission = () => {
 
             <form @submit.prevent="submitPermission" class="flex flex-col space-y-6">
                 <HeadingSmall title="Permissions" description="Edit referensi permissions" />
-                <Card class="bg-input/30 rounded-lg">
+                <Card class="dark:bg-input/30 rounded-lg shadow-none">
                     <CardContent
                         class="grid grid-rows-[repeat(auto-fill,minmax(0,1fr))] gap-4 sm:grid-flow-col sm:grid-rows-[repeat(calc(var(--row-sm)),minmax(0,1fr))] md:grid-rows-[repeat(calc(var(--row-md)),minmax(0,1fr))]"
                         :style="{
@@ -109,17 +126,15 @@ const submitPermission = () => {
                             '--row-md': getRowCount(3),
                         }"
                     >
-                        <div v-for="item in permissions" :key="item.id" class="flex space-x-2">
-                            <input
+                        <div v-for="item in permissions" :key="item.id" class="flex items-center gap-2">
+                            <Checkbox
                                 :id="`permission-${item.id}`"
-                                type="checkbox"
-                                class="cursor-pointer"
-                                :value="item.id"
-                                v-model="formPermission.permissions"
+                                :model-value="formPermission.permissions.includes(item.id)"
+                                @update:model-value="(checked) => togglePermission(item.id, checked)"
                             />
-                            <label :for="`permission-${item.id}`" class="cursor-pointer text-sm font-normal select-none">
-                                {{ item.name }}
-                            </label>
+                            <Label :for="`permission-${item.id}`" class="cursor-pointer font-normal">
+                                <span class="break-all">{{ item.name }}</span>
+                            </Label>
                         </div>
                     </CardContent>
                 </Card>
