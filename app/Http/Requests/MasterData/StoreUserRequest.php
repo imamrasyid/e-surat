@@ -26,6 +26,8 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'lowercase', 'max:255', 'unique:'.User::class],
+            'position_id' => ['required', 'integer', 'exists:positions,id'],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
         ];
     }
 
@@ -45,6 +47,12 @@ class StoreUserRequest extends FormRequest
             'username.lowercase' => 'Username harus berupa huruf kecil.',
             'username.max' => 'Username maksimal 255 karakter.',
             'username.unique' => 'Username sudah digunakan.',
+            'position_id.required' => 'Jabatan wajib dipilih.',
+            'position_id.integer' => 'Jabatan tidak valid.',
+            'position_id.exists' => 'Jabatan tidak ditemukan.',
+            'role_id.required' => 'Role wajib dipilih.',
+            'role_id.integer' => 'Role tidak valid.',
+            'role_id.exists' => 'Role tidak ditemukan.',
         ];
     }
 }

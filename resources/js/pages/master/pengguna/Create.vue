@@ -1,23 +1,40 @@
 <script setup lang="ts">
+import SelectCombobox from '@/components/forms/SelectCombobox.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MasterLayout from '@/layouts/master/Layout.vue';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Position, Role } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Loader2, Send, Undo2 } from '@lucide/vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 defineProps<{
     breadcrumbItems: BreadcrumbItem[];
+    positions: Position[];
+    roles: Role[];
 }>();
 
-const form = useForm({
+const form = useForm<{
+    name: string;
+    username: string;
+    position_id: number | null;
+    role_id: number | null;
+}>({
     name: '',
     username: '',
+    position_id: null,
+    role_id: null,
+});
+
+const selectedPosition = ref<{ id: number; name: string } | null>(null);
+
+watch(selectedPosition, (position) => {
+    form.position_id = position?.id ?? null;
 });
 
 const hasHistory = ref(false);
@@ -73,6 +90,38 @@ const submit = () => {
                             placeholder="Enter username"
                         />
                         <InputError :message="form.errors.username" />
+                    </div>
+
+                    <div class="grid gap-6 sm:grid-cols-2">
+                        <div class="grid gap-2">
+                            <Label for="position">Jabatan</Label>
+                            <SelectCombobox
+                                id="position"
+                                :tabindex="3"
+                                :options="positions"
+                                :model-value="selectedPosition"
+                                placeholder="Pilih jabatan"
+                                search-placeholder="Cari jabatan..."
+                                @update:model-value="selectedPosition = $event"
+                            />
+                            <InputError :message="form.errors.position_id" />
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="role">Role</Label>
+                            <Select v-model="form.role_id">
+                                <SelectTrigger id="role" :tabindex="4" aria-label="Pilih role" class="w-full">
+                                    <SelectValue placeholder="Pilih role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectLabel>Role pengguna</SelectLabel>
+                                    <SelectItem v-for="item in roles" :key="item.id" :value="item.id">
+                                        {{ item.name }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError :message="form.errors.role_id" />
+                        </div>
                     </div>
 
                     <p class="text-muted-foreground text-xs">Password awal akan diset otomatis menjadi "password".</p>

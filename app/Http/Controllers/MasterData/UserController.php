@@ -62,6 +62,17 @@ class UserController extends Controller
      */
     public function create(): Response
     {
+        $positions = Position::query()
+            ->select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $roles = Role::query()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('master/pengguna/Create', [
             'breadcrumbItems' => [
                 [
@@ -76,6 +87,8 @@ class UserController extends Controller
                     'title' => 'Tambah Baru',
                 ],
             ],
+            'positions' => fn () => $positions,
+            'roles' => fn () => $roles,
         ]);
     }
 
@@ -84,7 +97,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request, CreateUserAction $action): RedirectResponse
     {
-        /** @var array{name: string, username: string} $validated */
+        /** @var array{name: string, username: string, position_id: int, role_id: int} $validated */
         $validated = $request->validated();
 
         try {
