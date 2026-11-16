@@ -36,7 +36,15 @@ class CreateComposeLetterAction
             $customUlid = $this->customUlid();
 
             // MEMBUAT NOMOR AGENDA
-            $klasifikasi = RefKdKlasifikasi::query()->where('kode', $validated['agenda'])->firstOrFail();
+            // Baris klasifikasi dikunci dulu: dua operator yang menyimpan
+            // surat berklasifikasi sama bersamaan membaca nomor urut secara
+            // berurutan, bukan membaca nilai yang sama lalu gagal di index unik.
+            // SQLite (unit test) mengabaikan lock; MySQL memakai FOR UPDATE.
+            $klasifikasi = RefKdKlasifikasi::query()
+                ->where('kode', $validated['agenda'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
             $nomorUrutTerakhir = RefAgendaSurat::query()
                 ->where('klasifikasi_id', $klasifikasi->id)
                 ->where('tahun', $validated['agendaTahun'])

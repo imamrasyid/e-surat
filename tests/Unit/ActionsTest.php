@@ -10,6 +10,7 @@ use App\Models\Letter;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -203,4 +204,75 @@ test('CreateFollowupAction and UpdateFollowupAction manipulate followup model', 
     $updateAction->handle($followup, ['name' => 'Tindak Lanjut Revisi', 'is_active' => true]);
 
     expect($followup->fresh()->name)->toBe('Tindak Lanjut Revisi');
+});
+
+test('CloseMemoAction creates the closing memo and closes the letter', function () {
+    $this->actingAs(User::factory()->create());
+
+    $creator = User::factory()->create();
+    $fromPosition = Position::create(['name' => 'Sekretaris', 'is_active' => true]);
+    $toPosition = Position::create(['name' => 'Kepala Bagian Umum', 'is_active' => true]);
+    $letter = makeDashboardLetter($creator->id, ['status' => 'open']);
+    $recipient = $letter->recipients()->create([
+        'from_user_id' => $creator->id,
+        'from_position_id' => $fromPosition->id,
+        'to_position_id' => $toPosition->id,
+        'received_at' => now(),
+    ]);
+
+    $memo = (new CloseMemoAction)->handle($creator, $fromPosition, [
+        'letter_id_primary' => $letter->id,
+        'letter_recipient_id' => $recipient->id,
+        'to_position_id' => $toPosition->id,
+        'catatan' => 'Surat ditindaklanjuti sampai selesai.',
+    ]);
+
+    expect($memo)->toBeInstanceOf(Memo::class)
+        ->and($memo->letter_id)->toBe($letter->id)
+        ->and($memo->to_position_id)->toBe($toPosition->id)
+        ->and($letter->fresh()->status)->toBe('close');
+});
+
+test('CreateDispositionAction writes followup text and attachment rows', function () {
+    $this->actingAs(User::factory()->create());
+
+    Storage::fake('local');
+    $creator = User::factory()->create();
+    $fromPosition = Position::create(['name' => 'Sekretaris', 'is_active' => true]);
+    $toPosition = Position::create(['name' => 'Kepala Bagian Umum', 'is_active' => true]);
+    $ccPosition = Position::create(['name' => 'Kepala Bagian Teknis', 'is_active' => true]);
+    $letter = makeDashboardLetter($creator->id, ['status' => 'open']);
+    $recipient = $letter->recipients()->create([
+        'from_user_id' => $creator->id,
+        'from_position_id' => $fromPosition->id,
+        'to_position_id' => $toPosition->id,
+        'received_at' => now(),
+    ]);
+
+    (new CreateDispositionAction(app(LetterDocStorage::class)))->handle($creator, $fromPosition, [
+        'letter_id_primary' => $letter->id,
+        'letter_recipient_id' => $recipient->id,
+        'penerima' => [
+            ['id' => $toPosition->id, 'name' => $toPosition->name],
+        ],
+        'penerima_cc' => [
+            ['id' => $ccPosition->id, 'name' => $ccPosition->name],
+        ],
+        'catatan' => 'Mohon ditindaklanjuti',
+        'followup' => [
+            ['id' => 1, 'name' => 'Segera'],
+            ['id' => 2, 'name' => 'Tinjau Ulang'],
+        ],
+    ], [
+        UploadedFile::fake()->createWithContent(' disposisi.pdf', '%PDF-1.4 uji'),
+    ]);
+
+    $dispositions = Disposition::query()->orderBy('id')->get();
+
+    expect($dispositions)->toHaveCount(2)
+        ->and($dispositions[0]->to_position_id)->toBe($toPosition->id)
+        ->and($dispositions[0]->followup)->toBe('Segera; Tinjau Ulang')
+        ->and((bool) $dispositions[1]->is_cc)->toBeTrue()
+        ->and(LetterDoc::query()->where('letter_id', $letter->id)->count())->toBe(1)
+        ->and(LetterDoc::query()->where('letter_id', $letter->id)->sole()->name)->toBe(' disposisi.pdf');
 });

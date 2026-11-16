@@ -76,12 +76,14 @@ class MemoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(string $recipient, string $key): Response
+    public function create(Request $request, string $recipient, string $key): Response
     {
         $keyDecode = base64_decode($key);
         $letter_id = substr($keyDecode, -26);
 
         $letter = Letter::where('letter_id', $letter_id)->where('status', 'open')->firstOrFail();
+
+        $this->authorizeFollowUp($request, $recipient, $letter);
 
         $recipients = $this->getTimeline($letter->id);
 

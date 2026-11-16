@@ -82,6 +82,8 @@ class DispositionController extends Controller
 
         $letter = Letter::where('letter_id', $letter_id)->where('status', 'open')->firstOrFail();
 
+        $this->authorizeFollowUp($request, $recipient, $letter);
+
         $recipients = $this->getTimeline($letter->id);
 
         $user = $request->user();
