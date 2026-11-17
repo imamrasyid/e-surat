@@ -216,7 +216,10 @@ tidak ada data legacy sehingga tidak perlu dijalankan. Di pipeline, set variable
 
 - Backup database terjadwal + point-in-time recovery bila provider mendukung.
 - Mode volume host: backup `DATA_PATH/storage` (rsync/restic/borg) dan database
-  pada jadwal yang sama; simpan off-site.
+  pada jadwal yang sama; simpan off-site. Untuk jalur Docker, jadwal ini
+  dibawa repository: `deploy/scripts/backup.sh` + systemd timer
+  `esurat-backup@.timer` (pasang per server — langkah lengkap di runbook
+  §11.1); dump dibuat non-interaktif dengan kredensial dari `.env`.
 - Mode object storage: versioning/retention pada bucket lampiran.
 - Backup tidak valid sebelum restore diuji: pulihkan database dan satu lampiran
   ke environment staging terpisah, lalu buktikan login, daftar surat, dan

@@ -57,12 +57,16 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo systemctl enable --now docker
 ```
 
-- Database di host (contoh MySQL/MariaDB) dan user khusus:
+- Database di host (contoh MySQL/MariaDB) dan user khusus. User butuh dua
+  titik masuk: `172.%` untuk aplikasi (dari bridge Docker) dan `localhost`
+  untuk skrip backup terjadwal di host (§11):
 
 ```sql
 CREATE DATABASE esurat_company_a CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'esurat'@'172.%' IDENTIFIED BY '<password-kuat>';
+CREATE USER 'esurat'@'localhost' IDENTIFIED BY '<password-kuat>';
 GRANT ALL PRIVILEGES ON esurat_company_a.* TO 'esurat'@'172.%';
+GRANT SELECT, LOCK TABLES, EVENT ON esurat_company_a.* TO 'esurat'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -102,6 +106,22 @@ Container selalu HTTP di `:8080`. Pilihan topologi diatur lewat `.env`:
 | IP + port langsung          | `0.0.0.0`     | mis. `8081`       | `http://203.0.113.10:8081`                  | tidak ada     |
 | Domain tanpa TLS (staging)  | `0.0.0.0`     | mis. `8082`       | `http://staging.company-a.example.com:8082` | tidak ada     |
 
+Setiap topologi memercayai set header `X-Forwarded-*` yang berbeda
+(`TRUSTED_PROXIES` di `.env`, dipisah koma):
+
+- **Domain + proxy host (Caddy/Nginx → `127.0.0.1:8080`)**: koneksi masuk ke
+  container lewat docker-proxy/gateway bridge, jadi header dari proxy baru
+  dipercaya bila rentang bridge ikut dipercaya:
+  `TRUSTED_PROXIES=127.0.0.1,::1,172.16.0.0/12`. Tanpa itu, IP klien di log
+  audit selalu `172.x.x.x` dan skema https tidak terdeteksi.
+- **IP + port langsung (tanpa proxy)**: tidak ada proxy yang jujur di depan
+  klien — kosongkan: `TRUSTED_PROXIES=127.0.0.1,::1` (default). Header
+  `X-Forwarded-*` dari klien mana pun diabaikan, jadi kepalan `https`/IP
+  tidak bisa dipalsukan.
+- **Domain tanpa TLS (staging)**: sama dengan mode IP langsung —
+  `TRUSTED_PROXIES` default, kecuali proxy-nya memang meneruskan header dan
+  Anda ingin skema/`Host` dari proxy.
+
 Aturan:
 
 - `APP_URL` harus sama dengan URL yang dipakai browser; salah isi menyebabkan
@@ -115,6 +135,13 @@ Contoh reverse proxy Caddy di host (`/etc/caddy/Caddyfile`):
 ```caddyfile
 esurat.company-a.example.com {
 	encode zstd br gzip
+	# Kunci transport ke HTTPS setelah kunjungan pertama (anti SSL-strip),
+	# plus header keamanan dasar untuk aplikasi surat resmi.
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
 	reverse_proxy 127.0.0.1:8080
 }
 ```
@@ -440,34 +467,55 @@ docker compose logs --tail=100 app worker
 
 ## 11. Backup dan restore
 
-### 10.1 Backup rutin
+### 11.1 Backup terjadwal (harus jalan otomatis)
+
+Backup rutin dijalankan systemd timer di host lewat skrip
+`deploy/scripts/backup.sh` (dibawa repository, ikut checkout). Skrip membaca
+`.env` project (mode `600`) — jadi cron tidak pernah berhenti di prompt
+password — lalu menghasilkan `BACKUP_ROOT/<stamp>/` berisi:
+
+| File                    | Isi                                            |
+| ----------------------- | ---------------------------------------------- |
+| `db.sql.gz` + `.sha256` | dump database (`--single-transaction`)         |
+| `env.backup`            | salinan `.env` (berisi `APP_KEY`, mode `600`)  |
+| `storage/`              lampiran privat + log                          |
+| `image.txt`             digest image yang dipakai saat backup          |
+
+Pasang sekali per server perusahaan:
 
 ```bash
-STAMP=$(date +%Y%m%d-%H%M%S)
-mkdir -p /srv/esurat/data/backups/$STAMP
+# 1. Salin unit ke systemd (PROJECT_DIR/BACKUP_ROOT sudah pas untuk
+#    layout /srv/esurat/<company>/...; %i = nama instance).
+sudo cp deploy/systemd/esurat-backup@.service deploy/systemd/esurat-backup@.timer /etc/systemd/system/
 
-# Database (MySQL/MariaDB). Jalankan dari host.
-mysqldump --single-transaction --routines --triggers \
-  -h 127.0.0.1 -u esurat -p esurat_company_a \
-  | gzip > /srv/esurat/data/backups/$STAMP/db.sql.gz
+# 2. Nama instance = nama direktori di bawah /srv/esurat, mis. "company-a".
+sudo systemctl daemon-reload
+sudo systemctl enable --now esurat-backup@company-a.timer
+systemctl list-timers esurat-backup@*   # pukul 02:30 ± 15 menit, catch-up bila host mati
 
-# .env berisi APP_KEY; tanpa key ini data terenkripsi/sesi tidak bisa dipulihkan.
-install -m 600 /srv/esurat/app/.env /srv/esurat/data/backups/$STAMP/env.backup
-
-# Storage (lampiran + log).
-sudo rsync -a --delete /srv/esurat/data/storage/ /srv/esurat/data/backups/$STAMP/storage/
-
-# Simpan metadata rilis.
-docker inspect --format='{{index .RepoDigests 0}}' "$(grep '^ESURAT_IMAGE=' /srv/esurat/app/.env | cut -d= -f2)" \
-  > /srv/esurat/data/backups/$STAMP/image.txt
+# 3. Paksa satu kali untuk memverifikasi jalur (tanpa menunggu jadwal):
+sudo systemctl start esurat-backup@company-a.service
+sudo journalctl -u esurat-backup@company-a.service -n 20
+ls /srv/esurat/company-a/data/backups/*/
 ```
 
-- Simpan off-site (restic/borg/rclone) dan tetapkan retensi (mis. harian 14,
-  mingguan 8, bulanan 6).
-- Backup database dan storage harus konsisten waktunya; jalankan berurutan.
-- Backup tidak dianggap valid sebelum restore diuji.
+Aturan lingkungan yang membuat skrip bekerja:
 
-### 10.2 Uji restore (staging terpisah)
+- `PROJECT_DIR` (default `/srv/esurat/app`) dan `BACKUP_ROOT`
+  (default `/srv/esurat/data/backups`) di unit `%i` mengasumsikan layout
+  `/srv/esurat/<company>/{app,data}`; sesuaikan unit bila layout beda.
+- `DATA_PATH` dan `ESURAT_IMAGE` dibaca dari `.env`; wajib ada.
+- Retensi: `RETAIN_DAILY` (default 14 stamp) di `.env` unit `service` bila
+  perlu diubah; stamp lebih lama dihapus.
+- Database user `esurat@'localhost'` dengan hak
+  `SELECT, LOCK TABLES, EVENT` pada database perusahaan (§2) — dump
+  `--single-transaction` tidak butuh `ALL PRIVILEGES`.
+- Skrip gagal keras (exit 1 + FATAL di jurnal) bila dump kosong/bukan dump;
+  alarm monitoring baca exit non-zero `systemd` (`esurat-backup@*.service`).
+
+Sambil menunggu jadwal pertama, jalankan sekali manual dan buktikan isinya.
+
+### 11.2 Uji restore (staging terpisah)
 
 ```bash
 # 1. Siapkan host staging dengan project compose dan DATA_PATH berbeda.
@@ -484,6 +532,36 @@ curl -fsS http://127.0.0.1:18080/up
 
 Buktikan: login berhasil, daftar surat tampil, buka satu surat, unduh satu
 lampiran (isi file benar), dan worker memproses job baru.
+
+### 11.3 Backup manual (darurat / sebelum operasi berisiko)
+
+Langkah manual setara skrip (bila systemd tidak tersedia):
+
+```bash
+STAMP=$(date +%Y%m%d-%H%M%S)
+mkdir -p /srv/esurat/data/backups/$STAMP
+
+# Database (MySQL/MariaDB). Jalankan dari host, non-interaktif:
+# `-p` berdiri sendiri berarti prompt interaktif — cron akan menggantung.
+mysqldump --host=127.0.0.1 --user=esurat --password='<password>' \
+  --single-transaction --routines --triggers \
+  --result-file=/srv/esurat/data/backups/$STAMP/db.sql esurat_company_a
+gzip /srv/esurat/data/backups/$STAMP/db.sql
+sha256sum /srv/esurat/data/backups/$STAMP/db.sql.gz \
+  > /srv/esurat/data/backups/$STAMP/db.sql.gz.sha256
+
+# .env berisi APP_KEY; tanpa key ini data terenkripsi/sesi tidak bisa dipulihkan.
+install -m 600 /srv/esurat/app/.env /srv/esurat/data/backups/$STAMP/env.backup
+
+# Storage (lampiran + log).
+sudo rsync -a /srv/esurat/data/storage/ /srv/esurat/data/backups/$STAMP/storage/
+
+# Simpan metadata rilis.
+docker image inspect --format='{{index .RepoDigests 0}}' "$(grep '^ESURAT_IMAGE=' /srv/esurat/app/.env | cut -d= -f2)" \
+  > /srv/esurat/data/backups/$STAMP/image.txt
+```
+
+Atau cukup: `PROJECT_DIR=/srv/esurat/app sh deploy/scripts/backup.sh`.
 
 ## 12. Operasi harian
 

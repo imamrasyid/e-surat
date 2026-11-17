@@ -1,0 +1,13 @@
+[Unit]
+Description=e-Surat backup (%i) - database, .env, storage
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+# Nama instance = COMPANY_KEY (mis. esurat-company-a -> /srv/esurat/company-a)
+Environment=PROJECT_DIR=/srv/esurat/%i/app
+Environment=BACKUP_ROOT=/srv/esurat/%i/data/backups
+ExecStart=/srv/esurat/%i/app/deploy/scripts/backup.sh
+# Cron dan jadwal wajib menghasilkan log + sinyal gagal untuk monitoring.
+SyslogIdentifier=esurat-backup-%i

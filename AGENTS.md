@@ -138,7 +138,7 @@ graphify update .         # refresh knowledge graph — on request, or after ASK
 
 ## Runtime/Tooling Preferences
 
-- **PHP ^8.3** (CI: 8.4), **Laravel ^13**, **Node 22** (CI), **npm only** (npm lockfile; no pnpm/yarn).
+- **PHP ^8.3** (CI: 8.4), **Laravel ^13**, **Node 26** (CI + image build), **npm only** (npm lockfile; no pnpm/yarn).
 - **Build = vite-plus** (`vp`): `package.json` overrides `vite` → `@voidzero-dev/vite-plus-core` — non-standard; don't change. Inertia SSR is disabled (`inertia({ ssr: false })`).
 - **Formatting**: Pint (PHP); `vp` fmt/lint for TS/Vue. `.editorconfig`: 4-space indent, LF; YAML 2-space. `no-console` error (only `warn`/`error` allowed).
 - `laravel/boost` installed (`boost.json` is empty); `phpstan.neon` runs larastan via `composer types:check`.
@@ -150,7 +150,7 @@ graphify update .         # refresh knowledge graph — on request, or after ASK
 - Idiomatic test: `uses(TestCase::class, RefreshDatabase::class)` → `User::factory()->create()` (scopes: `->unverified()`, `->withTwoFactor()`) → `$this->actingAs($user)` → HTTP call → `$response->assertOk()/assertInertia()` or `expect()`; `skipUnlessFortifyHas()` in `TestCase` for conditional Fortify features.
 - Run subsets: `php artisan test`, `php artisan test --filter=AuthenticationTest`, `php artisan test tests/Feature/Auth/`.
 - **Coverage reality**: starter-kit auth/settings/dashboard flows are tested; the core e-surat domain (letters, memos, dispositions, archive, master data) is largely untested. When touching those flows, add Feature coverage rather than relying on existing tests.
-- CI (`.github/workflows/tests.yml`, push to `main`/PR): ubuntu, PHP 8.4 + Node 22, `composer setup`, then `composer ci:check` (vp check → vue-tsc → pint --test → phpstan → artisan test). Make sure new code passes `composer test` locally.
+- CI (`.github/workflows/tests.yml`, push to `main`/PR): ubuntu, PHP 8.4 + Node 26, `composer setup`, then `composer ci:check` (vp check → vue-tsc → pint --test → phpstan → artisan test). Make sure new code passes `composer test` locally.
 - `phpunit.xml` forces `APP_ENV=testing` and `DB_CONNECTION=sqlite` (`:memory:`) with `force="true"` — `.env` DB values never leak into tests; `php artisan test` is safe to run anytime and leaves the dev DB untouched.
 
 ## Definition of Done
