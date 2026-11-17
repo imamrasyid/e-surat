@@ -31,8 +31,14 @@ class MigrateLetterDocStorageCommand extends Command
     public function handle(): int
     {
         $targetDisk = (string) config('filesystems.default');
-        $sourceDisk = (string) $this->option('source-disk');
+        $sourceDisk = $this->option('source-disk');
         $chunk = max(1, (int) $this->option('chunk'));
+
+        if (! is_string($sourceDisk) || $sourceDisk === '') {
+            $this->error('Opsi source-disk wajib berupa string.');
+
+            return self::FAILURE;
+        }
 
         if ($targetDisk === $sourceDisk) {
             $this->warn("Disk target dan sumber sama ({$targetDisk}); tidak ada yang perlu disalin.");
