@@ -474,12 +474,12 @@ Backup rutin dijalankan systemd timer di host lewat skrip
 `.env` project (mode `600`) — jadi cron tidak pernah berhenti di prompt
 password — lalu menghasilkan `BACKUP_ROOT/<stamp>/` berisi:
 
-| File                    | Isi                                            |
-| ----------------------- | ---------------------------------------------- |
-| `db.sql.gz` + `.sha256` | dump database (`--single-transaction`)         |
-| `env.backup`            | salinan `.env` (berisi `APP_KEY`, mode `600`)  |
-| `storage/`              lampiran privat + log                          |
-| `image.txt`             digest image yang dipakai saat backup          |
+| File                                              | Isi                                           |
+| ------------------------------------------------- | --------------------------------------------- |
+| `db.sql.gz` + `.sha256`                           | dump database (`--single-transaction`)        |
+| `env.backup`                                      | salinan `.env` (berisi `APP_KEY`, mode `600`) |
+| `storage/` lampiran privat + log                  |
+| `image.txt` digest image yang dipakai saat backup |
 
 Pasang sekali per server perusahaan:
 
