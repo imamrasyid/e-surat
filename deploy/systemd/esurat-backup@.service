@@ -5,9 +5,12 @@ After=network-online.target docker.service
 
 [Service]
 Type=oneshot
-# Nama instance = COMPANY_KEY (mis. esurat-company-a -> /srv/esurat/company-a)
-Environment=PROJECT_DIR=/srv/esurat/%i/app
-Environment=BACKUP_ROOT=/srv/esurat/%i/data/backups
-ExecStart=/srv/esurat/%i/app/deploy/scripts/backup.sh
-# Cron dan jadwal wajib menghasilkan log + sinyal gagal untuk monitoring.
+# Path tidak mengikuti nama instance; ia diatur per server di file env:
+#   /etc/esurat/<instance>.env berisi (baris "KEY=nilai", komentar di baris sendiri):
+#     PROJECT_DIR=/srv/esurat/app
+#     BACKUP_ROOT=/srv/esurat/data/backups
+# Instance bebas dinamai (company-a, esurat, ...). File wajib ada sebelum
+# start pertama: bila hilang, service gagal cepat dengan pesan di jurnal.
+EnvironmentFile=/etc/esurat/%i.env
+ExecStart=${PROJECT_DIR}/deploy/scripts/backup.sh
 SyslogIdentifier=esurat-backup-%i

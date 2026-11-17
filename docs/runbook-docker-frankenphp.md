@@ -484,11 +484,16 @@ password — lalu menghasilkan `BACKUP_ROOT/<stamp>/` berisi:
 Pasang sekali per server perusahaan:
 
 ```bash
-# 1. Salin unit ke systemd (PROJECT_DIR/BACKUP_ROOT sudah pas untuk
-#    layout /srv/esurat/<company>/...; %i = nama instance).
-sudo cp deploy/systemd/esurat-backup@.service deploy/systemd/esurat-backup@.timer /etc/systemd/system/
+# 1. File path per instance: KEY=nilai, komentar di baris sendiri.
+#    Nilainya harus cocok dengan layout server Anda (contoh: layout default §4).
+sudo install -m 644 /dev/null /etc/esurat/company-a.env   # mkdir dulu bila perlu
+sudo tee /etc/esurat/company-a.env > /dev/null <<'EOF'
+PROJECT_DIR=/srv/esurat/app
+BACKUP_ROOT=/srv/esurat/data/backups
+EOF
 
-# 2. Nama instance = nama direktori di bawah /srv/esurat, mis. "company-a".
+# 2. Salin unit ke systemd (nama instance = nama file env di /etc/esurat).
+sudo cp deploy/systemd/esurat-backup@.service deploy/systemd/esurat-backup@.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now esurat-backup@company-a.timer
 systemctl list-timers esurat-backup@*   # pukul 02:30 ± 15 menit, catch-up bila host mati
@@ -496,17 +501,30 @@ systemctl list-timers esurat-backup@*   # pukul 02:30 ± 15 menit, catch-up bila
 # 3. Paksa satu kali untuk memverifikasi jalur (tanpa menunggu jadwal):
 sudo systemctl start esurat-backup@company-a.service
 sudo journalctl -u esurat-backup@company-a.service -n 20
-ls /srv/esurat/company-a/data/backups/*/
+ls /srv/esurat/data/backups/*/
+```
+
+Contoh layout multi-perusahaan (`/srv/esurat/<company>/{app,data}`, §13) —
+satu file env per perusahaan, nama instance bebas:
+
+```bash
+# /etc/esurat/company-b.env
+PROJECT_DIR=/srv/esurat/company-b/app
+BACKUP_ROOT=/srv/esurat/company-b/data/backups
+```
+
+```bash
+sudo systemctl enable --now esurat-backup@company-b.timer
 ```
 
 Aturan lingkungan yang membuat skrip bekerja:
 
-- `PROJECT_DIR` (default `/srv/esurat/app`) dan `BACKUP_ROOT`
-  (default `/srv/esurat/data/backups`) di unit `%i` mengasumsikan layout
-  `/srv/esurat/<company>/{app,data}`; sesuaikan unit bila layout beda.
-- `DATA_PATH` dan `ESURAT_IMAGE` dibaca dari `.env`; wajib ada.
-- Retensi: `RETAIN_DAILY` (default 14 stamp) di `.env` unit `service` bila
-  perlu diubah; stamp lebih lama dihapus.
+- `PROJECT_DIR` dan `BACKUP_ROOT` diambil dari `/etc/esurat/<instance>.env`,
+  bukan dari nama instance — jadi layout apa pun bisa dipakai tanpa menyunting
+  unit. File wajib ada sebelum start pertama: service gagal cepat bila hilang.
+- `DATA_PATH` dan `ESURAT_IMAGE` dibaca dari `.env` project; wajib ada.
+- Retensi: `RETAIN_DAILY` (default 14 stamp) — tambahkan ke file env instance
+  bila perlu diubah; stamp lebih lama dihapus.
 - Database user `esurat@'localhost'` dengan hak
   `SELECT, LOCK TABLES, EVENT` pada database perusahaan (§2) — dump
   `--single-transaction` tidak butuh `ALL PRIVILEGES`.
@@ -653,7 +671,8 @@ tetap satu server per perusahaan.
 
 ## 15. Checklist go-live
 
-- [ ] `docker compose config` valid dan `.env` mode `600`.
+- [ ] File `/etc/esurat/<instance>.env` (PROJECT_DIR/BACKUP_ROOT) cocok dengan
+      layout server, dan timer `esurat-backup@<instance>` aktif.
 - [ ] `docker compose run --rm app php artisan company:validate-config` lulus.
 - [ ] `migrate --force` dan `db:seed --class=DatabaseSeeder` selesai tanpa error.
 - [ ] Seeder membuat `superadmin`/`password` (email kosong); password sudah diganti; tidak ada akun demo.
