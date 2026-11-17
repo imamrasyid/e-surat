@@ -493,6 +493,9 @@ BACKUP_ROOT=/srv/esurat/data/backups
 EOF
 
 # 2. Salin unit ke systemd (nama instance = nama file env di /etc/esurat).
+#    ExecStart memakai /bin/sh -c karena systemd tidak mengekspansi variabel
+#    pada argumen pertama (executable); shell yang membaca PROJECT_DIR dari
+#    file env lalu menjalankan deploy/scripts/backup.sh.
 sudo cp deploy/systemd/esurat-backup@.service deploy/systemd/esurat-backup@.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now esurat-backup@company-a.timer

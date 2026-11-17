@@ -12,5 +12,8 @@ Type=oneshot
 # Instance bebas dinamai (company-a, esurat, ...). File wajib ada sebelum
 # start pertama: bila hilang, service gagal cepat dengan pesan di jurnal.
 EnvironmentFile=/etc/esurat/%i.env
-ExecStart=${PROJECT_DIR}/deploy/scripts/backup.sh
+# Argumen pertama ExecStart wajib path literal (systemd tidak mengekspansi
+# variabel di posisi executable), jadi /bin/sh yang mengekspansikan
+# PROJECT_DIR dari file env di atas; $$ = dolar literal untuk shell.
+ExecStart=/bin/sh -c 'exec "$$PROJECT_DIR/deploy/scripts/backup.sh"'
 SyslogIdentifier=esurat-backup-%i
