@@ -525,12 +525,22 @@ Aturan lingkungan yang membuat skrip bekerja:
 - `PROJECT_DIR` dan `BACKUP_ROOT` diambil dari `/etc/esurat/<instance>.env`,
   bukan dari nama instance — jadi layout apa pun bisa dipakai tanpa menyunting
   unit. File wajib ada sebelum start pertama: service gagal cepat bila hilang.
+- **Kunci yang sudah ter-set di lingkungan menimpa `.env` project**: cukup
+  tambahkan `DB_HOST=localhost` ke `/etc/esurat/<instance>.env` bila MySQL
+  berjalan di host (nilai `.env` `host.docker.internal` hanya berarti di dalam
+  container). `DB_HOST=localhost` membuat `mysqldump` memakai Unix socket,
+  yang tidak tersentuh firewall/bind-address TCP. Kunci lain mengikuti aturan
+  yang sama.
 - `DATA_PATH` dan `ESURAT_IMAGE` dibaca dari `.env` project; wajib ada.
 - Retensi: `RETAIN_DAILY` (default 14 stamp) — tambahkan ke file env instance
   bila perlu diubah; stamp lebih lama dihapus.
 - Database user `esurat@'localhost'` dengan hak
   `SELECT, LOCK TABLES, EVENT` pada database perusahaan (§2) — dump
   `--single-transaction` tidak butuh `ALL PRIVILEGES`.
+- Bit executable `deploy/scripts/backup.sh` dibawa git (`100755`); checkout
+  di server jangan menghilangkannya. Bila file dimiliki root tanpa bit `x`,
+  `chmod +x deploy/scripts/backup.sh` sekali, atau cek dengan
+  `git ls-files -s deploy/scripts/backup.sh` (harus `100755`).
 - Skrip gagal keras (exit 1 + FATAL di jurnal) bila dump kosong/bukan dump;
   alarm monitoring baca exit non-zero `systemd` (`esurat-backup@*.service`).
 

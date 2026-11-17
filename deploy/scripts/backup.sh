@@ -43,13 +43,17 @@ while IFS='=' read -r key value; do
     [ -z "$key" ] && continue
     case "$key" in '#'*) continue ;; esac
     case "$key" in
-        DB_HOST)       DB_HOST="$value" ;;
-        DB_PORT)       DB_PORT="$value" ;;
-        DB_DATABASE)   DB_DATABASE="$value" ;;
-        DB_USERNAME)   DB_USERNAME="$value" ;;
-        DB_PASSWORD)   DB_PASSWORD="$value" ;;
-        ESURAT_IMAGE)  ESURAT_IMAGE="$value" ;;
-        DATA_PATH)     DATA_PATH="$value" ;;
+        # Lingkungan menang (mis. DB_HOST=localhost dari
+        # /etc/esurat/<instance>.env unit systemd); .env hanya fallback,
+        # karena nilai env aplikasi (host.docker.internal) tidak berarti
+        # di host.
+        DB_HOST)       DB_HOST="${DB_HOST:-$value}" ;;
+        DB_PORT)       DB_PORT="${DB_PORT:-$value}" ;;
+        DB_DATABASE)   DB_DATABASE="${DB_DATABASE:-$value}" ;;
+        DB_USERNAME)   DB_USERNAME="${DB_USERNAME:-$value}" ;;
+        DB_PASSWORD)   DB_PASSWORD="${DB_PASSWORD:-$value}" ;;
+        ESURAT_IMAGE)  ESURAT_IMAGE="${ESURAT_IMAGE:-$value}" ;;
+        DATA_PATH)     DATA_PATH="${DATA_PATH:-$value}" ;;
     esac
 done < "$PROJECT_DIR/.env"
 
