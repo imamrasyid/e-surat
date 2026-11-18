@@ -525,24 +525,30 @@ Aturan lingkungan yang membuat skrip bekerja:
 - `PROJECT_DIR` dan `BACKUP_ROOT` diambil dari `/etc/esurat/<instance>.env`,
   bukan dari nama instance — jadi layout apa pun bisa dipakai tanpa menyunting
   unit. File wajib ada sebelum start pertama: service gagal cepat bila hilang.
-- **Kunci yang sudah ter-set di lingkungan menimpa `.env` project**: cukup
-  tambahkan `DB_HOST=localhost` ke `/etc/esurat/<instance>.env` bila MySQL
-  berjalan di host (nilai `.env` `host.docker.internal` hanya berarti di dalam
-  container). `DB_HOST=localhost` membuat `mysqldump` memakai Unix socket,
-  yang tidak tersentuh firewall/bind-address TCP. Kunci lain mengikuti aturan
-  yang sama.
+- **Prioritas kredensial: lingkungan > `.env` project > default.** Nilai di
+  `/etc/esurat/<instance>.env` menang; `.env` dipakai untuk kunci yang belum
+  ter-set. Default `DB_HOST=localhost` (Unix socket — MySQL produksi biasanya
+  tidak membuka TCP `127.0.0.1`). Nilai `.env` `DB_HOST=host.docker.internal`
+  (alamat host _dari dalam_ container) otomatis diterjemahkan ke `localhost`
+  saat dijalankan di host; alamat host lain dipakai apa adanya.
+- `.env` dibaca dengan semantik dotenv Laravel: spasi di sekitar `=` dan
+  awalan `export ` diabaikan, kutip `'...'`/`"..."` dilepas, komentar inline
+  setelah spasi dibuang, CRLF/BOM dimaafkan, dan baris terakhir tanpa newline
+  tetap terbaca. `.env` tidak pernah dieksekusi sebagai shell.
 - `DATA_PATH` dan `ESURAT_IMAGE` dibaca dari `.env` project; wajib ada.
-- Retensi: `RETAIN_DAILY` (default 14 stamp) — tambahkan ke file env instance
-  bila perlu diubah; stamp lebih lama dihapus.
+- Password tidak muncul di `ps`: `mysqldump` menerimanya lewat `MYSQL_PWD`.
+  Backup memakai `umask 077` — direktori stamp `700`, isinya `600`.
+- Retensi: `RETAIN_DAILY` (default 14 stamp; nilai non-angka jatuh ke 14) —
+  tambahkan ke file env instance bila perlu diubah; stamp lebih lama dihapus,
+  dan stamp yang baru dibuat tidak pernah ikut terhapus.
 - Database user `esurat@'localhost'` dengan hak
   `SELECT, LOCK TABLES, EVENT` pada database perusahaan (§2) — dump
   `--single-transaction` tidak butuh `ALL PRIVILEGES`.
-- Bit executable `deploy/scripts/backup.sh` dibawa git (`100755`); checkout
-  di server jangan menghilangkannya. Bila file dimiliki root tanpa bit `x`,
-  `chmod +x deploy/scripts/backup.sh` sekali, atau cek dengan
-  `git ls-files -s deploy/scripts/backup.sh` (harus `100755`).
-- Skrip gagal keras (exit 1 + FATAL di jurnal) bila dump kosong/bukan dump;
-  alarm monitoring baca exit non-zero `systemd` (`esurat-backup@*.service`).
+- Unit menjalankan skrip lewat `/bin/sh`, jadi bit executable tidak lagi
+  wajib (tetap `100755` di git). Tidak perlu `chmod +x` di server.
+- Skrip gagal keras (exit 1 + FATAL di jurnal) bila dump kosong/bukan dump,
+  dan direktori stamp setengah jadi dihapus otomatis; alarm monitoring baca
+  exit non-zero `systemd` (`esurat-backup@*.service`).
 
 Sambil menunggu jadwal pertama, jalankan sekali manual dan buktikan isinya.
 
@@ -551,7 +557,7 @@ Sambil menunggu jadwal pertama, jalankan sekali manual dan buktikan isinya.
 ```bash
 # 1. Siapkan host staging dengan project compose dan DATA_PATH berbeda.
 # 2. Restore database.
-gunzip -c db.sql.gz | mysql -h 127.0.0.1 -u esurat -p esurat_company_a_staging
+gunzip -c db.sql.gz | mysql -h localhost -u esurat -p esurat_company_a_staging
 
 # 3. Restore storage.
 sudo rsync -a /path/backup/storage/ /srv/esurat-staging/data/storage/
@@ -574,7 +580,9 @@ mkdir -p /srv/esurat/data/backups/$STAMP
 
 # Database (MySQL/MariaDB). Jalankan dari host, non-interaktif:
 # `-p` berdiri sendiri berarti prompt interaktif — cron akan menggantung.
-mysqldump --host=127.0.0.1 --user=esurat --password='<password>' \
+# `localhost` = Unix socket; 127.0.0.1 butuh MySQL membuka TCP.
+# MYSQL_PWD menaruh password di environment, bukan argv yang terbaca `ps`.
+MYSQL_PWD='<password>' mysqldump --host=localhost --user=esurat \
   --single-transaction --routines --triggers \
   --result-file=/srv/esurat/data/backups/$STAMP/db.sql esurat_company_a
 gzip /srv/esurat/data/backups/$STAMP/db.sql

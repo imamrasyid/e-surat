@@ -13,7 +13,9 @@ Type=oneshot
 # start pertama: bila hilang, service gagal cepat dengan pesan di jurnal.
 EnvironmentFile=/etc/esurat/%i.env
 # Argumen pertama ExecStart wajib path literal (systemd tidak mengekspansi
-# variabel di posisi executable), jadi /bin/sh yang mengekspansikan
-# PROJECT_DIR dari file env di atas; $$ = dolar literal untuk shell.
-ExecStart=/bin/sh -c 'exec "$$PROJECT_DIR/deploy/scripts/backup.sh"'
+# variabel di posisi executable), jadi /bin/sh yang mengekspansi PROJECT_DIR
+# dari file env di atas; $$ = dolar literal untuk shell.
+# Skrip dipanggil lewat /bin/sh, bukan dieksekusi langsung: bit executable
+# yang hilang (checkout dari Windows) tidak lagi menggagalkan service.
+ExecStart=/bin/sh -c 'exec /bin/sh "$$PROJECT_DIR/deploy/scripts/backup.sh"'
 SyslogIdentifier=esurat-backup-%i
