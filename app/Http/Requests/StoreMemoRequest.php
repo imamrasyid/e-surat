@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Actions\Letter\AuthorizeFollowUpAction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,11 @@ class StoreMemoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return app(AuthorizeFollowUpAction::class)->handle(
+            $this->user(),
+            $this->input('letter_recipient_id'),
+            $this->input('letter_id_primary'),
+        );
     }
 
     /**

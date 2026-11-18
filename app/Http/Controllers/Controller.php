@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Letter\AuthorizeFollowUpAction;
 use App\Actions\Letter\GetLetterTimelineAction;
 use App\Models\Disposition;
 use App\Models\Letter;
@@ -22,20 +23,15 @@ abstract class Controller
 
     /**
      * Penciptaan disposisi/nota dinas hanya untuk surat yang benar-benar
-     * sampai di jabatan aktif user: penerima harus milik surat itu dan
-     * ditujukan ke jabatan aktifnya.
+     * sampai di jabatan aktif user: penerima surat asal, atau penerima
+     * disposisi/nota dinas (bukan tembusan) dalam rantai surat yang sama.
      */
     protected function authorizeFollowUp(Request $request, string|int $recipientId, Letter $letter): void
     {
-        $currentPosition = $request->user()?->currentPosition()->first();
-
-        $authorized = $currentPosition !== null
-            && LetterRecipient::query()
-                ->whereKey($recipientId)
-                ->where('letter_id', $letter->id)
-                ->where('to_position_id', $currentPosition->id)
-                ->exists();
-
-        abort_unless($authorized, 403, 'Anda tidak memiliki akses ke surat ini.');
+        abort_unless(
+            app(AuthorizeFollowUpAction::class)->handle($request->user(), $recipientId, $letter->id),
+            403,
+            'Anda tidak memiliki akses ke surat ini.'
+        );
     }
 }
