@@ -63,8 +63,8 @@ const fields = computed(() => {
         <div class="flex items-start space-x-4 text-sm lg:space-x-12">
             <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
             <dd>
-                <Badge v-if="letter.status === 'open'">Open</Badge>
-                <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600"> <BadgeCheck /> Close </Badge>
+                <Badge v-if="letter.status === 'open'">Terbuka</Badge>
+                <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600"> <BadgeCheck /> Selesai </Badge>
             </dd>
         </div>
     </dl>

@@ -104,7 +104,7 @@ function goToDetail(letter_id: string) {
                                 <TableCell class="align-top">{{ item.number ?? '-' }}</TableCell>
                                 <TableCell class="align-top">{{ item.subject }}</TableCell>
                                 <TableCell class="align-top">{{ formatDate(item.receipt_date) }}</TableCell>
-                                <TableCell class="align-top">{{ item.status === 'open' ? 'Open' : 'Close' }}</TableCell>
+                                <TableCell class="align-top">{{ item.status === 'open' ? 'Terbuka' : 'Selesai' }}</TableCell>
                             </TableRow>
                             <TableRow v-if="letters.data.length === 0">
                                 <TableCell colspan="7" class="text-muted-foreground text-center">Data tidak ditemukan.</TableCell>
