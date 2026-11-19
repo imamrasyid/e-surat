@@ -68,6 +68,10 @@ class CreateComposeLetterAction
                 'receipt_date' => $validated['tglDiterimaStr'],
                 'subject' => $validated['perihal'],
                 'category' => $validated['kategori'],
+                // Pemanggil Action lama belum mengirim metadata TNDE; nilai
+                // default menjaga surat lama tetap tercatat sebagai biasa.
+                'security_classification' => $validated['security_classification'] ?? 'B',
+                'received_via' => $validated['received_via'] ?? 'other',
                 'agenda' => $nomorAgenda,
                 'created_by' => $user->id,
             ]);

@@ -18,6 +18,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $receipt_date
  * @property string $subject
  * @property string $category
+ * @property string $security_classification
+ * @property string $received_via
  * @property string $agenda
  * @property string $type
  * @property string $status
@@ -35,6 +37,8 @@ use Illuminate\Support\Carbon;
     'receipt_date',
     'subject',
     'category',
+    'security_classification',
+    'received_via',
     'agenda',
     'type',
     'status',

@@ -24,10 +24,10 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useClearErrorsOnChange } from '@/composables/useClearErrorsOnChange';
 import { createDecades } from '@/composables/useDecades';
-import { categoryInbox } from '@/data/helpers';
+import { categoryInbox, letterReceivedVia, letterSecurityClassification } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
-import type { BreadcrumbItem, Position, RefKdKlasifikasi } from '@/types';
+import type { BreadcrumbItem, LetterReceivedVia, LetterSecurityClassification, Position, RefKdKlasifikasi } from '@/types';
 import { Head, InertiaForm, useForm } from '@inertiajs/vue3';
 import type { DateValue } from '@internationalized/date';
 import { DateFormatter, getLocalTimeZone, today } from '@internationalized/date';
@@ -64,6 +64,8 @@ type FormInput = {
     tglDiterimaStr: string | null;
     perihal: string;
     kategori: string;
+    security_classification: LetterSecurityClassification;
+    received_via: LetterReceivedVia;
     agenda: string;
     agendaTahun: string;
     penerima: { id: number; name: string }[];
@@ -81,6 +83,8 @@ const form: InertiaForm<FormInput> & {
     tglDiterimaStr: null,
     perihal: '',
     kategori: '',
+    security_classification: 'B',
+    received_via: 'email',
     agenda: '',
     agendaTahun: thisYear.value,
     penerima: [],
@@ -377,6 +381,43 @@ const onSubmit = () => {
                                             <InputError :message="form.errors.agendaTahun" />
                                         </div>
                                     </div>
+                                </div>
+                            </section>
+                            <section class="mt-6 max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
+                                <div class="grid gap-2 lg:basis-1/2">
+                                    <Label for="security_classification">Sifat/Klasifikasi Keamanan</Label>
+                                    <Select v-model="form.security_classification">
+                                        <SelectTrigger
+                                            id="security_classification"
+                                            :tabindex="12"
+                                            aria-label="Sifat klasifikasi keamanan"
+                                            class="w-full"
+                                        >
+                                            <SelectValue placeholder="Pilih klasifikasi" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectLabel>Sifat/klasifikasi keamanan</SelectLabel>
+                                            <SelectItem v-for="item in letterSecurityClassification" :key="item.value" :value="item.value">
+                                                {{ item.name }}
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError :message="form.errors.security_classification" />
+                                </div>
+                                <div class="grid gap-2 lg:basis-1/2">
+                                    <Label for="received_via">Sumber Penerimaan</Label>
+                                    <Select v-model="form.received_via">
+                                        <SelectTrigger id="received_via" :tabindex="13" aria-label="Sumber penerimaan" class="w-full">
+                                            <SelectValue placeholder="Pilih sumber penerimaan" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectLabel>Sumber penerimaan surat</SelectLabel>
+                                            <SelectItem v-for="item in letterReceivedVia" :key="item.value" :value="item.value">
+                                                {{ item.name }}
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError :message="form.errors.received_via" />
                                 </div>
                             </section>
                         </div>
