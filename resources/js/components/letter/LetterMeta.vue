@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { useFormattedDate } from '@/composables/useFormattedDate';
-import { categoryInbox } from '@/data/helpers';
+import { categoryInbox, letterReceivedVia, letterSecurityClassification } from '@/data/helpers';
 import type { Letter } from '@/types';
 import { BadgeCheck } from '@lucide/vue';
 import { computed } from 'vue';
@@ -17,6 +17,10 @@ const props = withDefaults(
 );
 
 const { formatDate } = useFormattedDate();
+
+function labelOf(options: { value: string; name: string }[], value?: string | null): string {
+    return options.find((option) => option.value === value)?.name ?? '-';
+}
 
 const fields = computed(() => {
     const items = [
@@ -34,6 +38,17 @@ const fields = computed(() => {
             value: categoryInbox.find((category) => category.value === props.letter.category)?.name ?? '-',
         });
     }
+
+    items.push(
+        {
+            label: 'Sifat/Klasifikasi Keamanan',
+            value: labelOf(letterSecurityClassification, props.letter.security_classification),
+        },
+        {
+            label: 'Sumber Penerimaan',
+            value: labelOf(letterReceivedVia, props.letter.received_via),
+        },
+    );
 
     return items;
 });
