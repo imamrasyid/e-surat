@@ -15,10 +15,13 @@ class ArsipController extends Controller
      */
     public function index(Request $request): Response
     {
+        $search = $request->input('search');
+        $search = is_string($search) ? $search : '';
+
         $letters = Letter::where('type', 'in')
             ->where('status', 'close')
             ->select('id', 'letter_id', 'category', 'agenda', 'sender', 'number', 'subject', 'receipt_date', 'status')
-            ->when($request->input('search'), function (Builder $query, string $search) {
+            ->when($search !== '', function (Builder $query) use ($search) {
                 $query->where(function (Builder $q) use ($search) {
                     $q->whereLike('agenda', '%'.$search.'%')
                         ->orWhereLike('sender', '%'.$search.'%')

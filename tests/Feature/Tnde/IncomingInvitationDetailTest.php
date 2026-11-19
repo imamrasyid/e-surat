@@ -108,3 +108,24 @@ it('returns the same detail contract for primary incoming letters', function () 
             ->where('letter.activities.0.user.name', $registrar->name)
         );
 });
+
+it('redirects a user from an unrelated position away from an invitation', function () {
+    $registrar = User::factory()->create();
+
+    [$letter, $recipient] = tndeDetailLetter('2', $registrar);
+
+    $outsiderPosition = Position::create(['name' => 'Bagian Lain', 'is_active' => true]);
+    $outsider = tndeDetailUserOn($outsiderPosition, 'undangan.show');
+
+    $this->actingAs($outsider)
+        ->get(route('inbox.undangan.show', [
+            'recipient' => $recipient->id,
+            'letter_id' => $letter->letter_id,
+        ]))
+        ->assertRedirect()
+        ->assertSessionHas(
+            'inertia.flash_data',
+            fn (array $flash) => $flash['toast']['type'] === 'error'
+                && $flash['toast']['message'] === 'Anda tidak memiliki akses ke surat ini.',
+        );
+});

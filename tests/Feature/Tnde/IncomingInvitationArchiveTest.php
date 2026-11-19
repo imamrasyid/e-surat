@@ -52,6 +52,12 @@ it('lists only closed incoming letters and supports search', function () {
     $closed = tndeArchiveLetter($registrar, ['agenda' => 'UND-2026-001']);
     tndeArchiveLetter($registrar, ['agenda' => 'UND-2026-002', 'status' => 'open']);
     tndeArchiveLetter($registrar, ['agenda' => 'OUT-2026-003', 'type' => 'out']);
+    tndeArchiveLetter($registrar, [
+        'agenda' => 'UND-2026-009',
+        'sender' => 'Dinas Lain',
+        'number' => '007/9999/2026',
+        'subject' => 'Lain hal',
+    ]);
 
     $this->actingAs($viewer)
         ->get(route('arsip.index', ['search' => 'Sekretariat Daerah']))
@@ -61,6 +67,16 @@ it('lists only closed incoming letters and supports search', function () {
             ->has('letters.data', 1)
             ->where('letters.data.0.letter_id', $closed->letter_id)
             ->where('letters.data.0.status', 'close')
+            ->where('letters.total', 1)
+        );
+
+    $this->actingAs($viewer)
+        ->get(route('arsip.index', ['search' => 'UND-2026-001']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('archive/Index')
+            ->has('letters.data', 1)
+            ->where('letters.data.0.letter_id', $closed->letter_id)
             ->where('letters.total', 1)
         );
 });
@@ -90,6 +106,10 @@ it('requires archive permission and allows a permitted user to preview its priva
 
     $this->actingAs(User::factory()->create())
         ->get(route('arsip.index'))
+        ->assertForbidden();
+
+    $this->actingAs(tndeArchiveUserWith('arsip.index'))
+        ->get(route('arsip.show', $letter->letter_id))
         ->assertForbidden();
 
     $archivist = tndeArchiveUserWith('arsip.index', 'arsip.show');

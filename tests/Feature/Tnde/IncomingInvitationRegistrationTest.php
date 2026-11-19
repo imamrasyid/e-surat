@@ -136,6 +136,15 @@ it('rejects an unsupported security class or inactive recipient', function () {
 
     expect(Letter::count())->toBe(0);
 
+    $this->actingAs($user)
+        ->post(route('app.compose.store'), [
+            ...tndeInvitationPayload($recipientPosition),
+            'received_via' => 'courier',
+        ])
+        ->assertSessionHasErrors('received_via');
+
+    expect(Letter::count())->toBe(0);
+
     $inactivePosition = Position::create(['name' => 'Jabatan Nonaktif', 'is_active' => false]);
 
     $this->actingAs($user)

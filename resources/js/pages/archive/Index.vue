@@ -61,9 +61,15 @@ function goToDetail(letter_id: string) {
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <Heading class="mb-0!" title="Arsip Surat" description="Arsip surat masuk yang telah ditutup" />
                 <InputGroup class="sm:max-w-62.5">
-                    <InputGroupInput id="search-archive-letter" v-model="search" placeholder="Cari" />
+                    <InputGroupInput
+                        id="search-archive-letter"
+                        v-model="search"
+                        aria-label="Cari arsip surat"
+                        autocomplete="off"
+                        placeholder="Cari"
+                    />
                     <InputGroupAddon>
-                        <Search />
+                        <Search aria-hidden="true" />
                     </InputGroupAddon>
                 </InputGroup>
             </div>

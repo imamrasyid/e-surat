@@ -389,7 +389,7 @@ const onSubmit = () => {
                                     <Select v-model="form.security_classification">
                                         <SelectTrigger
                                             id="security_classification"
-                                            :tabindex="12"
+                                            :tabindex="9"
                                             aria-label="Sifat klasifikasi keamanan"
                                             class="w-full"
                                         >
@@ -407,7 +407,7 @@ const onSubmit = () => {
                                 <div class="grid gap-2 lg:basis-1/2">
                                     <Label for="received_via">Sumber Penerimaan</Label>
                                     <Select v-model="form.received_via">
-                                        <SelectTrigger id="received_via" :tabindex="13" aria-label="Sumber penerimaan" class="w-full">
+                                        <SelectTrigger id="received_via" :tabindex="10" aria-label="Sumber penerimaan" class="w-full">
                                             <SelectValue placeholder="Pilih sumber penerimaan" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -443,7 +443,7 @@ const onSubmit = () => {
                                                     id="penerima"
                                                     type="button"
                                                     variant="outline"
-                                                    :tabindex="9"
+                                                    :tabindex="11"
                                                     :class="
                                                         cn(
                                                             'w-full justify-between font-normal whitespace-normal',
@@ -482,7 +482,7 @@ const onSubmit = () => {
                                 </div>
                                 <div class="grid gap-2">
                                     <Label for="catatan">Catatan</Label>
-                                    <Textarea id="catatan" :tabindex="10" v-model="form.catatan" placeholder="Masukkan catatan surat (Opsional)" />
+                                    <Textarea id="catatan" :tabindex="12" v-model="form.catatan" placeholder="Masukkan catatan surat (Opsional)" />
                                     <InputError :message="form.errors.catatan" />
                                 </div>
                             </section>
@@ -507,7 +507,7 @@ const onSubmit = () => {
                                     </div>
                                     <Button
                                         id="lampiran"
-                                        :tabindex="11"
+                                        :tabindex="13"
                                         type="button"
                                         size="icon-sm"
                                         class="rounded-full"
