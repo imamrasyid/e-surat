@@ -87,6 +87,14 @@ class Letter extends Model
     }
 
     /**
+     * @return HasMany<LetterActivity, $this>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(LetterActivity::class)->orderBy('created_at');
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function senderUser(): BelongsTo
