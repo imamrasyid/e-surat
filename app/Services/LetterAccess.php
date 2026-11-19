@@ -19,9 +19,10 @@ class LetterAccess
             return true;
         }
 
-        // Izin `sent.show` berarti boleh membaca surat perusahaan; Super Admin
-        // melewati Gate::before pada AppServiceProvider.
-        if ($user->can('sent.show')) {
+        // Izin `sent.show` dan `arsip.show` berarti boleh membaca surat
+        // perusahaan/arsip; Super Admin melewati Gate::before pada
+        // AppServiceProvider.
+        if ($user->can('sent.show') || $user->can('arsip.show')) {
             return true;
         }
 
