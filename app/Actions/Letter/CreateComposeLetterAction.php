@@ -14,7 +14,6 @@ use App\Services\InboxCountsCache;
 use App\Services\LetterActivityService;
 use App\Services\LetterDocStorage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -78,14 +77,12 @@ class CreateComposeLetterAction
                 'created_by' => $user->id,
             ]);
 
-            // Audit butuh aktor Auth; pemanggil non-HTTP tanpa sesi dilewati.
-            if (Auth::check()) {
-                LetterActivityService::log($letter->id, 'register_incoming', 'Mendaftarkan surat masuk', [
-                    'category' => $validated['kategori'],
-                    'security_classification' => $validated['security_classification'] ?? 'B',
-                    'received_via' => $validated['received_via'] ?? 'other',
-                ]);
-            }
+            // Audit selalu tercatat, termasuk pemanggil programatik tanpa sesi.
+            LetterActivityService::log($letter->id, 'register_incoming', 'Mendaftarkan surat masuk', [
+                'category' => $validated['kategori'],
+                'security_classification' => $validated['security_classification'] ?? 'B',
+                'received_via' => $validated['received_via'] ?? 'other',
+            ], $user->id);
 
             // INSERT PENERIMA
             foreach ($validated['penerima'] as $penerima) {

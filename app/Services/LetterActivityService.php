@@ -12,11 +12,16 @@ class LetterActivityService
      *
      * @param  array<string, mixed>|null  $changes
      */
-    public static function log(int $letterId, string $action, string $description, ?array $changes = null): LetterActivity
-    {
+    public static function log(
+        int $letterId,
+        string $action,
+        string $description,
+        ?array $changes = null,
+        ?int $userId = null
+    ): LetterActivity {
         return LetterActivity::create([
             'letter_id' => $letterId,
-            'user_id' => Auth::id(),
+            'user_id' => $userId ?? Auth::id(),
             'action' => $action,
             'description' => $description,
             'changes' => $changes,

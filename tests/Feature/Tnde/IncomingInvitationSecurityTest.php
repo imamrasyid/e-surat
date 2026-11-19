@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Letter\CreateComposeLetterAction;
 use App\Models\Letter;
 use App\Models\LetterDoc;
 use App\Models\LetterRecipient;
@@ -115,6 +116,29 @@ it('records registration and read activities for an invitation', function () {
         ->assertOk();
 
     expect($letter->activities()->where('action', 'read_inbox')->count())->toBe(1);
+});
+
+it('records registration for a direct action call using its actor', function () {
+    Storage::fake('local');
+    config(['filesystems.default' => 'local', 'company.features' => []]);
+
+    [$registrar, $registrarPosition, $targetPosition] = tndeSecurityRegistrar();
+
+    $payload = tndeSecurityPayload($targetPosition);
+    $lampiran = $payload['lampiran'];
+    unset($payload['lampiran']);
+
+    $letter = app(CreateComposeLetterAction::class)
+        ->handle($registrar, $registrarPosition, $payload, $lampiran);
+
+    $registration = $letter->activities()->where('action', 'register_incoming')->sole();
+
+    expect($registration->user_id)->toBe($registrar->id)
+        ->and($registration->changes)->toMatchArray([
+            'category' => '2',
+            'security_classification' => 'T',
+            'received_via' => 'email',
+        ]);
 });
 
 it('does not send external notifications for restricted invitations', function () {
