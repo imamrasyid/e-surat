@@ -84,7 +84,7 @@ const form: InertiaForm<FormInput> & {
     perihal: '',
     kategori: '',
     security_classification: 'B',
-    received_via: 'email',
+    received_via: 'internal',
     agenda: '',
     agendaTahun: thisYear.value,
     penerima: [],
@@ -385,7 +385,7 @@ const onSubmit = () => {
                             </section>
                             <section class="mt-6 max-w-2xl items-start space-y-6 lg:flex lg:flex-auto lg:space-y-0 lg:space-x-6">
                                 <div class="grid gap-2 lg:basis-1/2">
-                                    <Label for="security_classification">Sifat/Klasifikasi Keamanan</Label>
+                                    <Label for="security_classification">Sifat Surat</Label>
                                     <Select v-model="form.security_classification">
                                         <SelectTrigger
                                             id="security_classification"

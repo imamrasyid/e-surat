@@ -41,7 +41,7 @@ const fields = computed(() => {
 
     items.push(
         {
-            label: 'Sifat/Klasifikasi Keamanan',
+            label: 'Sifat Surat',
             value: labelOf(letterSecurityClassification, props.letter.security_classification),
         },
         {
