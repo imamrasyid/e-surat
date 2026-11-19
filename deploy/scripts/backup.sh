@@ -137,8 +137,10 @@ if ! MYSQL_PWD="$DB_PASSWORD" mysqldump \
 fi
 
 # Dump valid selalu memuat header mysqldump; tanpa ini, pesan error koneksi
-# bisa lolos sebagai "dump".
-if [ ! -s "$OUT/db.sql" ] || ! grep -q 'MySQL dump' "$OUT/db.sql"; then
+# bisa lolos sebagai "dump". Header mengikuti versi KLIEN: "MySQL dump" untuk
+# Oracle MySQL, "MariaDB dump" untuk klien MariaDB (header MariaDB >= 11 juga
+# didahului baris /*M!999999 ... */).
+if [ ! -s "$OUT/db.sql" ] || ! grep -qE '(MySQL|MariaDB) dump' "$OUT/db.sql"; then
     echo "FATAL: hasil dump kosong atau bukan dump MySQL; backup dibatalkan." >&2
     exit 1
 fi
