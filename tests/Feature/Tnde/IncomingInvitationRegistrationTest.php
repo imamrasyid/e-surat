@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Letter\CreateComposeLetterAction;
 use App\Models\Letter;
 use App\Models\LetterDoc;
 use App\Models\LetterRecipient;
@@ -85,6 +86,39 @@ it('registers an incoming invitation with TNDE metadata and the existing agenda 
         ->and($doc->url)->toBeNull();
 
     Storage::disk('local')->assertExists((string) $doc->path);
+});
+
+it('defaults legacy direct Action callers to B and other', function () {
+    Storage::fake('local');
+    config(['filesystems.default' => 'local', 'company.features' => []]);
+
+    [$user, $senderPosition, $recipientPosition] = tndeRegistrar();
+
+    $letter = app(CreateComposeLetterAction::class)->handle(
+        $user,
+        $senderPosition,
+        [
+            'pengirim' => 'Sekretariat Daerah',
+            'nomor' => '005/1234/2026',
+            'tglSuratStr' => '2026-11-01',
+            'tglDiterimaStr' => '2026-11-02',
+            'perihal' => 'Undangan Rapat Koordinasi TNDE',
+            'kategori' => '2',
+            'agenda' => 'UND',
+            'agendaTahun' => '2026',
+            'penerima' => [
+                ['id' => $recipientPosition->id, 'name' => $recipientPosition->name],
+            ],
+        ],
+        [UploadedFile::fake()->createWithContent('undangan.pdf', '%PDF-1.4 isi undangan')],
+    );
+
+    $persisted = Letter::findOrFail($letter->id);
+
+    expect($persisted->type)->toBe('in')
+        ->and($persisted->category)->toBe('2')
+        ->and($persisted->security_classification)->toBe('B')
+        ->and($persisted->received_via)->toBe('other');
 });
 
 it('rejects an unsupported security class or inactive recipient', function () {
