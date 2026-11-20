@@ -7,6 +7,7 @@ use App\Models\LetterRecipient;
 use App\Models\Position;
 use App\Models\RefKdKlasifikasi;
 use App\Models\User;
+use App\Notifications\InboxItemNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -154,7 +155,12 @@ it('does not send external notifications for restricted invitations', function (
         ->post(route('app.compose.store'), tndeSecurityPayload($targetPosition, 'R', 'email'))
         ->assertSessionHasNoErrors();
 
-    Notification::assertNothingSent();
+    // Riwayat database tetap dibuat untuk user internal; hanya kanal eksternal
+    // (email/Telegram) yang dilarang untuk klasifikasi R.
+    Notification::assertSentTo($targetUser, InboxItemNotification::class, function (InboxItemNotification $notification, array $channels) use ($targetUser) {
+        return $channels === ['database']
+            && $notification->toDatabase($targetUser)['security_classification'] === 'R';
+    });
 
     expect(LetterRecipient::sole()->read_at)->toBeNull()
         ->and(Letter::sole()->security_classification)->toBe('R');
