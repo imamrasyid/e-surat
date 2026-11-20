@@ -391,12 +391,12 @@ docker compose exec app php artisan queue:failed
 
 Troubleshooting:
 
-| Gejala                        | Penyebab                                      | Tindakan                                                            |
-| ----------------------------- | --------------------------------------------- | ------------------------------------------------------------------- |
-| Tombol aktivasi tidak muncul  | feature/VAPID/HTTPS tidak lengkap             | lengkapi `COMPANY_FEATURES=webpush`, VAPID, dan `APP_URL` HTTPS domain |
-| Izin browser ditolak          | pengguna menolak / browser tanpa Push API     | aktifkan lewat pengaturan situs; database tetap berfungsi            |
-| Push tidak diterima           | subscription hilang atau kunci VAPID berubah  | aktifkan ulang dari Sheet; jangan rotasi VAPID sembarangan          |
-| Bell tidak menampilkan badge  | tidak ada notification unread                 | buat surat/disposisi baru; cek worker dan tabel `notifications`     |
+| Gejala                       | Penyebab                                     | Tindakan                                                               |
+| ---------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
+| Tombol aktivasi tidak muncul | feature/VAPID/HTTPS tidak lengkap            | lengkapi `COMPANY_FEATURES=webpush`, VAPID, dan `APP_URL` HTTPS domain |
+| Izin browser ditolak         | pengguna menolak / browser tanpa Push API    | aktifkan lewat pengaturan situs; database tetap berfungsi              |
+| Push tidak diterima          | subscription hilang atau kunci VAPID berubah | aktifkan ulang dari Sheet; jangan rotasi VAPID sembarangan             |
+| Bell tidak menampilkan badge | tidak ada notification unread                | buat surat/disposisi baru; cek worker dan tabel `notifications`        |
 
 ## 8. Webhook Telegram
 
