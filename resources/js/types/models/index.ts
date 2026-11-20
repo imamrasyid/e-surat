@@ -7,6 +7,7 @@ export * from './letter-followup';
 export * from './letter-recipient';
 export * from './memo';
 export * from './model-has-special-disposition';
+export * from './notification';
 export * from './pagination';
 export * from './permission';
 export * from './position';

@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Position;
 use App\Services\CompanyFeature;
 use App\Services\InboxCountsCache;
+use App\Services\NotificationCenter;
 use App\Services\PermissionsCache;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
@@ -133,6 +134,22 @@ class HandleInertiaRequests extends Middleware
             // Status feature untuk UX saja; enforcement tetap di route,
             // controller/Action, dan notification.
             'features' => fn (): array => app(CompanyFeature::class)->known(),
+            'notificationCenter' => function () use ($request): array {
+                if (! $request->user()) {
+                    return [
+                        'unread_count' => 0,
+                        'latest' => [],
+                        'web_push' => ['enabled' => false, 'public_key' => null],
+                    ];
+                }
+
+                $center = app(NotificationCenter::class);
+
+                return [
+                    ...$center->summary($request->user()),
+                    'web_push' => $center->webPushProps(),
+                ];
+            },
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

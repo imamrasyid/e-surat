@@ -1,5 +1,6 @@
 import type { LucideIcon } from '@lucide/vue';
 import type { Config } from 'ziggy-js';
+import type { NotificationCenterProps } from './models/notification';
 import type { User } from './models/user';
 
 export type Appearance = 'light' | 'dark' | 'system';
@@ -53,6 +54,7 @@ export type AppPageProps<T extends Record<string, unknown> = Record<string, unkn
     auth: Auth;
     inbox: { primary: number; undangan: number; disposisi: number; memo: number };
     features: Record<string, boolean>;
+    notificationCenter: NotificationCenterProps;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
 };
