@@ -11,6 +11,7 @@ use App\Models\RefAgendaSurat;
 use App\Models\RefKdKlasifikasi;
 use App\Models\User;
 use App\Services\InboxCountsCache;
+use App\Services\LetterActivityService;
 use App\Services\LetterDocStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -68,9 +69,20 @@ class CreateComposeLetterAction
                 'receipt_date' => $validated['tglDiterimaStr'],
                 'subject' => $validated['perihal'],
                 'category' => $validated['kategori'],
+                // Pemanggil Action lama belum mengirim metadata TNDE; nilai
+                // default menjaga surat lama tetap tercatat sebagai biasa.
+                'security_classification' => $validated['security_classification'] ?? 'B',
+                'received_via' => $validated['received_via'] ?? 'other',
                 'agenda' => $nomorAgenda,
                 'created_by' => $user->id,
             ]);
+
+            // Audit selalu tercatat, termasuk pemanggil programatik tanpa sesi.
+            LetterActivityService::log($letter->id, 'register_incoming', 'Mendaftarkan surat masuk', [
+                'category' => $validated['kategori'],
+                'security_classification' => $validated['security_classification'] ?? 'B',
+                'received_via' => $validated['received_via'] ?? 'other',
+            ], $user->id);
 
             // INSERT PENERIMA
             foreach ($validated['penerima'] as $penerima) {

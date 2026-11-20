@@ -93,7 +93,7 @@ function goToDetail(letter_id: string) {
                                         {{ item.subject }}
                                     </p>
                                 </TableCell>
-                                <TableCell class="align-top">{{ item.status == 'open' ? 'Open' : 'Close' }}</TableCell>
+                                <TableCell class="align-top">{{ item.status == 'open' ? 'Terbuka' : 'Selesai' }}</TableCell>
                                 <TableCell class="text-right align-top whitespace-nowrap">
                                     {{ formatCreate(item.created_at) }}
                                 </TableCell>

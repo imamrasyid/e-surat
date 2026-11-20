@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreComposeRequest extends FormRequest
 {
@@ -29,10 +30,12 @@ class StoreComposeRequest extends FormRequest
             'tglDiterimaStr' => ['required', 'date_format:Y-m-d'],
             'perihal' => ['required', 'string', 'max:255'],
             'kategori' => ['required', 'digits:1'],
+            'security_classification' => ['required', 'in:SR,R,T,B'],
+            'received_via' => ['required', 'in:email,physical,internal,other'],
             'agenda' => ['required', 'exists:ref_kode_klasifikasi_arsip,kode'],
             'agendaTahun' => ['required', 'digits:4'],
             'penerima' => ['required', 'array', 'min:1'],
-            'penerima.*.id' => ['required', 'integer'],
+            'penerima.*.id' => ['required', 'integer', Rule::exists('positions', 'id')->where('is_active', true)],
             'penerima.*.name' => ['required', 'string'],
             'catatan' => ['nullable', 'string'],
             'lampiran' => ['required', 'array', 'min:1'],
@@ -62,6 +65,10 @@ class StoreComposeRequest extends FormRequest
             'perihal.max' => 'Perihal surat maksimal 255 karakter.',
             'kategori.required' => 'Kategori surat wajib dipilih.',
             'kategori.digits' => 'Kategori surat tidak valid.',
+            'security_classification.required' => 'Sifat/klasifikasi keamanan wajib dipilih.',
+            'security_classification.in' => 'Sifat/klasifikasi keamanan tidak valid.',
+            'received_via.required' => 'Sumber penerimaan surat wajib dipilih.',
+            'received_via.in' => 'Sumber penerimaan surat tidak valid.',
             'agenda.required' => 'Kode klasifikasi agenda wajib dipilih.',
             'agenda.exists' => 'Kode klasifikasi agenda yang dipilih tidak valid.',
             'agendaTahun.required' => 'Tahun agenda wajib diisi.',
@@ -71,6 +78,7 @@ class StoreComposeRequest extends FormRequest
             'penerima.min' => 'Penerima surat minimal 1 jabatan.',
             'penerima.*.id.required' => 'ID penerima wajib disertakan.',
             'penerima.*.id.integer' => 'ID penerima harus berupa angka.',
+            'penerima.*.id.exists' => 'Jabatan penerima tidak ditemukan atau tidak aktif.',
             'penerima.*.name.required' => 'Nama jabatan penerima wajib disertakan.',
             'lampiran.required' => 'Lampiran file surat wajib diunggah minimal satu file.',
             'lampiran.array' => 'Daftar lampiran harus berupa array file.',

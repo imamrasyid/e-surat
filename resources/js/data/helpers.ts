@@ -9,6 +9,45 @@ const categoryInbox = [
     },
 ];
 
+// Sifat/klasifikasi keamanan TNDE; B berarti Biasa/Terbuka.
+const letterSecurityClassification = [
+    {
+        value: 'SR',
+        name: 'Sangat Rahasia',
+    },
+    {
+        value: 'R',
+        name: 'Rahasia',
+    },
+    {
+        value: 'T',
+        name: 'Terbatas',
+    },
+    {
+        value: 'B',
+        name: 'Biasa/Terbuka',
+    },
+];
+
+const letterReceivedVia = [
+    {
+        value: 'email',
+        name: 'Email',
+    },
+    {
+        value: 'physical',
+        name: 'Fisik',
+    },
+    {
+        value: 'internal',
+        name: 'Internal',
+    },
+    {
+        value: 'other',
+        name: 'Lainnya',
+    },
+];
+
 const isActiveHelper = [
     {
         value: 1,
@@ -35,4 +74,4 @@ const statusHelper = [
     },
 ];
 
-export { categoryInbox, isActiveHelper, statusHelper };
+export { categoryInbox, isActiveHelper, letterReceivedVia, letterSecurityClassification, statusHelper };

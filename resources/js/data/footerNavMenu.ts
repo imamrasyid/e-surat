@@ -14,7 +14,7 @@ const footerNavItems: NavItem[] = [
         href: 'arsip.index',
         icon: Archive,
         current: 'arsip.*',
-        permission: 'arsip',
+        permission: 'arsip.index',
     },
 ];
 

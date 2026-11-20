@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge';
 import { useFormattedDate } from '@/composables/useFormattedDate';
-import { categoryInbox } from '@/data/helpers';
+import { categoryInbox, letterReceivedVia, letterSecurityClassification } from '@/data/helpers';
 import type { Letter } from '@/types';
 import { BadgeCheck } from '@lucide/vue';
 import { computed } from 'vue';
@@ -17,6 +17,10 @@ const props = withDefaults(
 );
 
 const { formatDate } = useFormattedDate();
+
+function labelOf(options: { value: string; name: string }[], value?: string | null): string {
+    return options.find((option) => option.value === value)?.name ?? '-';
+}
 
 const fields = computed(() => {
     const items = [
@@ -35,6 +39,17 @@ const fields = computed(() => {
         });
     }
 
+    items.push(
+        {
+            label: 'Sifat Surat',
+            value: labelOf(letterSecurityClassification, props.letter.security_classification),
+        },
+        {
+            label: 'Sumber Penerimaan',
+            value: labelOf(letterReceivedVia, props.letter.received_via),
+        },
+    );
+
     return items;
 });
 </script>
@@ -48,8 +63,8 @@ const fields = computed(() => {
         <div class="flex items-start space-x-4 text-sm lg:space-x-12">
             <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
             <dd>
-                <Badge v-if="letter.status === 'open'">Open</Badge>
-                <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600"> <BadgeCheck /> Close </Badge>
+                <Badge v-if="letter.status === 'open'">Terbuka</Badge>
+                <Badge v-else variant="secondary" class="bg-blue-500 text-white dark:bg-blue-600"> <BadgeCheck /> Selesai </Badge>
             </dd>
         </div>
     </dl>

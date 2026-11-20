@@ -44,6 +44,11 @@ class InboxItemNotification extends Notification implements ShouldQueue
             return [];
         }
 
+        // Surat berklasifikasi SR/R/T tidak boleh bocor lewat kanal eksternal.
+        if ($this->restricted()) {
+            return [];
+        }
+
         $channels = [];
 
         if (app(CompanyFeature::class)->enabled('email') && filled($notifiable->routeNotificationFor('mail'))) {
@@ -124,6 +129,10 @@ class InboxItemNotification extends Notification implements ShouldQueue
         $subject = filled($letter?->subject) ? (string) $letter->subject : '(tanpa perihal)';
         $letterId = $letter === null ? '' : (string) $letter->letter_id;
 
+        if ($this->restricted()) {
+            $subject = '(perihal dirahasiakan)';
+        }
+
         if ($item instanceof LetterRecipient) {
             $undangan = $letter?->category === '2';
 
@@ -164,6 +173,10 @@ class InboxItemNotification extends Notification implements ShouldQueue
      */
     private function sender(): ?string
     {
+        if ($this->restricted()) {
+            return null;
+        }
+
         $item = $this->item;
 
         if ($item instanceof LetterRecipient) {
@@ -171,5 +184,16 @@ class InboxItemNotification extends Notification implements ShouldQueue
         }
 
         return filled($item->fromPosition?->name) ? (string) $item->fromPosition->name : null;
+    }
+
+    /**
+     * Klasifikasi selain Biasa/Terbuka tidak boleh keluar lewat email/Telegram.
+     */
+    private function restricted(): bool
+    {
+        $this->item->loadMissing('letter');
+        $classification = $this->item->letter?->security_classification;
+
+        return in_array($classification, ['SR', 'R', 'T'], true);
     }
 }

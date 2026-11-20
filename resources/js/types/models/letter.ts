@@ -7,6 +7,8 @@ import type { User } from './user';
 
 export type LetterType = 'in' | 'out';
 export type LetterStatus = 'open' | 'close';
+export type LetterSecurityClassification = 'SR' | 'R' | 'T' | 'B';
+export type LetterReceivedVia = 'email' | 'physical' | 'internal' | 'other';
 
 export interface Letter {
     id: number;
@@ -17,6 +19,8 @@ export interface Letter {
     receipt_date: string; // ISO datetime string
     subject: string;
     category: string;
+    security_classification: LetterSecurityClassification;
+    received_via: LetterReceivedVia;
     agenda: string;
     type: LetterType;
     status: LetterStatus;

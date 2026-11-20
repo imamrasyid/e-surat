@@ -39,7 +39,7 @@ class PrimaryController extends Controller
             ->select('id', 'letter_id', 'received_at', 'read_at')
             ->where('to_position_id', $currentPosition->id)
             ->with(['letter' => function ($query) {
-                $query->select('id', 'letter_id', 'agenda', 'sender', 'number', 'subject');
+                $query->select('id', 'letter_id', 'agenda', 'sender', 'number', 'subject', 'security_classification', 'received_via');
             }])
             ->with(['activityDispo', 'activityMemo'])
             ->whereHas('letter', function (Builder $query) {
@@ -128,6 +128,7 @@ class PrimaryController extends Controller
             'senderUser:id,name',
             'recipients:id,letter_id,from_position_id,to_position_id,instruction,received_at,read_at',
             'docs:id,letter_id,name',
+            'activities.user:id,name',
         ])->firstOrFail();
 
         return Inertia::render('app/primary/Show', [

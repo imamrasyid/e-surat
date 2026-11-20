@@ -18,6 +18,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $receipt_date
  * @property string $subject
  * @property string $category
+ * @property string $security_classification
+ * @property string $received_via
  * @property string $agenda
  * @property string $type
  * @property string $status
@@ -35,6 +37,8 @@ use Illuminate\Support\Carbon;
     'receipt_date',
     'subject',
     'category',
+    'security_classification',
+    'received_via',
     'agenda',
     'type',
     'status',
@@ -80,6 +84,14 @@ class Letter extends Model
     public function docs(): HasMany
     {
         return $this->hasMany(LetterDoc::class)->where('is_active', true);
+    }
+
+    /**
+     * @return HasMany<LetterActivity, $this>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(LetterActivity::class)->orderBy('created_at');
     }
 
     /**

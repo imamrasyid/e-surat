@@ -2,6 +2,7 @@
 import DialogTimeline from '@/components/DialogTimeline.vue';
 import Heading from '@/components/Heading.vue';
 import LetterActions from '@/components/letter/LetterActions.vue';
+import LetterAuditTimeline from '@/components/letter/LetterAuditTimeline.vue';
 import LetterDocs from '@/components/letter/LetterDocs.vue';
 import LetterMeta from '@/components/letter/LetterMeta.vue';
 import LetterRecipientTable from '@/components/letter/LetterRecipientTable.vue';
@@ -66,6 +67,7 @@ function goBack() {
             <LetterMeta :letter="letter" />
             <LetterRecipientTable :recipients="letter.recipients ?? []" @open="openTimeline" />
             <LetterDocs :docs="letter.docs ?? []" />
+            <LetterAuditTimeline :activities="letter.activities ?? []" />
         </div>
 
         <DialogTimeline v-model:open-dialog="isTimelineOpen" :data="timelineData" />
