@@ -185,7 +185,7 @@ Isi minimal yang wajib benar:
 
 ```dotenv
 COMPANY_KEY=company-a
-# Feature opsional: email, telegram. Kosong = semua feature mati.
+# Feature opsional: email, telegram, webpush. Kosong = semua feature mati.
 COMPANY_FEATURES=
 COMPANY_RULESET=default
 
@@ -335,6 +335,68 @@ docker compose run --rm app php artisan queue:work --once --queue=notifications,
 `company:validate-config` menolak feature `email` bila mailer masih `log` atau
 `array`, atau `MAIL_FROM_ADDRESS` kosong. Worker harus berjalan agar notifikasi
 diproses.
+
+### Mengaktifkan notifikasi browser (Web Push)
+
+Riwayat notifikasi internal (bell + `/notifications`) selalu aktif tanpa
+feature. Web Push opsional dan hanya ditawarkan bila `APP_URL` HTTPS pada
+domain nyata (bukan alamat IP), `COMPANY_FEATURES` memuat `webpush`, dan ketiga
+kunci VAPID terisi.
+
+```dotenv
+# APP_URL wajib domain nyata dengan TLS, mis. https://esurat.company-a.example.com
+COMPANY_FEATURES=webpush
+VAPID_SUBJECT=mailto:ops@company-a.example.com
+VAPID_PUBLIC_KEY=<public key>
+VAPID_PRIVATE_KEY=<private key>
+```
+
+Buat kunci sekali per environment, simpan di secret manager, lalu jangan
+merotasinya tanpa alasan — kunci baru membatalkan seluruh subscription browser:
+
+```bash
+cd /srv/esurat/app
+docker compose run --rm app php artisan webpush:vapid
+```
+
+Terapkan:
+
+```bash
+# 1. Isi VAPID_* di .env, lalu validasi; gagal = berhenti.
+docker compose run --rm app php artisan company:validate-config
+
+# 2. Tabel notifications + push_subscriptions.
+docker compose run --rm app php artisan migrate --force
+
+# 3. Muat ulang config cache dan nyalakan app + worker.
+docker compose run --rm app php artisan config:cache
+docker compose up -d --remove-orphans
+
+# 4. Pastikan worker memproses queue notifications.
+docker compose exec app php artisan queue:failed
+```
+
+Lalu dari browser: login, buka bell → **Sheet pemberitahuan** → tekan
+**Aktifkan notifikasi browser** dan izinkan. Prompt izin tidak muncul otomatis
+saat page load. Bila `APP_URL` memakai IP atau HTTP, tombol aktivasi tidak
+ditampilkan dan notifikasi database tetap berfungsi.
+
+Verifikasi server:
+
+```bash
+docker compose exec app php artisan about --only=environment
+docker compose exec app php artisan company:validate-config
+docker compose exec app php artisan queue:failed
+```
+
+Troubleshooting:
+
+| Gejala                        | Penyebab                                      | Tindakan                                                            |
+| ----------------------------- | --------------------------------------------- | ------------------------------------------------------------------- |
+| Tombol aktivasi tidak muncul  | feature/VAPID/HTTPS tidak lengkap             | lengkapi `COMPANY_FEATURES=webpush`, VAPID, dan `APP_URL` HTTPS domain |
+| Izin browser ditolak          | pengguna menolak / browser tanpa Push API     | aktifkan lewat pengaturan situs; database tetap berfungsi            |
+| Push tidak diterima           | subscription hilang atau kunci VAPID berubah  | aktifkan ulang dari Sheet; jangan rotasi VAPID sembarangan          |
+| Bell tidak menampilkan badge  | tidak ada notification unread                 | buat surat/disposisi baru; cek worker dan tabel `notifications`     |
 
 ## 8. Webhook Telegram
 

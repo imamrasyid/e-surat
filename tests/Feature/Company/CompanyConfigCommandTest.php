@@ -8,7 +8,7 @@ function baseCompanyConfig(array $overrides = []): void
     config(array_merge([
         'company.key' => 'company-a',
         'company.features' => [],
-        'company.known_features' => ['email', 'telegram'],
+        'company.known_features' => ['email', 'telegram', 'webpush'],
         'company.feature_requirements' => [
             'email' => [
                 'required' => ['mail.from.address'],
@@ -19,6 +19,13 @@ function baseCompanyConfig(array $overrides = []): void
                     'services.telegram.bot_token',
                     'services.telegram.bot_username',
                     'services.telegram.webhook_secret',
+                ],
+            ],
+            'webpush' => [
+                'required' => [
+                    'webpush.vapid.subject',
+                    'webpush.vapid.public_key',
+                    'webpush.vapid.private_key',
                 ],
             ],
         ],
@@ -118,5 +125,31 @@ it('passes for an active telegram feature with complete credentials', function (
 
     $this->artisan('company:validate-config')
         ->expectsOutputToContain('features=telegram')
+        ->assertSuccessful();
+});
+
+it('requires the vapid keys when webpush is active', function () {
+    baseCompanyConfig(['company.features' => ['webpush']]);
+    config([
+        'webpush.vapid.subject' => null,
+        'webpush.vapid.public_key' => null,
+        'webpush.vapid.private_key' => null,
+    ]);
+
+    $this->artisan('company:validate-config')
+        ->expectsOutputToContain('webpush.vapid.subject belum diisi')
+        ->assertExitCode(1);
+});
+
+it('passes for an active webpush feature with complete vapid keys', function () {
+    baseCompanyConfig(['company.features' => ['webpush']]);
+    config([
+        'webpush.vapid.subject' => 'mailto:ops@company-a.test',
+        'webpush.vapid.public_key' => 'public-key',
+        'webpush.vapid.private_key' => 'private-key',
+    ]);
+
+    $this->artisan('company:validate-config')
+        ->expectsOutputToContain('features=webpush')
         ->assertSuccessful();
 });

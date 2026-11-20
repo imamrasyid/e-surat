@@ -35,6 +35,7 @@ return [
     'known_features' => [
         'email',
         'telegram',
+        'webpush',
     ],
 
     'feature_requirements' => [
@@ -54,6 +55,17 @@ return [
                 'services.telegram.bot_token',
                 'services.telegram.bot_username',
                 'services.telegram.webhook_secret',
+            ],
+        ],
+
+        // Web Push juga mensyaratkan APP_URL HTTPS pada hostname DNS; syarat
+        // runtime itu diperiksa CompanyFeature::webPushEligible() agar tenant
+        // HTTP/IP tetap memakai notifikasi database.
+        'webpush' => [
+            'required' => [
+                'webpush.vapid.subject',
+                'webpush.vapid.public_key',
+                'webpush.vapid.private_key',
             ],
         ],
     ],

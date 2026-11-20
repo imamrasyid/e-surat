@@ -13,6 +13,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class InboxItemNotification extends Notification implements ShouldQueue
 {
@@ -44,12 +46,17 @@ class InboxItemNotification extends Notification implements ShouldQueue
             return [];
         }
 
-        // Surat berklasifikasi SR/R/T tidak boleh bocor lewat kanal eksternal.
-        if ($this->restricted()) {
-            return [];
+        // Riwayat internal selalu tersimpan, termasuk untuk SR/R/T.
+        $channels = ['database'];
+
+        if (app(CompanyFeature::class)->webPushEligible() && $notifiable->pushSubscriptions()->exists()) {
+            $channels[] = WebPushChannel::class;
         }
 
-        $channels = [];
+        // Surat berklasifikasi SR/R/T tidak boleh bocor lewat kanal eksternal.
+        if ($this->restricted()) {
+            return $channels;
+        }
 
         if (app(CompanyFeature::class)->enabled('email') && filled($notifiable->routeNotificationFor('mail'))) {
             $channels[] = 'mail';
@@ -68,9 +75,47 @@ class InboxItemNotification extends Notification implements ShouldQueue
     public function viaQueues(): array
     {
         return [
+            'database' => self::QUEUE,
+            WebPushChannel::class => self::QUEUE,
             'mail' => self::QUEUE,
             TelegramChannel::class => self::QUEUE,
         ];
+    }
+
+    /**
+     * Baris riwayat internal yang dibaca halaman /notifications dan bell.
+     *
+     * @return array<string, string>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        $context = $this->context();
+
+        return [
+            'title' => $context['label'],
+            'body' => $context['subject'],
+            'url' => $context['url'],
+            'item_type' => $this->itemType(),
+            'security_classification' => $this->classification(),
+            'received_via' => $this->receivedVia(),
+        ];
+    }
+
+    public function toWebPush(object $notifiable, object $notification): WebPushMessage
+    {
+        $context = $this->context();
+        $message = (new WebPushMessage)
+            ->title($context['label'])
+            ->body($this->restricted()
+                ? 'Surat baru telah masuk. Buka e-Surat untuk melihat detail.'
+                : $context['subject'])
+            ->data([
+                'url' => $context['url'],
+                'security_classification' => $this->classification(),
+                'received_via' => $this->receivedVia(),
+            ]);
+
+        return $message;
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -187,13 +232,41 @@ class InboxItemNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Klasifikasi selain Biasa/Terbuka tidak boleh keluar lewat email/Telegram.
+     * Nilai klasifikasi yang disimpan; data legacy/null jatuh ke `B`.
      */
-    private function restricted(): bool
+    private function classification(): string
     {
         $this->item->loadMissing('letter');
         $classification = $this->item->letter?->security_classification;
 
-        return in_array($classification, ['SR', 'R', 'T'], true);
+        return in_array($classification, ['SR', 'R', 'T', 'B'], true) ? $classification : 'B';
+    }
+
+    /**
+     * Sumber penerimaan yang disimpan; data legacy/null jatuh ke `other`.
+     */
+    private function receivedVia(): string
+    {
+        $this->item->loadMissing('letter');
+        $receivedVia = $this->item->letter?->received_via;
+
+        return in_array($receivedVia, ['email', 'physical', 'internal', 'other'], true) ? $receivedVia : 'other';
+    }
+
+    private function itemType(): string
+    {
+        return match (true) {
+            $this->item instanceof LetterRecipient => 'letter',
+            $this->item instanceof Disposition => 'disposition',
+            default => 'memo',
+        };
+    }
+
+    /**
+     * Klasifikasi selain Biasa/Terbuka tidak boleh keluar lewat email/Telegram.
+     */
+    private function restricted(): bool
+    {
+        return in_array($this->classification(), ['SR', 'R', 'T'], true);
     }
 }
