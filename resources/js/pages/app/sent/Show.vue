@@ -21,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useFormattedDate } from '@/composables/useFormattedDate';
 import { usePermissions } from '@/composables/usePermissions';
 import { useRecipientTimeline } from '@/composables/useRecipientTimeline';
-import { categoryInbox } from '@/data/helpers';
+import { categoryInbox, letterReceivedVia, letterSecurityClassification } from '@/data/helpers';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem, Letter, LetterDoc } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
@@ -42,6 +42,10 @@ const createdAt = useDateFormat(props.letter.created_at, 'dddd, DD MMM YYYY, HH.
 function getCategoryName(value: string) {
     const found = categoryInbox.find((cat) => cat.value === value);
     return found ? found.name : '-';
+}
+
+function getOptionName(options: { value: string; name: string }[], value?: string | null) {
+    return options.find((option) => option.value === value)?.name ?? '-';
 }
 
 const isPreviewOpen = ref(false);
@@ -158,6 +162,16 @@ onMounted(() => {
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Kategori</dt>
                     <dd class="max-w-md wrap-break-word">{{ getCategoryName(letter.category) }}</dd>
+                </div>
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Sifat Surat</dt>
+                    <dd class="max-w-md wrap-break-word">
+                        {{ getOptionName(letterSecurityClassification, letter.security_classification) }}
+                    </dd>
+                </div>
+                <div class="flex items-start space-x-4 text-sm lg:space-x-12">
+                    <dt class="w-37 shrink-0 font-medium">Sumber Penerimaan</dt>
+                    <dd class="max-w-md wrap-break-word">{{ getOptionName(letterReceivedVia, letter.received_via) }}</dd>
                 </div>
                 <div class="flex items-start space-x-4 text-sm lg:space-x-12">
                     <dt class="w-37 shrink-0 font-medium">Status Surat</dt>
