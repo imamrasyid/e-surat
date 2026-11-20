@@ -399,3 +399,29 @@ it('does not notify when the creating transaction rolls back', function () {
 
     expect(DB::table('notifications')->count())->toBe(0);
 });
+
+it('dispatches the notification only after the creating transaction commits', function () {
+    Notification::fake();
+
+    $sender = User::factory()->create();
+    $senderPosition = Position::create(['name' => 'Sekretaris']);
+    $letterOwnerPosition = Position::create(['name' => 'Kepala Bagian Umum']);
+    $targetPosition = Position::create(['name' => 'Kepala Sub Bagian A']);
+
+    inboxUserOn($targetPosition);
+
+    $letter = inboxLetter($sender);
+    $recipient = inboxRecipient($letter, $sender, $senderPosition, $letterOwnerPosition);
+
+    expect(fn () => app(CreateDispositionAction::class)->handle($sender, $senderPosition, [
+        'letter_id_primary' => $letter->id,
+        'letter_recipient_id' => $recipient->id,
+        'letter_receipt_date' => '2026-10-02',
+        'penerima' => [['id' => $targetPosition->id]],
+        'penerima_cc' => [['id' => 999999]],
+    ]))->toThrow(QueryException::class);
+
+    // Event harus ditunda sampai commit; fake menangkap dispatch sinkron
+    // seandainya ShouldDispatchAfterCommit hilang.
+    Notification::assertNothingSent();
+});

@@ -119,6 +119,9 @@ it('disables web push for http and ip app urls', function () {
 
     eligibleWebPushConfig(['app.url' => 'https://203.0.113.10']);
     expect(app(CompanyFeature::class)->webPushEligible())->toBeFalse();
+
+    eligibleWebPushConfig(['app.url' => 'https://[::1]']);
+    expect(app(CompanyFeature::class)->webPushEligible())->toBeFalse();
 });
 
 it('disables web push for a malformed app url', function () {

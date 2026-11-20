@@ -49,7 +49,7 @@ const unread = computed(() => props.notification.read_at === null);
         <Button
             variant="ghost"
             size="icon-sm"
-            class="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+            class="shrink-0 opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
             aria-label="Hapus pemberitahuan"
             @click="emit('delete', notification.id)"
         >

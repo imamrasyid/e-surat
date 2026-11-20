@@ -60,7 +60,7 @@ class CompanyFeature
 
         return is_string($host)
             && $host !== ''
-            && filter_var($host, FILTER_VALIDATE_IP) === false;
+            && filter_var(trim($host, '[]'), FILTER_VALIDATE_IP) === false;
     }
 
     /**

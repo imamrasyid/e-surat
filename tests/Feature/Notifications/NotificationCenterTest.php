@@ -62,7 +62,7 @@ it('shows only the current user notification history with unread count', functio
         ->get(route('notifications.index'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('notifications/Index', false)
+            ->component('notifications/Index')
             ->has('notifications.data', 2)
             ->where('notifications.total', 2)
             ->where('notificationCenter.unread_count', 1)
@@ -206,4 +206,50 @@ it('validates the push subscription payload', function () {
     $this->actingAs($user)
         ->post(route('notifications.push-subscription.store'), [])
         ->assertSessionHasErrors(['endpoint', 'keys.p256dh', 'keys.auth']);
+});
+
+it('rejects non-https and internal push endpoints', function (string $endpoint) {
+    eligibleNotificationWebPush();
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('notifications.push-subscription.store'), [
+            'endpoint' => $endpoint,
+            'keys' => ['p256dh' => 'p256dh-key', 'auth' => 'auth-token'],
+        ])
+        ->assertSessionHasErrors('endpoint');
+
+    expect($user->pushSubscriptions()->count())->toBe(0);
+})->with([
+    'http metadata ip' => ['http://169.254.169.254/latest/meta-data/'],
+    'https metadata ip' => ['https://169.254.169.254/latest/meta-data/'],
+    'ipv6 loopback' => ['https://[::1]/push'],
+    'localhost' => ['https://localhost/push'],
+    'internal suffix' => ['https://service.internal/push'],
+]);
+
+it('paginates the history at fifteen rows per page', function () {
+    $user = User::factory()->create();
+
+    foreach (range(1, 16) as $i) {
+        notificationFor($user, ['title' => 'Notif '.$i], createdAt: now()->addSeconds($i));
+    }
+
+    $this->actingAs($user)
+        ->get(route('notifications.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('notifications.per_page', 15)
+            ->where('notifications.total', 16)
+            ->where('notifications.last_page', 2)
+            ->where('notifications.current_page', 1)
+            ->has('notifications.data', 15)
+        );
+
+    $this->actingAs($user)
+        ->get(route('notifications.index', ['page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('notifications.current_page', 2)
+            ->has('notifications.data', 1)
+        );
 });
