@@ -55,7 +55,7 @@ it('shows only the current user notification history with unread count', functio
     $other = User::factory()->create();
 
     $oldId = notificationFor($user, ['title' => 'Lama'], createdAt: now()->subMinute());
-    $newId = notificationFor($user, ['title' => 'Baru'], readAt: now());
+    notificationFor($user, ['title' => 'Baru'], readAt: now());
     notificationFor($other);
 
     $this->actingAs($user)
@@ -66,8 +66,9 @@ it('shows only the current user notification history with unread count', functio
             ->has('notifications.data', 2)
             ->where('notifications.total', 2)
             ->where('notificationCenter.unread_count', 1)
-            ->where('notificationCenter.latest.0.id', $newId)
-            ->where('notificationCenter.latest.1.id', $oldId)
+            ->has('notificationCenter.latest', 1)
+            ->where('notificationCenter.latest.0.id', $oldId)
+            ->where('notificationCenter.latest.0.item_type', 'primary')
             ->where('notifications.data.0.title', 'Baru')
             ->where('notifications.data.0.security_classification', 'B')
             ->where('notifications.data.0.received_via', 'other')
@@ -228,6 +229,23 @@ it('rejects non-https and internal push endpoints', function (string $endpoint) 
     'localhost' => ['https://localhost/push'],
     'internal suffix' => ['https://service.internal/push'],
 ]);
+
+it('marks all current user notifications as read', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+
+    notificationFor($user);
+    notificationFor($user, readAt: now());
+    notificationFor($other);
+
+    $this->actingAs($user)
+        ->patch(route('notifications.readAll'))
+        ->assertRedirect();
+
+    expect($user->notifications()->whereNull('read_at')->count())->toBe(0)
+        ->and($user->notifications()->count())->toBe(2)
+        ->and($other->unreadNotifications()->count())->toBe(1);
+});
 
 it('paginates the history at fifteen rows per page', function () {
     $user = User::factory()->create();

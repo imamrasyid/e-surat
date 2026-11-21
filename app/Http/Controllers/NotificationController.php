@@ -37,6 +37,13 @@ class NotificationController extends Controller
         return back();
     }
 
+    public function readAll(Request $request): RedirectResponse
+    {
+        $request->user()->unreadNotifications()->update(['read_at' => now()]);
+
+        return back();
+    }
+
     public function destroy(Request $request, string $notification): RedirectResponse
     {
         $this->center->findOwned($request->user(), $notification)->delete();

@@ -1,11 +1,13 @@
 import type { LetterReceivedVia, LetterSecurityClassification } from './letter';
 
+export type NotificationItemType = 'primary' | 'invitation' | 'disposition' | 'memo';
+
 export interface NotificationListItem {
     id: string;
     title: string;
     body: string;
     url: string;
-    item_type: string;
+    item_type: NotificationItemType;
     security_classification: LetterSecurityClassification;
     received_via: LetterReceivedVia;
     read_at: string | null;

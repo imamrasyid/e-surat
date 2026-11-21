@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import NotificationListItem from '@/components/NotificationListItem.vue';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useWebPushNotifications } from '@/composables/useWebPushNotifications';
 import type { AppPageProps, NotificationListItem as NotificationItem } from '@/types';
@@ -27,8 +28,8 @@ function open(notification: NotificationItem): void {
     );
 }
 
-function remove(id: string): void {
-    router.delete(route('notifications.destroy', id), { preserveScroll: true });
+function readAll(): void {
+    router.patch(route('notifications.readAll'), {}, { preserveScroll: true });
 }
 </script>
 
@@ -47,26 +48,19 @@ function remove(id: string): void {
         </SheetTrigger>
 
         <SheetContent side="right" class="flex w-full flex-col gap-0 p-0 sm:max-w-md">
-            <SheetHeader class="border-b px-4 py-4">
-                <SheetTitle>Pemberitahuan</SheetTitle>
+            <SheetHeader class="px-4 py-4">
+                <SheetTitle>Pemberitahuan Terbaru</SheetTitle>
                 <SheetDescription>{{ center.unread_count }} pemberitahuan belum dibaca</SheetDescription>
             </SheetHeader>
 
-            <div class="flex-1 overflow-y-auto">
-                <NotificationListItem
-                    v-for="notification in center.latest"
-                    :key="notification.id"
-                    :notification="notification"
-                    compact
-                    @open="open"
-                    @delete="remove"
-                />
+            <ScrollArea class="flex-1 px-2">
+                <NotificationListItem :notifications="center.latest" :compact="true" @open="open" />
                 <p v-if="center.latest.length === 0" class="text-muted-foreground px-4 py-8 text-center text-sm">Belum ada pemberitahuan.</p>
-            </div>
+            </ScrollArea>
 
             <div class="space-y-3 border-t px-4 py-4">
                 <div v-if="enabled" class="space-y-2">
-                    <p class="text-sm font-medium">Notifikasi browser</p>
+                    <p class="text-sm font-medium">Notifikasi Browser</p>
                     <p v-if="!supported" class="text-muted-foreground text-xs">Browser ini tidak mendukung notifikasi push.</p>
                     <template v-else>
                         <Button size="sm" :disabled="processing" @click="subscribed ? disable() : enable()">
@@ -79,7 +73,10 @@ function remove(id: string): void {
                     </template>
                 </div>
 
-                <Button as-child variant="outline" class="w-full">
+                <Button variant="secondary" size="sm" class="w-full" :disabled="center.unread_count === 0" @click="readAll">
+                    Tandai semua telah dibaca
+                </Button>
+                <Button as-child variant="outline" size="sm" class="w-full">
                     <Link :href="route('notifications.index')">Lihat semua pemberitahuan</Link>
                 </Button>
             </div>

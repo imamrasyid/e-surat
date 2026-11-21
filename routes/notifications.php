@@ -12,6 +12,7 @@ Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->gr
     Route::delete('push-subscription', [NotificationController::class, 'destroyPushSubscription'])
         ->name('push-subscription.destroy');
 
+    Route::patch('read-all', [NotificationController::class, 'readAll'])->name('readAll');
     Route::patch('{notification}/read', [NotificationController::class, 'read'])->name('read');
     Route::delete('{notification}', [NotificationController::class, 'destroy'])->name('destroy');
     Route::delete('/', [NotificationController::class, 'destroyAll'])->name('destroyAll');

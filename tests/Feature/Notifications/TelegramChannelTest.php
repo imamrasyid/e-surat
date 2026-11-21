@@ -68,7 +68,7 @@ it('sends the notification text to the user chat id', function () {
 
     Http::assertSent(fn (Request $request) => $request->url() === 'https://api.telegram.org/bottest-token/sendMessage'
         && $request['chat_id'] === '987654321'
-        && str_contains($request['text'], 'Surat masuk primary baru')
+        && str_contains($request['text'], 'Surat Masuk Utama')
         && str_contains($request['text'], $item->letter->subject));
 });
 

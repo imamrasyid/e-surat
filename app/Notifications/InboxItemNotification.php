@@ -182,7 +182,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
             $undangan = $letter?->category === '2';
 
             return [
-                'label' => $undangan ? 'Surat undangan baru' : 'Surat masuk primary baru',
+                'label' => $undangan ? 'Surat Undangan' : 'Surat Masuk Utama',
                 'subject' => $subject,
                 'url' => route($undangan ? 'inbox.undangan.show' : 'inbox.primary.show', [
                     'recipient' => $item->id,
@@ -193,7 +193,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
 
         if ($item instanceof Disposition) {
             return [
-                'label' => 'Disposisi baru',
+                'label' => 'Disposisi',
                 'subject' => $subject,
                 'url' => route('dispo.show', [
                     'recipient' => $item->id,
@@ -203,7 +203,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
         }
 
         return [
-            'label' => 'Nota dinas baru',
+            'label' => 'Nota Dinas',
             'subject' => $subject,
             'url' => route('memo.show', [
                 'recipient' => $item->id,
@@ -256,7 +256,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
     private function itemType(): string
     {
         return match (true) {
-            $this->item instanceof LetterRecipient => 'letter',
+            $this->item instanceof LetterRecipient => $this->item->letter?->category === '2' ? 'invitation' : 'primary',
             $this->item instanceof Disposition => 'disposition',
             default => 'memo',
         };

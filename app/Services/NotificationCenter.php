@@ -22,6 +22,7 @@ class NotificationCenter
         return [
             'unread_count' => $user->unreadNotifications()->count(),
             'latest' => $user->notifications()
+                ->whereNull('read_at')
                 ->latest()
                 ->limit($limit)
                 ->get()
@@ -63,6 +64,16 @@ class NotificationCenter
         ];
     }
 
+    private function itemType(mixed $value): string
+    {
+        // Baris lama menyimpan 'letter' sebelum primary/undangan dipisah.
+        if ($value === 'letter') {
+            return 'primary';
+        }
+
+        return in_array($value, ['primary', 'invitation', 'disposition', 'memo'], true) ? $value : 'memo';
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -75,7 +86,7 @@ class NotificationCenter
             'title' => is_string($data['title'] ?? null) ? $data['title'] : '',
             'body' => is_string($data['body'] ?? null) ? $data['body'] : '',
             'url' => is_string($data['url'] ?? null) ? $data['url'] : '',
-            'item_type' => is_string($data['item_type'] ?? null) ? $data['item_type'] : '',
+            'item_type' => $this->itemType($data['item_type'] ?? null),
             'security_classification' => in_array($data['security_classification'] ?? null, ['SR', 'R', 'T', 'B'], true)
                 ? $data['security_classification']
                 : 'B',

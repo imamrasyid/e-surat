@@ -106,7 +106,7 @@ it('notifies every active user holding the target position of a primary letter',
 
         return $item instanceof LetterRecipient
             && $item->to_position_id === $target->id
-            && $notification->toMail($firstTargetUser)->subject === 'Surat masuk primary baru: '.$letter->subject
+            && $notification->toMail($firstTargetUser)->subject === 'Surat Masuk Utama: '.$letter->subject
             && str_contains(
                 $notification->toTelegram($firstTargetUser),
                 route('inbox.primary.show', ['recipient' => $item->id, 'letter_id' => $letter->letter_id])
@@ -138,8 +138,9 @@ it('uses the invitation label and route for category 2 letters', function () {
         ]);
 
         return $channels === ['database', 'mail', TelegramChannel::class]
-            && $mail->subject === 'Surat undangan baru: '.$letter->subject
-            && str_contains($telegram, 'Surat undangan baru')
+            && $notification->toDatabase($user)['item_type'] === 'invitation'
+            && $mail->subject === 'Surat Undangan: '.$letter->subject
+            && str_contains($telegram, 'Surat Undangan')
             && str_contains($telegram, $url);
     });
 });
@@ -309,13 +310,13 @@ it('stores an internal database notification with its classification and source'
     $notification = $user->notifications()->sole();
 
     expect($notification->data)->toMatchArray([
-        'title' => 'Surat masuk primary baru',
+        'title' => 'Surat Masuk Utama',
         'body' => $letter->subject,
         'url' => route('inbox.primary.show', [
             'recipient' => $recipient->id,
             'letter_id' => $letter->letter_id,
         ]),
-        'item_type' => 'letter',
+        'item_type' => 'primary',
         'security_classification' => 'B',
         'received_via' => 'other',
     ])->and(array_keys($notification->data))->toBe([
@@ -338,9 +339,9 @@ it('keeps restricted items in the database only and redacts their push payload',
     expect($notification->via($user))->toBe(['database']);
 
     expect($notification->toDatabase($user))->toMatchArray([
-        'title' => 'Surat masuk primary baru',
+        'title' => 'Surat Masuk Utama',
         'body' => '(perihal dirahasiakan)',
-        'item_type' => 'letter',
+        'item_type' => 'primary',
         'security_classification' => 'R',
         'received_via' => 'email',
     ]);
@@ -366,7 +367,7 @@ it('uses the subject as the web push body for ordinary letters', function () {
 
     $push = (new InboxItemNotification($recipient))->toWebPush($user, new InboxItemNotification($recipient))->toArray();
 
-    expect($push['title'])->toBe('Surat masuk primary baru')
+    expect($push['title'])->toBe('Surat Masuk Utama')
         ->and($push['body'])->toBe($letter->subject)
         ->and($push['data'])->toMatchArray([
             'security_classification' => 'B',
