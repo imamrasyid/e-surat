@@ -14,6 +14,7 @@ use App\Models\RefKdKlasifikasi;
 use App\Models\User;
 use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\InboxItemNotification;
+use App\Services\NotificationCenter;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -225,6 +226,55 @@ it('notifies primary and cc recipients of a new memo', function () {
     Notification::assertSentTo($ccUser, InboxItemNotification::class, fn (InboxItemNotification $notification) => $notification->item instanceof Memo
         && $notification->item->to_position_id === $ccPosition->id
         && (bool) $notification->item->is_cc);
+});
+
+it('carries instructions and followups in disposition and memo notifications', function () {
+    $sender = User::factory()->create();
+    $senderPosition = Position::create(['name' => 'Sekretaris']);
+    $letterOwnerPosition = Position::create(['name' => 'Kepala Bagian Umum']);
+    $targetPosition = Position::create(['name' => 'Kepala Sub Bagian A']);
+    $user = inboxUserOn($targetPosition);
+
+    $letter = inboxLetter($sender);
+    $recipient = inboxRecipient($letter, $sender, $senderPosition, $letterOwnerPosition);
+
+    app(CreateDispositionAction::class)->handle($sender, $senderPosition, [
+        'letter_id_primary' => $letter->id,
+        'letter_recipient_id' => $recipient->id,
+        'penerima' => [['id' => $targetPosition->id]],
+        'catatan' => 'Segera diproses',
+        'followup' => [['id' => 1, 'name' => 'Tindak lanjut']],
+    ]);
+
+    $memoLetter = inboxLetter($sender);
+    $memoRecipient = inboxRecipient($memoLetter, $sender, $senderPosition, $letterOwnerPosition);
+
+    app(CreateMemoAction::class)->handle($sender, $senderPosition, [
+        'letter_id_primary' => $memoLetter->id,
+        'letter_recipient_id' => $memoRecipient->id,
+        'penerima' => [['id' => $targetPosition->id]],
+        'catatan' => 'Mohon dicek',
+    ]);
+
+    $stored = $user->notifications()->get()->keyBy(fn ($notification) => $notification->data['item_type']);
+
+    expect($stored['disposition']->data)->toMatchArray([
+        'instruction' => 'Segera diproses',
+        'followup' => 'Tindak lanjut',
+    ])->and($stored['memo']->data)->toMatchArray([
+        'instruction' => 'Mohon dicek',
+        'followup' => null,
+    ]);
+
+    $items = collect(app(NotificationCenter::class)->history($user)->items())->keyBy('item_type');
+
+    expect($items['disposition'])->toMatchArray([
+        'instruction' => 'Segera diproses',
+        'followup' => 'Tindak lanjut',
+    ])->and($items['memo'])->toMatchArray([
+        'instruction' => 'Mohon dicek',
+        'followup' => null,
+    ]);
 });
 
 it('notifies the recipient of a closing memo', function () {

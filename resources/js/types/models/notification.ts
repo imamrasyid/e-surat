@@ -10,6 +10,8 @@ export interface NotificationListItem {
     item_type: NotificationItemType;
     security_classification: LetterSecurityClassification;
     received_via: LetterReceivedVia;
+    instruction: string | null;
+    followup: string | null;
     read_at: string | null;
     created_at: string;
 }

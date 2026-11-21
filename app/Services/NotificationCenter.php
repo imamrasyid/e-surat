@@ -93,6 +93,8 @@ class NotificationCenter
             'received_via' => in_array($data['received_via'] ?? null, ['email', 'physical', 'internal', 'other'], true)
                 ? $data['received_via']
                 : 'other',
+            'instruction' => is_string($data['instruction'] ?? null) ? $data['instruction'] : null,
+            'followup' => is_string($data['followup'] ?? null) ? $data['followup'] : null,
             'read_at' => $notification->read_at?->toIso8601String(),
             'created_at' => $notification->created_at?->toIso8601String() ?? '',
         ];

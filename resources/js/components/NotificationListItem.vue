@@ -31,6 +31,14 @@ const mediaClasses: Record<NotificationItemType, string> = {
 function labelOf(options: { value: string; name: string }[], value: string): string {
     return options.find((option) => option.value === value)?.name ?? '-';
 }
+
+function isLetterItem(type: NotificationItemType): boolean {
+    return type === 'primary' || type === 'invitation';
+}
+
+function hasDetails(notification: NotificationListItem): boolean {
+    return isLetterItem(notification.item_type) || Boolean(notification.instruction || notification.followup);
+}
 </script>
 
 <template>
@@ -54,19 +62,31 @@ function labelOf(options: { value: string; name: string }[], value: string): str
                                 <p class="text-muted-foreground text-xs">{{ formatCreate(notification.created_at) }}</p>
                             </div>
                             <ItemDescription class="text-start text-wrap">{{ notification.body }}</ItemDescription>
-                            <div v-if="!compact" class="mt-2 flex gap-8 text-start">
-                                <dl class="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
-                                    <dt class="text-muted-foreground text-xs">Sifat Surat:</dt>
-                                    <dd class="text-xs">
-                                        {{ labelOf(letterSecurityClassification, notification.security_classification) }}
-                                    </dd>
-                                </dl>
-                                <dl class="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
-                                    <dt class="text-muted-foreground text-xs">Sumber Penerimaan:</dt>
-                                    <dd class="text-xs">
-                                        {{ labelOf(letterReceivedVia, notification.received_via) }}
-                                    </dd>
-                                </dl>
+                            <div v-if="!compact && hasDetails(notification)" class="mt-2 flex flex-col gap-2 text-start">
+                                <div v-if="isLetterItem(notification.item_type)" class="flex gap-8">
+                                    <dl class="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                                        <dt class="text-muted-foreground text-xs">Sifat Surat:</dt>
+                                        <dd class="text-xs">
+                                            {{ labelOf(letterSecurityClassification, notification.security_classification) }}
+                                        </dd>
+                                    </dl>
+                                    <dl class="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+                                        <dt class="text-muted-foreground text-xs">Sumber Penerimaan:</dt>
+                                        <dd class="text-xs">
+                                            {{ labelOf(letterReceivedVia, notification.received_via) }}
+                                        </dd>
+                                    </dl>
+                                </div>
+                                <template v-else>
+                                    <dl v-if="notification.instruction" class="flex flex-col gap-0.5">
+                                        <dt class="text-muted-foreground text-xs">Catatan:</dt>
+                                        <dd class="text-xs wrap-break-word whitespace-pre-line">{{ notification.instruction }}</dd>
+                                    </dl>
+                                    <dl v-if="notification.followup" class="flex flex-col gap-0.5">
+                                        <dt class="text-muted-foreground text-xs">Followup:</dt>
+                                        <dd class="text-xs wrap-break-word whitespace-pre-line">{{ notification.followup }}</dd>
+                                    </dl>
+                                </template>
                             </div>
                         </ItemContent>
                         <ItemActions>

@@ -85,13 +85,13 @@ class InboxItemNotification extends Notification implements ShouldQueue
     /**
      * Baris riwayat internal yang dibaca halaman /notifications dan bell.
      *
-     * @return array<string, string>
+     * @return array<string, string|null>
      */
     public function toDatabase(object $notifiable): array
     {
         $context = $this->context();
 
-        return [
+        $data = [
             'title' => $context['label'],
             'body' => $context['subject'],
             'url' => $context['url'],
@@ -99,6 +99,13 @@ class InboxItemNotification extends Notification implements ShouldQueue
             'security_classification' => $this->classification(),
             'received_via' => $this->receivedVia(),
         ];
+
+        if ($this->item instanceof Disposition || $this->item instanceof Memo) {
+            $data['instruction'] = $this->item->instruction;
+            $data['followup'] = $this->item->followup;
+        }
+
+        return $data;
     }
 
     public function toWebPush(object $notifiable, object $notification): WebPushMessage
