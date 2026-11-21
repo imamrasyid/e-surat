@@ -85,7 +85,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
     /**
      * Baris riwayat internal yang dibaca halaman /notifications dan bell.
      *
-     * @return array<string, string|null>
+     * @return array<string, string|int|null>
      */
     public function toDatabase(object $notifiable): array
     {
@@ -96,6 +96,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
             'body' => $context['subject'],
             'url' => $context['url'],
             'item_type' => $this->itemType(),
+            'item_id' => $this->item->id,
             'security_classification' => $this->classification(),
             'received_via' => $this->receivedVia(),
         ];
@@ -117,7 +118,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
                 ? 'Surat baru telah masuk. Buka e-Surat untuk melihat detail.'
                 : $context['subject'])
             ->data([
-                'url' => $context['url'],
+                'url' => $this->openUrl($context['url']),
                 'security_classification' => $this->classification(),
                 'received_via' => $this->receivedVia(),
             ]);
@@ -141,7 +142,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
         }
 
         return $mail
-            ->action('Buka e-Surat', $context['url'])
+            ->action('Buka e-Surat', $this->openUrl($context['url']))
             ->line('Email ini dikirim otomatis oleh sistem e-Surat.');
     }
 
@@ -161,7 +162,7 @@ class InboxItemNotification extends Notification implements ShouldQueue
             $lines[] = 'Pengirim: '.$sender;
         }
 
-        $lines[] = $context['url'];
+        $lines[] = $this->openUrl($context['url']);
         $lines[] = 'Pesan otomatis sistem e-Surat.';
 
         return Str::limit(implode("\n", $lines), 3500);
@@ -217,6 +218,16 @@ class InboxItemNotification extends Notification implements ShouldQueue
                 'letter_id' => $letterId,
             ]),
         ];
+    }
+
+    /**
+     * URL klik kanal eksternal: tandai notifikasi dibaca lalu buka detail.
+     */
+    private function openUrl(string $fallback): string
+    {
+        return filled($this->id)
+            ? route('notifications.open', $this->id)
+            : $fallback;
     }
 
     /**

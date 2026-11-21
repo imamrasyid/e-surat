@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Disposition\CreateDispositionAction;
 use App\Actions\Disposition\MarkDispositionAsReadAction;
+use App\Actions\Notification\SyncNotificationReadStateAction;
 use App\Http\Requests\StoreDispositionRequest;
 use App\Models\Disposition;
 use App\Models\Followup;
@@ -259,12 +260,23 @@ class DispositionController extends Controller
      * Update the specified resource in storage.
      */
     public function update(
+        Request $request,
         Disposition $disposition,
         string $letter_id,
-        MarkDispositionAsReadAction $action
+        MarkDispositionAsReadAction $action,
+        SyncNotificationReadStateAction $sync
     ): RedirectResponse {
         try {
             $action->handle($disposition);
+            $sync->markForItem(
+                $request->user(),
+                'disposition',
+                $disposition->id,
+                route('dispo.show', [
+                    'recipient' => $disposition->id,
+                    'letter_id' => $letter_id,
+                ]),
+            );
 
             return redirect()->route('dispo.show', ['recipient' => $disposition->id, 'letter_id' => $letter_id]);
         } catch (\Throwable $th) {

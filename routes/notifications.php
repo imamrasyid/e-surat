@@ -14,6 +14,7 @@ Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->gr
 
     Route::patch('read-all', [NotificationController::class, 'readAll'])->name('readAll');
     Route::patch('{notification}/read', [NotificationController::class, 'read'])->name('read');
+    Route::get('{notification}/open', [NotificationController::class, 'read'])->name('open');
     Route::delete('{notification}', [NotificationController::class, 'destroy'])->name('destroy');
     Route::delete('/', [NotificationController::class, 'destroyAll'])->name('destroyAll');
 });

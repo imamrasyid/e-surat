@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Inbox;
 
 use App\Actions\Letter\MarkRecipientAsReadAction;
+use App\Actions\Notification\SyncNotificationReadStateAction;
 use App\Http\Controllers\Controller;
 use App\Models\LetterRecipient;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,7 +90,8 @@ class UndanganController extends Controller
         Request $request,
         LetterRecipient $recipient,
         string $letter_id,
-        MarkRecipientAsReadAction $markAsRead
+        MarkRecipientAsReadAction $markAsRead,
+        SyncNotificationReadStateAction $sync
     ): Response|RedirectResponse {
         $currentPosition = $request->user()?->currentPosition()->first();
 
@@ -114,6 +116,15 @@ class UndanganController extends Controller
         if ($request->isMethod('patch')) {
             try {
                 $markAsRead->handle($recipient);
+                $sync->markForItem(
+                    $request->user(),
+                    'invitation',
+                    $recipient->id,
+                    route('inbox.undangan.show', [
+                        'recipient' => $recipient->id,
+                        'letter_id' => $letter_id,
+                    ]),
+                );
             } catch (Throwable $th) {
                 Inertia::flash('toast', [
                     'type' => 'error',

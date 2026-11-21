@@ -37,14 +37,7 @@ defineProps<{
 }>();
 
 function open(notification: NotificationItem): void {
-    router.patch(
-        route('notifications.read', notification.id),
-        {},
-        {
-            preserveScroll: true,
-            onFinish: () => router.visit(notification.url),
-        },
-    );
+    router.patch(route('notifications.read', notification.id));
 }
 
 function readAll(): void {

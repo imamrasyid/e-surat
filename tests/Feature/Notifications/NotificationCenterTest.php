@@ -84,7 +84,7 @@ it('marks only the current user notification as read', function () {
 
     $this->actingAs($user)
         ->patch(route('notifications.read', $ownId))
-        ->assertRedirect();
+        ->assertRedirect('/primary/1/letter-1');
 
     expect(DatabaseNotification::find($ownId)->read_at)->not->toBeNull()
         ->and(DatabaseNotification::find($otherId)->read_at)->toBeNull();
@@ -92,6 +92,26 @@ it('marks only the current user notification as read', function () {
     $this->actingAs($user)
         ->patch(route('notifications.read', $otherId))
         ->assertNotFound();
+});
+
+it('cannot open another user notification from the external link', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+
+    $otherId = notificationFor($other);
+
+    $this->actingAs($user)
+        ->get(route('notifications.open', $otherId))
+        ->assertNotFound();
+});
+
+it('requires authentication for the external notification link', function () {
+    $user = User::factory()->create();
+
+    $id = notificationFor($user);
+
+    $this->get(route('notifications.open', $id))
+        ->assertRedirect(route('login'));
 });
 
 it('cannot delete another user notification', function () {

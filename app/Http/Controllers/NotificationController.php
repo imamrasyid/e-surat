@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Notification\SyncNotificationReadStateAction;
 use App\Http\Requests\DeletePushSubscriptionRequest;
 use App\Http\Requests\StorePushSubscriptionRequest;
 use App\Services\NotificationCenter;
@@ -26,20 +27,17 @@ class NotificationController extends Controller
         ]);
     }
 
-    public function read(Request $request, string $notification): RedirectResponse
-    {
-        $row = $this->center->findOwned($request->user(), $notification);
-
-        if ($row->read_at === null) {
-            $row->markAsRead();
-        }
-
-        return back();
+    public function read(
+        Request $request,
+        string $notification,
+        SyncNotificationReadStateAction $sync
+    ): RedirectResponse {
+        return redirect()->to($sync->open($request->user(), $notification));
     }
 
-    public function readAll(Request $request): RedirectResponse
+    public function readAll(Request $request, SyncNotificationReadStateAction $sync): RedirectResponse
     {
-        $request->user()->unreadNotifications()->update(['read_at' => now()]);
+        $sync->markAll($request->user());
 
         return back();
     }

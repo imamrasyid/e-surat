@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Memo\CloseMemoAction;
 use App\Actions\Memo\CreateMemoAction;
 use App\Actions\Memo\MarkMemoAsReadAction;
+use App\Actions\Notification\SyncNotificationReadStateAction;
 use App\Http\Requests\StoreMemoCloseRequest;
 use App\Http\Requests\StoreMemoRequest;
 use App\Models\Letter;
@@ -287,12 +288,23 @@ class MemoController extends Controller
      * Update the specified resource in storage.
      */
     public function update(
+        Request $request,
         Memo $memo,
         string $letter_id,
-        MarkMemoAsReadAction $action
+        MarkMemoAsReadAction $action,
+        SyncNotificationReadStateAction $sync
     ): RedirectResponse {
         try {
             $action->handle($memo);
+            $sync->markForItem(
+                $request->user(),
+                'memo',
+                $memo->id,
+                route('memo.show', [
+                    'recipient' => $memo->id,
+                    'letter_id' => $letter_id,
+                ]),
+            );
 
             return redirect()->route('memo.show', ['recipient' => $memo->id, 'letter_id' => $letter_id]);
         } catch (\Throwable $th) {

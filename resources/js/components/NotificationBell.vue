@@ -18,14 +18,7 @@ const ariaLabel = computed(() => (center.value.unread_count > 0 ? `Pemberitahuan
 const { supported, permission, enabled, subscribed, processing, error, enable, disable } = useWebPushNotifications();
 
 function open(notification: NotificationItem): void {
-    router.patch(
-        route('notifications.read', notification.id),
-        {},
-        {
-            preserveScroll: true,
-            onFinish: () => router.visit(notification.url),
-        },
-    );
+    router.patch(route('notifications.read', notification.id));
 }
 
 function readAll(): void {

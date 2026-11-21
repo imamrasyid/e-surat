@@ -20,6 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
 uses(RefreshDatabase::class);
 
@@ -86,6 +87,74 @@ function inboxComposeLetter(User $sender, Position $senderPosition, array $recip
     ]);
 }
 
+/**
+ * @return array{0: LetterRecipient|Disposition|Memo, 1: string}
+ */
+function inboxNotificationItem(string $type, User $sender, Position $senderPosition, Position $ownerPosition, Position $targetPosition): array
+{
+    if ($type === 'primary') {
+        $letter = inboxComposeLetter($sender, $senderPosition, [$targetPosition]);
+        $recipient = LetterRecipient::where('letter_id', $letter->id)->sole();
+
+        return [$recipient, route('inbox.primary.show', [
+            'recipient' => $recipient->id,
+            'letter_id' => $letter->letter_id,
+        ])];
+    }
+
+    $letter = inboxLetter($sender);
+    $recipient = inboxRecipient($letter, $sender, $senderPosition, $ownerPosition);
+
+    if ($type === 'disposition') {
+        app(CreateDispositionAction::class)->handle($sender, $senderPosition, [
+            'letter_id_primary' => $letter->id,
+            'letter_recipient_id' => $recipient->id,
+            'penerima' => [['id' => $targetPosition->id]],
+        ]);
+
+        $item = Disposition::where('letter_id', $letter->id)->sole();
+
+        return [$item, route('dispo.show', [
+            'recipient' => $item->id,
+            'letter_id' => $letter->letter_id,
+        ])];
+    }
+
+    app(CreateMemoAction::class)->handle($sender, $senderPosition, [
+        'letter_id_primary' => $letter->id,
+        'letter_recipient_id' => $recipient->id,
+        'penerima' => [['id' => $targetPosition->id]],
+    ]);
+
+    $item = Memo::where('letter_id', $letter->id)->sole();
+
+    return [$item, route('memo.show', [
+        'recipient' => $item->id,
+        'letter_id' => $letter->letter_id,
+    ])];
+}
+
+/**
+ * @return array{0: User, 1: Position, 2: Position, 3: Position, 4: User}
+ */
+function inboxNotificationScenario(): array
+{
+    $sender = User::factory()->create();
+    $senderPosition = Position::create(['name' => 'Sekretaris']);
+    $ownerPosition = Position::create(['name' => 'Kepala Bagian Umum']);
+    $targetPosition = Position::create(['name' => 'Kepala Sub Bagian A']);
+    $user = inboxUserOn($targetPosition);
+
+    $user->givePermissionTo([
+        Permission::findOrCreate('primary.show'),
+        Permission::findOrCreate('undangan.show'),
+        Permission::findOrCreate('disposition.show'),
+        Permission::findOrCreate('memo.show'),
+    ]);
+
+    return [$sender, $senderPosition, $ownerPosition, $targetPosition, $user];
+}
+
 it('notifies every active user holding the target position of a primary letter', function () {
     Notification::fake();
 
@@ -110,7 +179,9 @@ it('notifies every active user holding the target position of a primary letter',
             && $notification->toMail($firstTargetUser)->subject === 'Surat Masuk Utama: '.$letter->subject
             && str_contains(
                 $notification->toTelegram($firstTargetUser),
-                route('inbox.primary.show', ['recipient' => $item->id, 'letter_id' => $letter->letter_id])
+                filled($notification->id)
+                    ? route('notifications.open', $notification->id)
+                    : route('inbox.primary.show', ['recipient' => $item->id, 'letter_id' => $letter->letter_id])
             );
     });
 
@@ -133,10 +204,12 @@ it('uses the invitation label and route for category 2 letters', function () {
     Notification::assertSentTo($user, InboxItemNotification::class, function (InboxItemNotification $notification, array $channels) use ($user, $letter) {
         $mail = $notification->toMail($user);
         $telegram = $notification->toTelegram($user);
-        $url = route('inbox.undangan.show', [
-            'recipient' => $notification->item->id,
-            'letter_id' => $letter->letter_id,
-        ]);
+        $url = filled($notification->id)
+            ? route('notifications.open', $notification->id)
+            : route('inbox.undangan.show', [
+                'recipient' => $notification->item->id,
+                'letter_id' => $letter->letter_id,
+            ]);
 
         return $channels === ['database', 'mail', TelegramChannel::class]
             && $notification->toDatabase($user)['item_type'] === 'invitation'
@@ -367,11 +440,132 @@ it('stores an internal database notification with its classification and source'
             'letter_id' => $letter->letter_id,
         ]),
         'item_type' => 'primary',
+        'item_id' => $recipient->id,
         'security_classification' => 'B',
         'received_via' => 'other',
     ])->and(array_keys($notification->data))->toBe([
-        'title', 'body', 'url', 'item_type', 'security_classification', 'received_via',
+        'title', 'body', 'url', 'item_type', 'item_id', 'security_classification', 'received_via',
     ]);
+});
+
+it('marks the notification and its item as read when opened', function (string $type) {
+    config(['company.features' => []]);
+
+    [$sender, $senderPosition, $ownerPosition, $targetPosition, $user] = inboxNotificationScenario();
+    [$item, $url] = inboxNotificationItem($type, $sender, $senderPosition, $ownerPosition, $targetPosition);
+    $notification = $user->notifications()->sole();
+
+    $this->actingAs($user)
+        ->patch(route('notifications.read', $notification->id))
+        ->assertRedirect($url);
+
+    expect($notification->fresh()->read_at)->not->toBeNull()
+        ->and($item->fresh()->read_at)->not->toBeNull();
+})->with(['primary', 'disposition', 'memo']);
+
+it('marks the matching notification as read when the item is opened directly', function (string $type) {
+    config(['company.features' => []]);
+
+    [$sender, $senderPosition, $ownerPosition, $targetPosition, $user] = inboxNotificationScenario();
+    [$item, $showUrl] = inboxNotificationItem($type, $sender, $senderPosition, $ownerPosition, $targetPosition);
+    $notification = $user->notifications()->sole();
+
+    $readUrl = match ($type) {
+        'primary' => $showUrl,
+        'disposition' => route('dispo.update', [
+            'disposition' => $item->id,
+            'letter_id' => $item->letter->letter_id,
+        ]),
+        'memo' => route('memo.update', [
+            'memo' => $item->id,
+            'letter_id' => $item->letter->letter_id,
+        ]),
+    };
+
+    $response = $this->actingAs($user)->patch($readUrl);
+
+    if ($type === 'primary') {
+        $response->assertOk();
+    } else {
+        $response->assertRedirect($showUrl);
+    }
+
+    expect($notification->fresh()->read_at)->not->toBeNull()
+        ->and($item->fresh()->read_at)->not->toBeNull();
+})->with(['primary', 'disposition', 'memo']);
+
+it('marks every notification and its item as read when reading all', function () {
+    config(['company.features' => []]);
+
+    [$sender, $senderPosition, $ownerPosition, $targetPosition, $user] = inboxNotificationScenario();
+
+    [$primary] = inboxNotificationItem('primary', $sender, $senderPosition, $ownerPosition, $targetPosition);
+    [$disposition] = inboxNotificationItem('disposition', $sender, $senderPosition, $ownerPosition, $targetPosition);
+    [$memo] = inboxNotificationItem('memo', $sender, $senderPosition, $ownerPosition, $targetPosition);
+
+    expect($user->notifications()->count())->toBe(3);
+
+    $this->actingAs($user)
+        ->patch(route('notifications.readAll'))
+        ->assertRedirect();
+
+    expect($user->unreadNotifications()->count())->toBe(0)
+        ->and($primary->fresh()->read_at)->not->toBeNull()
+        ->and($disposition->fresh()->read_at)->not->toBeNull()
+        ->and($memo->fresh()->read_at)->not->toBeNull();
+});
+
+it('falls back to the notification url when item_id is missing', function () {
+    config(['company.features' => []]);
+
+    [$sender, $senderPosition, $ownerPosition, $targetPosition, $user] = inboxNotificationScenario();
+    [$disposition, $showUrl] = inboxNotificationItem('disposition', $sender, $senderPosition, $ownerPosition, $targetPosition);
+    $notification = $user->notifications()->sole();
+
+    $notification->update([
+        'data' => array_diff_key($notification->data, ['item_id' => true]),
+    ]);
+
+    $this->actingAs($user)
+        ->patch(route('notifications.read', $notification->id))
+        ->assertRedirect($showUrl);
+
+    expect($disposition->fresh()->read_at)->not->toBeNull();
+});
+
+it('opens a notification from an external link and marks both read', function () {
+    config(['company.features' => []]);
+
+    [$sender, $senderPosition, $ownerPosition, $targetPosition, $user] = inboxNotificationScenario();
+    [$item, $url] = inboxNotificationItem('disposition', $sender, $senderPosition, $ownerPosition, $targetPosition);
+    $notification = $user->notifications()->sole();
+
+    $this->actingAs($user)
+        ->get(url("/notifications/{$notification->id}/open"))
+        ->assertRedirect($url);
+
+    expect($notification->fresh()->read_at)->not->toBeNull()
+        ->and($item->fresh()->read_at)->not->toBeNull();
+});
+
+it('links external channels to the notification open route', function () {
+    config(['company.features' => []]);
+
+    $sender = User::factory()->create();
+    $senderPosition = Position::create(['name' => 'Sekretaris']);
+    $target = Position::create(['name' => 'Kepala Bagian Umum']);
+    $user = inboxUserOn($target);
+
+    $letter = inboxComposeLetter($sender, $senderPosition, [$target]);
+    $recipient = LetterRecipient::where('letter_id', $letter->id)->sole();
+
+    $notification = new InboxItemNotification($recipient);
+    $notification->id = (string) Str::uuid();
+    $openUrl = url("/notifications/{$notification->id}/open");
+
+    expect($notification->toMail($user)->actionUrl)->toBe($openUrl)
+        ->and($notification->toTelegram($user))->toContain($openUrl)
+        ->and($notification->toWebPush($user, $notification)->toArray()['data']['url'])->toBe($openUrl);
 });
 
 it('keeps restricted items in the database only and redacts their push payload', function () {
