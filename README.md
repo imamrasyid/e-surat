@@ -1,104 +1,178 @@
+<!-- prettier-ignore -->
+<div align="center">
+
+<img src="./public/android-chrome-512x512.png" alt="Logo e-Surat" height="96" />
+
 # e-Surat
 
-Sistem manajemen surat elektronik untuk instansi pemerintah. Mengelola siklus hidup surat resmi — penyusunan dan pengiriman surat, nota dinas, disposisi, kotak masuk (surat masuk & undangan), arsip, sampai master data pengguna/jabatan/role.
+**Sistem manajemen surat elektronik untuk instansi pemerintah, perusahaan swasta, BUMN/BUMD, perguruan tinggi/sekolah, serta organisasi atau individu.**
 
-[![tests](https://github.com/msbhdn/e-surat/actions/workflows/tests.yml/badge.svg)](https://github.com/msbhdn/e-surat/actions/workflows/tests.yml)
-![PHP](https://img.shields.io/badge/php-%5E8.3-777BB4)
-![Laravel](https://img.shields.io/badge/laravel-13-FF2D20)
-![Vue](https://img.shields.io/badge/vue-3.5-4FC08D)
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![Tests](https://github.com/msbhdn/e-surat/actions/workflows/tests.yml/badge.svg)](https://github.com/msbhdn/e-surat/actions/workflows/tests.yml)
+![PHP](https://img.shields.io/badge/PHP-%5E8.3-777BB4?style=flat-square&logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel&logoColor=white)
+![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
+![Node](https://img.shields.io/badge/Node-26-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](https://opensource.org/licenses/MIT)
+
+[Ikhtisar](#ikhtisar) • [Fitur](#fitur) • [Memulai](#memulai) • [Arsitektur](#arsitektur) • [Konfigurasi](#konfigurasi) • [Testing](#testing) • [Deployment](#deployment) • [Contributors](#contributors)
+
+</div>
+
+e-Surat mengelola siklus hidup surat resmi dalam satu aplikasi: penyusunan dan pengiriman surat, kotak masuk utama dan undangan, disposisi, nota dinas, arsip, sampai master data pengguna, jabatan, role, dan klasifikasi arsip.
+
+Dibangun dengan **Laravel 13 + Inertia 3 + Vue 3 (TypeScript)**. Satu codebase melayani banyak instansi; setiap environment produksi mewakili satu instansi dengan database, storage, queue, dan kredensial sendiri.
+
+> [!TIP]
+> Ingin mencoba cepat? Jalankan `composer setup` lalu `composer dev`. Aplikasi tersedia di `http://127.0.0.1:8000`.
+
+## Ikhtisar
+
+Alur utama aplikasi:
+
+1. **Compose** — surat disusun dengan nomor agenda otomatis dari `RefAgendaSurat` dan kode klasifikasi, lalu dikirim ke jabatan penerima.
+2. **Distribusi** — surat masuk utama dan undangan muncul di inbox penerima, lengkap dengan detail surat dan timeline.
+3. **Tindak lanjut** — penerima membuat disposisi atau nota dinas; surat dapat ditutup setelah selesai.
+4. **Arsip** — surat masuk yang sudah ditutup tersedia sebagai arsip baca-saja dengan metadata TNDE dan riwayat audit.
+
+Notifikasi menghubungkan seluruh alur tersebut: setiap surat, disposisi, dan nota dinas baru dapat dikirim ke pusat notifikasi, web push, email, dan Telegram sesuai feature gate environment.
 
 ## Fitur
 
-| Modul            | Isi                                                                                                                                                                                                               |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Penyusunan surat | Compose surat dengan nomor agenda otomatis (dari `RefAgendaSurat` + kode klasifikasi), penerima, dokumen lampiran, dan riwayat aktivitas. Surat terkirim (`sent`) bisa diedit per bagian: isi, penerima, dokumen. |
-| Kotak masuk      | Surat masuk utama dan undangan: tabel dengan pencarian, filter status baca, pagination, dan detail surat + timeline penerima. Surat yang belum dibaca otomatis ditandai terbaca saat dibuka.                      |
-| Nota dinas       | Daftar nota dinas dengan pencarian/filter, pembuatan nota, dan penutupan (`close`) nota.                                                                                                                          |
-| Disposisi        | Disposisi per surat, termasuk disposisi khusus per pengguna, dengan timeline.                                                                                                                                     |
-| Arsip            | Arsip surat masuk berstatus `close` (baca-saja): daftar dengan pencarian, detail, metadata TNDE, riwayat audit, dan lampiran privat (`arsip.index`/`arsip.show`).                                                 |
-| Master data      | Pengguna, jabatan, role & permission, kode klasifikasi arsip, dan follow-up.                                                                                                                                      |
-| Dashboard        | Statistik ringkas dan data chart.                                                                                                                                                                                 |
-| Autentikasi      | Laravel Fortify: email/password, verifikasi email, 2FA (TOTP + recovery code), passkeys.                                                                                                                          |
-| Otorisasi        | spatie/laravel-permission (RBAC) dengan middleware `permission`, `role`, dan `wpermission` (wildcard, mis. `master.*`).                                                                                           |
-| UX               | Badge jumlah inbox di sidebar (di-cache 30 detik per jabatan aktif), toast, tema terang/gelap.                                                                                                                    |
+- **Penyusunan surat** — compose dengan nomor agenda otomatis, penerima, dokumen lampiran, dan riwayat aktivitas. Surat terkirim dapat diedit per bagian: isi, penerima, dan dokumen.
+- **Kotak masuk** — surat masuk utama dan undangan dengan pencarian, filter status baca, pagination, detail surat, dan timeline penerima. Membuka surat menandai `read_at` item.
+- **Disposisi** — disposisi per surat, termasuk disposisi khusus per pengguna, dengan catatan, follow-up, dan timeline.
+- **Nota dinas** — pembuatan nota, penutupan surat (`close`), catatan, dan timeline.
+- **Arsip** — surat masuk berstatus `close` (baca-saja), pencarian, metadata TNDE, riwayat audit, dan lampiran privat.
+- **Notifikasi** — pusat notifikasi (bell + riwayat) untuk surat masuk/undangan, disposisi, dan nota dinas. Kanal database, web push, email, dan Telegram; klasifikasi SR/R/T hanya database + web push. Status baca notifikasi dan item disinkronkan dua arah, dan tautan eksternal melewati endpoint `notifications.open`.
+- **Master data** — pengguna, jabatan, role & permission, kode klasifikasi arsip, dan follow-up.
+- **Dashboard** — statistik ringkas dan chart.
+- **Autentikasi** — Laravel Fortify: email/password, verifikasi email, 2FA (TOTP + recovery code), dan passkeys.
+- **Otorisasi** — spatie/laravel-permission dengan middleware `permission`, `role`, dan `wpermission` (wildcard, mis. `master.*`).
+- **UX** — badge inbox di sidebar (cache 30 detik per jabatan aktif), bell notifikasi, toast, dan tema terang/gelap.
+- **Operasional** — feature gate per environment, lampiran privat, serta deployment Docker + FrankenPHP atau Laravel Cloud.
 
 ## Tech Stack
 
 | Lapisan       | Teknologi                                                                                                      |
 | ------------- | -------------------------------------------------------------------------------------------------------------- |
 | Backend       | PHP ^8.3, Laravel ^13, Inertia ^3, Laravel Fortify, spatie/laravel-permission, Ziggy                           |
-| Frontend      | Vue 3 (Composition API + `<script setup>`), TypeScript, Inertia Vue, Tailwind CSS 4, reka-ui, GSAP, vue-sonner |
-| Build         | Vite+ (`vp`) — `vite` di-override ke `@voidzero-dev/vite-plus-core`; SSR dinonaktifkan                         |
+| Frontend      | Vue 3.5 (Composition API + `<script setup>`), TypeScript, Inertia Vue, Tailwind CSS 4, reka-ui, Unovis, GSAP, vue-sonner |
+| Build         | Vite+ (`vp`); `vite` di-override ke `@voidzero-dev/vite-plus-core`; SSR dinonaktifkan                         |
 | Database      | Default SQLite; MySQL/PostgreSQL didukung lewat `.env`                                                         |
-| Kualitas kode | Pest 4, Larastan (PHPStan), Pint, `vue-tsc`                                                                    |
+| Queue         | Database queue; worker mendengarkan `notifications,default`                                                    |
+| Notifikasi    | Database, Web Push (VAPID), email, dan Telegram                                                                |
+| Kualitas kode | Pest 4, Larastan (PHPStan), Pint, `vue-tsc`                                                                     |
 
-## Kebutuhan Sistem
+## Arsitektur
 
-- PHP **^8.3** (CI memakai 8.4), Composer 2
-- Node **22+** dan npm (lockfile npm — jangan pakai pnpm/yarn)
-- Database: SQLite (default, file `database/database.sqlite`) atau MySQL/PostgreSQL
+MVC dengan lapisan **Action** tipis untuk logika bisnis. Controller menangani HTTP, validasi lewat FormRequest, lalu mendelegasikan operasi ke Action.
 
-## Instalasi
-
-### Cara cepat (satu perintah)
-
-```bash
-composer setup
+```mermaid
+flowchart LR
+    R[routes/*.php] --> M["middleware: auth, permission, wpermission, feature"]
+    M --> C[Controller]
+    C --> V[FormRequest]
+    C --> A["Action / Service<br/>DB::transaction"]
+    A --> D[(Eloquent Models)]
+    C --> I["Inertia::render('pages/...')"]
+    I --> P[Vue 3 + TypeScript]
 ```
 
-Perintah tersebut menjalankan `composer install` → salin `.env` → `key:generate` → `migrate --force` → `npm install` → `npm run build`.
+- **Route modular** — `routes/web.php` memuat `memo.php`, `disposition.php`, `inbox.php`, `arsip.php`, `master.php`, `notifications.php`, dan `settings.php`. Otorisasi sepenuhnya lewat middleware per-route, tanpa Policy.
+- **Action layer** — operasi tulis inti (surat + nomor agenda + penerima + dokumen, disposisi, nota dinas) dibungkus `DB::transaction`.
+- **Inertia props** — controller mengembalikan props bertipe; daftar memakai `paginate(15)->withQueryString()` dan pencarian `whereLike`.
+- **Tipe bersama** — `resources/js/types/models/*` harus diperbarui bersamaan dengan props backend, jika tidak `npm run types:check` gagal.
+- **Feature gate** — fitur opsional (`email`, `telegram`, `webpush`) dipilih per environment lewat `COMPANY_FEATURES`; fitur yang tidak aktif mati secara fail-closed.
 
-### Manual
+## Modul & Akses
+
+| Modul | Route file | Permission |
+| --- | --- | --- |
+| Surat (compose & sent) | `web.php` | `compose.create`, `compose.store`, `sent.index`, `sent.show`, `sent.edit`, `sent.update` |
+| Kotak masuk | `inbox.php` | `primary.index`, `primary.show`, `undangan.index`, `undangan.show` |
+| Notifikasi | `notifications.php` | Cukup `auth`; data dibatasi ke notifikasi milik user |
+| Nota dinas | `memo.php` | `memo.index`, `memo.show`, `memo.create`, `memo.store`, `memo.close` |
+| Disposisi | `disposition.php` | `disposition.index`, `disposition.show`, `disposition.create`, `disposition.store` |
+| Arsip | `arsip.php` | `arsip.index`, `arsip.show` |
+| Master data | `master.php` | `master.pengguna`, `master.jabatan`, `master.klasifikasi`, `master.followup`; index `wpermission:master.*` |
+| Settings | `settings.php` | Cukup `auth`; update password memakai `RequirePassword` dan throttle `6,1` |
+
+## Struktur Proyek
+
+```text
+.
+├── app/
+│   ├── Actions/          # Logika bisnis per domain: Letter, Memo, Disposition, Notification, MasterData, …
+│   ├── Http/             # Controller, FormRequest, middleware
+│   ├── Models/           # Eloquent (tabel berbahasa Indonesia)
+│   ├── Notifications/    # InboxItemNotification + channel Telegram
+│   └── Services/         # CompanyFeature, NotificationCenter, storage, akses, cache
+├── routes/               # web.php + modul per domain
+├── resources/js/         # Halaman Inertia, komponen, composable, tipe TypeScript
+├── tests/                # Pest: Unit/ dan Feature/
+├── CHANGELOG.md          # Riwayat perubahan
+├── CODE_OF_CONDUCT.md    # Standar perilaku komunitas
+├── CONTRIBUTING.md       # Panduan kontribusi
+├── LICENSE               # Lisensi MIT
+├── docs/                 # Panduan deployment dan runbook
+├── deploy/               # Docker, systemd, dan script operasional
+└── public/               # Document root; sw.js untuk web push
+```
+
+## Memulai
+
+### Kebutuhan
+
+- PHP **^8.3** (CI memakai 8.4) dan Composer 2.
+- Node **26** dan npm. CI dan image memakai Node 26; gunakan lockfile npm, bukan pnpm/yarn.
+- SQLite (default), MySQL, atau PostgreSQL.
+
+### Instalasi cepat
 
 ```bash
 git clone https://github.com/msbhdn/e-surat.git
 cd e-surat
 
+composer setup
+php artisan db:seed --class=DatabaseSeeder   # opsional
+composer dev
+```
+
+`composer setup` menjalankan `composer install`, menyalin `.env`, membuat `APP_KEY`, migrasi database, `npm install`, dan build frontend.
+
+> [!WARNING]
+> `DatabaseSeeder` membuat akun `superadmin` dengan password `password` dan email kosong (login memakai username). Ganti password setelah login pertama.
+
+> [!NOTE]
+> Untuk data contoh lokal, jalankan `php artisan db:seed --class=DemoDataSeeder` setelah `DatabaseSeeder`. Akun demo: `pengelola`, `pengguna1`, dan `pengguna2` — semuanya memakai password `password`.
+
+<details>
+<summary>Instalasi manual</summary>
+
+```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate    # SQLite: file database/database.sqlite dibuat otomatis
-
-npm install
-npm run build          # wajib: public/build tidak di-track (gitignored)
-```
-
-### Data awal (opsional)
-
-```bash
 php artisan migrate
-php artisan db:seed --class=DatabaseSeeder   # permission + master data + admin default
+npm install
+npm run build
 ```
 
-`DatabaseSeeder` membuat administrator default yang sama di semua server:
+</details>
 
-| Field    | Nilai                            |
-| -------- | -------------------------------- |
-| Username | `superadmin`                     |
-| Name     | `Super Administrator`            |
-| Password | `password` (ganti setelah login) |
-| Email    | kosong (login memakai username)  |
-
-Ganti password setelah login pertama. Seeder idempotent dan tidak mereset
-password yang sudah diganti. Master data awal (role, jabatan, tindak lanjut,
-klasifikasi) sama untuk semua perusahaan dan disesuaikan lewat UI Master Data.
-Untuk data contoh di lingkungan lokal saja, jalankan
-`php artisan db:seed --class=DemoDataSeeder` (akun demo memakai password `password`).
-
-## Menjalankan Development
+### Menjalankan development
 
 ```bash
 composer dev
 ```
 
-Menjalankan tiga proses sekaligus via `concurrently`: `php artisan serve`, `php artisan queue:listen` (queue driver `database`), dan `npm run dev` (Vite dev server). Aplikasi diakses di `http://127.0.0.1:8000`.
+Perintah tersebut menjalankan tiga proses sekaligus: `php artisan serve`, `php artisan queue:listen --queue=notifications,default`, dan Vite dev server. Aplikasi diakses di `http://127.0.0.1:8000`.
 
-## Perintah Penting
+### Perintah penting
 
 | Perintah                              | Fungsi                                                                         |
 | ------------------------------------- | ------------------------------------------------------------------------------ |
-| `composer setup`                      | Bootstrap lengkap dari nol (install, `.env`, key, migrate, npm install, build) |
+| `composer setup`                      | Bootstrap lengkap: install, `.env`, key, migrate, npm install, build           |
 | `composer dev`                        | Server + queue worker + Vite dev server                                        |
 | `npm run dev`                         | Vite dev server saja                                                           |
 | `npm run build`                       | Build produksi ke `public/build`                                               |
@@ -110,118 +184,74 @@ Menjalankan tiga proses sekaligus via `concurrently`: `php artisan serve`, `php 
 | `composer ci:check`                   | Yang dijalankan CI: `npm run check` → `npm run types:check` → `composer test`  |
 | `php artisan company:validate-config` | Preflight feature/ruleset sebelum deploy                                       |
 
-## Arsitektur
+## Konfigurasi
 
-MVC dengan lapisan **Action** tipis untuk logika bisnis. Controller hanya memvalidasi lewat FormRequest dan mendelegasikan ke Action.
+| Variabel | Fungsi |
+| --- | --- |
+| `APP_URL`, `APP_KEY` | URL publik dan kunci aplikasi; `APP_KEY` unik per environment. |
+| `COMPANY_KEY`, `COMPANY_FEATURES`, `COMPANY_RULESET` | Identitas instansi, feature gate (`email`, `telegram`, `webpush`), dan ruleset bisnis. |
+| `DB_*`, `CACHE_STORE`, `SESSION_DRIVER`, `QUEUE_CONNECTION` | Database, cache/session, dan queue persisten. |
+| `FILESYSTEM_DISK` | Disk privat lampiran: volume `local` atau bucket `s3`. |
+| `MAIL_*` | Kanal email untuk feature `email`. |
+| `TELEGRAM_*` | Bot dan secret webhook untuk feature `telegram`. |
+| `VAPID_*` | Kunci Web Push untuk feature `webpush`. |
 
-```mermaid
-flowchart LR
-    R[routes/*.php] --> M["middleware: auth, permission, wpermission"]
-    M --> C[Controller]
-    C --> V[FormRequest]
-    C --> A["Action / Service<br/>DB::transaction"]
-    A --> D[(Eloquent Models)]
-    C --> I["Inertia::render('pages/...')"]
-    I --> P[Vue 3 + TS]
-```
+> [!IMPORTANT]
+> Feature gate bersifat fail-closed: fitur yang tidak tercantum di `COMPANY_FEATURES` tidak aktif. Feature `email` mensyaratkan mailer nyata (bukan `log`/`array`) dan `MAIL_FROM_ADDRESS`; `telegram` memerlukan token, username, dan secret; `webpush` memerlukan VAPID dan `APP_URL` HTTPS. Jalankan `php artisan company:validate-config` sebelum deploy.
 
-- **Route modular**: `routes/web.php` memuat `memo.php`, `disposition.php`, `inbox.php`, `arsip.php`, `master.php`, `settings.php`. Otorisasi sepenuhnya lewat middleware per-route (tanpa Policy).
-- **Inertia props**: controller mengembalikan props bertipe (termasuk `breadcrumbItems`); daftar memakai `paginate(15)->withQueryString()` dan pencarian `whereLike`.
-- **Transaksi**: penulisan inti (surat + nomor agenda + penerima + dokumen) dibungkus `DB::transaction` di Action.
-- **Tipe bersama**: `resources/js/types/models/*` harus diperbarui bersamaan dengan props backend, jika tidak `npm run types:check` gagal.
-
-## Struktur Direktori
-
-```text
-.
-├── app/
-│   ├── Actions/                 # Logika bisnis: Letter, Memo, Disposition, Dashboard, MasterData, Fortify
-│   ├── Http/
-│   │   ├── Controllers/         # Controller tipis (MasterData/, Inbox/, Settings/)
-│   │   ├── Middleware/          # HandleInertiaRequests, HandleAppearance, WildcardPermissionMiddleware, CompanyFeatureMiddleware
-│   │   └── Requests/            # Satu FormRequest per operasi tulis
-│   ├── Models/                  # Eloquent: letters, memo, dispositions, ref_agenda_surat, ref_kd_klasifikasi, …
-│   ├── Console/Commands/        # company:validate-config, letter-docs:migrate-storage
-│   └── Services/                # CompanyFeature, LetterDocStorage, LetterAccess, LetterActivityService, cache
-├── bootstrap/app.php            # Alias middleware + web stack
-├── database/                    # Migrations, seeders (Permissions, MasterDataSeeder), factories
-├── public/                      # Document root; public/build hasil build (tidak di-track)
-├── resources/
-│   ├── css/app.css
-│   └── js/
-│       ├── components/          # Shared components + ui/ (gaya shadcn/reka-ui, jangan diedit manual)
-│       ├── composables/         # usePermissions, useAppearance, useFormattedDate, useDecades, …
-│       ├── layouts/             # Layout Inertia
-│       ├── pages/               # app/{sent,memo,disposition,primary,undangan}, archive, master, settings, auth
-│       └── types/               # Tipe model TypeScript (selaras dengan props backend)
-├── routes/                      # web.php + modul per domain
-├── storage/
-└── tests/                       # Pest: Unit/, Feature/{Auth,Settings}
-```
-
-## Routing & Hak Akses
-
-| Modul                  | Route file        | Permission middleware                                                                                              |
-| ---------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Surat (compose & sent) | `web.php`         | `compose.create`, `compose.store`, `sent.index`, `sent.show`, `sent.edit`                                          |
-| Kotak masuk            | `inbox.php`       | `primary.index`, `primary.show`, `undangan.index`, `undangan.show`                                                 |
-| Nota dinas             | `memo.php`        | `memo.index`, `memo.show`, `memo.create`, `memo.store`, `memo.close`                                               |
-| Disposisi              | `disposition.php` | `disposition.index`, `disposition.show`, `disposition.create`, `disposition.store`                                 |
-| Arsip                  | `arsip.php`       | Cukup `auth` (halaman masih placeholder)                                                                           |
-| Master data            | `master.php`      | `master.pengguna`, `master.jabatan`, `master.klasifikasi`, `master.followup`; index memakai `wpermission:master.*` |
-| Settings               | `settings.php`    | Cukup `auth` (profil, password, tampilan, keamanan)                                                                |
+- **Telegram** — setelah `TELEGRAM_*` terisi dan `APP_URL` HTTPS publik, daftarkan webhook dengan `php artisan telegram:webhook:set`. Route webhook: `POST /telegram/webhook`.
+- **Notifikasi eksternal** — email, Telegram, dan web push dikirim lewat queue `notifications`. Worker harus mendengarkan `--queue=notifications,default` (sudah diset di `composer dev` dan `compose.yml`).
+- **Lampiran** — disimpan di disk privat. Jangan memakai `php artisan storage:link` atau disk `public`; akses hanya lewat endpoint unduhan/pratinjau yang memeriksa izin.
 
 ## Testing
 
-Backend memakai **Pest 4** dengan SQLite in-memory (`phpunit.xml` memaksa `DB_CONNECTION=sqlite`, `:memory:`), jadi aman dijalankan kapan saja tanpa menyentuh database development.
+Backend memakai **Pest 4** dengan SQLite in-memory. `phpunit.xml` memaksa `DB_CONNECTION=sqlite` dan `:memory:`, jadi test aman dijalankan kapan saja tanpa menyentuh database development.
 
 ```bash
 php artisan test                              # seluruh suite
-php artisan test --filter=AuthenticationTest  # satu file
+php artisan test --filter=AuthenticationTest  # satu test
 php artisan test tests/Feature/Auth/          # satu direktori
 composer test                                 # lint + PHPStan + Pest
+composer ci:check                             # yang dijalankan CI
 ```
 
-Cakupan saat ini: alur auth, settings, dashboard, cache badge inbox, dan cache permission. Domain inti e-surat (surat, nota dinas, disposisi, arsip, master data) masih minim test — tambahkan Feature test saat mengubah alur tersebut.
+Cakupan saat ini: auth, settings, dashboard, pusat notifikasi (termasuk sinkronisasi read state dan tautan eksternal), cache badge inbox, dan cache permission. Domain inti e-surat (surat, nota dinas, disposisi, arsip, master data) masih minim test — tambahkan Feature test saat mengubah alur tersebut.
 
 ## Deployment
 
-Satu server melayani satu perusahaan. Image/tag sama untuk semua perusahaan;
-perbedaan hanya pada environment (feature, ruleset, port/domain, storage).
-Dua jalur:
+Satu environment produksi melayani satu instansi. Image dan tag sama untuk semua instansi; database, cache/session, queue, storage, secret, dan domain terpisah. Aplikasi tidak memakai `company_id` atau global scope tenant — isolasi dilakukan di level environment.
 
-- **Docker + FrankenPHP (VM Ubuntu, default):** image dibangun sekali per tag
-  oleh `.github/workflows/release.yml`, rollout manual. Mulai dari
-  [`docs/runbook-docker-frankenphp.md`](docs/runbook-docker-frankenphp.md).
-- **Laravel Cloud:** satu environment per perusahaan, bucket privat + managed
-  worker. Lihat [`docs/deployment.md`](docs/deployment.md).
+- **[Panduan deployment](docs/deployment.md)** — kontrak environment, bootstrap, storage, queue, dan aturan rilis.
+- **[Runbook Docker + FrankenPHP](docs/runbook-docker-frankenphp.md)** — topologi, prasyarat host, dan langkah rollout.
 
 ```bash
-cp deploy/docker/.env.example .env     # isi COMPANY_*, DB, mail, port/domain
+cp deploy/docker/.env.example .env
 docker compose run --rm app php artisan company:validate-config
 docker compose run --rm app php artisan migrate --force
-docker compose run --rm app php artisan db:seed --class=DatabaseSeeder   # termasuk admin default
+docker compose run --rm app php artisan db:seed --class=DatabaseSeeder
 docker compose up -d
 ```
 
-Catatan:
+> [!IMPORTANT]
+> `APP_ENV=production`, `APP_DEBUG=false`, dan `COMPANY_KEY` wajib diisi. Entrypoint container akan berhenti sebelum melayani trafik bila konfigurasi company tidak valid atau storage host tidak writable.
 
-- Lampiran surat disimpan di disk privat default: volume host
-  `DATA_PATH/storage/app/private` (mode VM) atau bucket privat (`FILESYSTEM_DISK=s3`).
-  Hanya endpoint unduhan/pratinjau yang memeriksa akses yang menyajikan file; jangan
-  memakai `php artisan storage:link`.
-- `public/build` sengaja **tidak di-commit** (lihat `.gitignore`); image
-  membangunnya pada stage Node 26.
-- `php artisan route:cache` belum bisa dipakai karena beberapa route
-  didefinisikan sebagai closure; gunakan `config:cache` saja (dijalankan
-  entrypoint container).
-- File `.env` produksi perlu `APP_ENV=production`, `APP_DEBUG=false`,
-  `COMPANY_KEY`, `COMPANY_FEATURES`, `COMPANY_RULESET`,
-  kredensial database/cache/queue, dan konfigurasi mail.
-- `php artisan company:validate-config` wajib lulus sebelum container melayani
-  trafik; feature/ruleset yang tidak dikenal menghentikan start. Feature `email`
-  mensyaratkan mailer nyata dan `MAIL_FROM_ADDRESS`.
+Catatan operasional:
 
-## Lisensi
+- Lampiran disimpan di `DATA_PATH/storage/app/private` (volume host) atau bucket privat (`FILESYSTEM_DISK=s3`).
+- `public/build` tidak di-commit; image membangunnya pada stage Node 26.
+- `php artisan route:cache` belum bisa dipakai karena beberapa route berupa closure; gunakan `config:cache`.
+- Worker queue harus mendengarkan `notifications,default` agar email, Telegram, dan web push terkirim.
 
-MIT — sesuai deklarasi `composer.json`.
+## Contributors
+
+Terima kasih kepada semua yang membantu membuat e-Surat lebih baik.
+
+Menemukan bug, aturan yang terlewat, atau masalah saat instalasi? [Buka issue](https://github.com/msbhdn/e-surat/issues). Ketentuan pull request ada di [`CONTRIBUTING.md`](CONTRIBUTING.md), dan perilaku di issue serta pull request diatur oleh [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+## Changelog
+
+Lihat [`CHANGELOG.md`](CHANGELOG.md) untuk riwayat perubahan. Rilis bertag juga tersedia di [GitHub Releases](https://github.com/msbhdn/e-surat/releases).
+
+## License
+
+Dirilis di bawah lisensi [MIT](LICENSE). Deklarasi lisensi juga tersedia di [`composer.json`](composer.json).
