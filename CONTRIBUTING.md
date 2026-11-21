@@ -39,7 +39,7 @@ Default-nya aplikasi memakai SQLite. Detail kebutuhan, data demo, dan perintah d
 
 ## Code conventions
 
-Ikuti pola yang sudah ada di [`AGENTS.md`](AGENTS.md) dan kode di sekitarnya:
+Ikuti pola yang sudah ada di kode sekitar:
 
 - **Backend** — logika bisnis di Action dengan `handle()`; validasi di FormRequest; penulisan multi-langkah dibungkus `DB::transaction`.
 - **Frontend** — Vue 3 Composition API dengan `<script setup lang="ts">`; komponen `ui/*` adalah generated reka-ui dan tidak diedit manual; class Tailwind memakai `cn`/`cva`.
