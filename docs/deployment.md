@@ -41,7 +41,7 @@ APP_DEBUG=false
 APP_URL=https://esurat.company-a.example.com
 APP_KEY=            # unik per perusahaan: php artisan key:generate --show
 COMPANY_KEY=company-a
-COMPANY_FEATURES=   # mis. email,telegram
+COMPANY_FEATURES=   # mis. email,telegram,webpush
 COMPANY_RULESET=default
 
 DB_CONNECTION=mysql # database milik perusahaan tersebut
@@ -135,6 +135,42 @@ Saat ini:
 
 - `email`: `MAIL_MAILER` nyata (bukan `log`/`array`) dan `MAIL_FROM_ADDRESS`.
 - `telegram`: `services.telegram.bot_token`, `bot_username`, dan `webhook_secret`.
+- `webpush`: `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY`, dan `VAPID_PRIVATE_KEY`.
+  Selain itu `APP_URL` wajib `https://<domain>` dengan hostname DNS (bukan
+  alamat IP); syarat runtime ini diperiksa `CompanyFeature::webPushEligible()`
+  dan tidak menggagalkan deploy.
+
+### Notifikasi browser (Web Push)
+
+Notifikasi database (`/notifications`, bell, badge unread) selalu aktif tanpa
+feature. Web Push hanya dikirim bila seluruh syarat berikut terpenuhi:
+
+1. `APP_URL` memakai `https://` dan hostname berupa domain nyata dengan TLS —
+   jangan memakai URL `http://<ip>` atau `https://<ip>`.
+2. `COMPANY_FEATURES` memuat `webpush`.
+3. `VAPID_SUBJECT` (URL HTTPS atau `mailto:`), `VAPID_PUBLIC_KEY`, dan
+   `VAPID_PRIVATE_KEY` terisi.
+
+Urutan operator:
+
+```bash
+# Sekali saja per environment; simpan output ke secret manager.
+php artisan webpush:vapid
+
+# Isi ketiga VAPID_* di .env, lalu:
+php artisan company:validate-config
+php artisan migrate --force
+php artisan config:cache
+
+# Worker yang sudah ada memproses queue notifications.
+php artisan queue:work --queue=notifications,default --tries=3 --timeout=60
+```
+
+Pengguna membuka Sheet pemberitahuan lalu menekan “Aktifkan notifikasi browser”;
+tidak ada prompt izin otomatis saat page load. Bila tenant tidak memenuhi
+syarat, Web Push tidak ditawarkan dan notifikasi database tetap berjalan.
+Jangan merotasi kunci VAPID tanpa alasan: seluruh subscription browser lama
+menjadi tidak valid dan pengguna harus mengaktifkan ulang.
 
 ## 5. Pipeline release
 

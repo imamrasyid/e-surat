@@ -98,4 +98,5 @@ require __DIR__.'/memo.php';
 require __DIR__.'/disposition.php';
 require __DIR__.'/inbox.php';
 require __DIR__.'/master.php';
+require __DIR__.'/notifications.php';
 require __DIR__.'/settings.php';

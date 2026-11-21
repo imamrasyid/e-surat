@@ -16,6 +16,7 @@ use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\InboxItemNotification;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
@@ -105,7 +106,7 @@ it('notifies every active user holding the target position of a primary letter',
 
         return $item instanceof LetterRecipient
             && $item->to_position_id === $target->id
-            && $notification->toMail($firstTargetUser)->subject === 'Surat masuk primary baru: '.$letter->subject
+            && $notification->toMail($firstTargetUser)->subject === 'Surat Masuk Utama: '.$letter->subject
             && str_contains(
                 $notification->toTelegram($firstTargetUser),
                 route('inbox.primary.show', ['recipient' => $item->id, 'letter_id' => $letter->letter_id])
@@ -136,9 +137,10 @@ it('uses the invitation label and route for category 2 letters', function () {
             'letter_id' => $letter->letter_id,
         ]);
 
-        return $channels === ['mail', TelegramChannel::class]
-            && $mail->subject === 'Surat undangan baru: '.$letter->subject
-            && str_contains($telegram, 'Surat undangan baru')
+        return $channels === ['database', 'mail', TelegramChannel::class]
+            && $notification->toDatabase($user)['item_type'] === 'invitation'
+            && $mail->subject === 'Surat Undangan: '.$letter->subject
+            && str_contains($telegram, 'Surat Undangan')
             && str_contains($telegram, $url);
     });
 });
@@ -155,8 +157,8 @@ it('only includes the channels whose contact is available', function () {
 
     inboxComposeLetter($sender, $senderPosition, [$target]);
 
-    Notification::assertSentTo($emailOnly, InboxItemNotification::class, fn (InboxItemNotification $notification, array $channels) => $channels === ['mail']);
-    Notification::assertSentTo($withTelegram, InboxItemNotification::class, fn (InboxItemNotification $notification, array $channels) => $channels === ['mail', TelegramChannel::class]);
+    Notification::assertSentTo($emailOnly, InboxItemNotification::class, fn (InboxItemNotification $notification, array $channels) => $channels === ['database', 'mail']);
+    Notification::assertSentTo($withTelegram, InboxItemNotification::class, fn (InboxItemNotification $notification, array $channels) => $channels === ['database', 'mail', TelegramChannel::class]);
 });
 
 it('notifies primary and cc recipients of a new disposition', function () {
@@ -296,9 +298,84 @@ it('only notifies new and reassigned recipients when sent recipients are updated
         ->and($movedRecipient->received_at)->not->toBeNull();
 });
 
-it('does not notify when the creating transaction rolls back', function () {
-    Notification::fake();
+it('stores an internal database notification with its classification and source', function () {
+    $sender = User::factory()->create();
+    $senderPosition = Position::create(['name' => 'Sekretaris']);
+    $target = Position::create(['name' => 'Kepala Bagian Umum']);
+    $user = inboxUserOn($target);
 
+    $letter = inboxComposeLetter($sender, $senderPosition, [$target]);
+    $recipient = LetterRecipient::where('letter_id', $letter->id)->sole();
+
+    $notification = $user->notifications()->sole();
+
+    expect($notification->data)->toMatchArray([
+        'title' => 'Surat Masuk Utama',
+        'body' => $letter->subject,
+        'url' => route('inbox.primary.show', [
+            'recipient' => $recipient->id,
+            'letter_id' => $letter->letter_id,
+        ]),
+        'item_type' => 'primary',
+        'security_classification' => 'B',
+        'received_via' => 'other',
+    ])->and(array_keys($notification->data))->toBe([
+        'title', 'body', 'url', 'item_type', 'security_classification', 'received_via',
+    ]);
+});
+
+it('keeps restricted items in the database only and redacts their push payload', function () {
+    $sender = User::factory()->create();
+    $from = Position::create(['name' => 'Sekretaris']);
+    $to = Position::create(['name' => 'Kepala Bagian Umum']);
+    $user = inboxUserOn($to, ['telegram_chat_id' => '123456789']);
+
+    $letter = inboxLetter($sender);
+    $letter->update(['security_classification' => 'R', 'received_via' => 'email']);
+    $recipient = inboxRecipient($letter, $sender, $from, $to);
+
+    $notification = new InboxItemNotification($recipient);
+
+    expect($notification->via($user))->toBe(['database']);
+
+    expect($notification->toDatabase($user))->toMatchArray([
+        'title' => 'Surat Masuk Utama',
+        'body' => '(perihal dirahasiakan)',
+        'item_type' => 'primary',
+        'security_classification' => 'R',
+        'received_via' => 'email',
+    ]);
+
+    $push = $notification->toWebPush($user, $notification)->toArray();
+    $payload = json_encode($push);
+
+    expect($push['data'])->toMatchArray([
+        'security_classification' => 'R',
+        'received_via' => 'email',
+    ])->and($payload)->not->toContain($letter->subject)
+        ->and($payload)->not->toContain($letter->sender);
+});
+
+it('uses the subject as the web push body for ordinary letters', function () {
+    $sender = User::factory()->create();
+    $from = Position::create(['name' => 'Sekretaris']);
+    $to = Position::create(['name' => 'Kepala Bagian Umum']);
+    $user = inboxUserOn($to);
+
+    $letter = inboxLetter($sender);
+    $recipient = inboxRecipient($letter, $sender, $from, $to);
+
+    $push = (new InboxItemNotification($recipient))->toWebPush($user, new InboxItemNotification($recipient))->toArray();
+
+    expect($push['title'])->toBe('Surat Masuk Utama')
+        ->and($push['body'])->toBe($letter->subject)
+        ->and($push['data'])->toMatchArray([
+            'security_classification' => 'B',
+            'received_via' => 'other',
+        ]);
+});
+
+it('does not notify when the creating transaction rolls back', function () {
     $sender = User::factory()->create();
     $senderPosition = Position::create(['name' => 'Sekretaris']);
     $letterOwnerPosition = Position::create(['name' => 'Kepala Bagian Umum']);
@@ -321,5 +398,31 @@ it('does not notify when the creating transaction rolls back', function () {
 
     expect(Disposition::where('letter_id', $letter->id)->count())->toBe(0);
 
+    expect(DB::table('notifications')->count())->toBe(0);
+});
+
+it('dispatches the notification only after the creating transaction commits', function () {
+    Notification::fake();
+
+    $sender = User::factory()->create();
+    $senderPosition = Position::create(['name' => 'Sekretaris']);
+    $letterOwnerPosition = Position::create(['name' => 'Kepala Bagian Umum']);
+    $targetPosition = Position::create(['name' => 'Kepala Sub Bagian A']);
+
+    inboxUserOn($targetPosition);
+
+    $letter = inboxLetter($sender);
+    $recipient = inboxRecipient($letter, $sender, $senderPosition, $letterOwnerPosition);
+
+    expect(fn () => app(CreateDispositionAction::class)->handle($sender, $senderPosition, [
+        'letter_id_primary' => $letter->id,
+        'letter_recipient_id' => $recipient->id,
+        'letter_receipt_date' => '2026-10-02',
+        'penerima' => [['id' => $targetPosition->id]],
+        'penerima_cc' => [['id' => 999999]],
+    ]))->toThrow(QueryException::class);
+
+    // Event harus ditunda sampai commit; fake menangkap dispatch sinkron
+    // seandainya ShouldDispatchAfterCommit hilang.
     Notification::assertNothingSent();
 });
