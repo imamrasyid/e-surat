@@ -53,15 +53,15 @@ Notifikasi menghubungkan seluruh alur tersebut: setiap surat, disposisi, dan not
 
 ## Tech Stack
 
-| Lapisan       | Teknologi                                                                                                      |
-| ------------- | -------------------------------------------------------------------------------------------------------------- |
-| Backend       | PHP ^8.3, Laravel ^13, Inertia ^3, Laravel Fortify, spatie/laravel-permission, Ziggy                           |
+| Lapisan       | Teknologi                                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Backend       | PHP ^8.3, Laravel ^13, Inertia ^3, Laravel Fortify, spatie/laravel-permission, Ziggy                                     |
 | Frontend      | Vue 3.5 (Composition API + `<script setup>`), TypeScript, Inertia Vue, Tailwind CSS 4, reka-ui, Unovis, GSAP, vue-sonner |
-| Build         | Vite+ (`vp`); `vite` di-override ke `@voidzero-dev/vite-plus-core`; SSR dinonaktifkan                         |
-| Database      | Default SQLite; MySQL/PostgreSQL didukung lewat `.env`                                                         |
-| Queue         | Database queue; worker mendengarkan `notifications,default`                                                    |
-| Notifikasi    | Database, Web Push (VAPID), email, dan Telegram                                                                |
-| Kualitas kode | Pest 4, Larastan (PHPStan), Pint, `vue-tsc`                                                                     |
+| Build         | Vite+ (`vp`); `vite` di-override ke `@voidzero-dev/vite-plus-core`; SSR dinonaktifkan                                    |
+| Database      | Default SQLite; MySQL/PostgreSQL didukung lewat `.env`                                                                   |
+| Queue         | Database queue; worker mendengarkan `notifications,default`                                                              |
+| Notifikasi    | Database, Web Push (VAPID), email, dan Telegram                                                                          |
+| Kualitas kode | Pest 4, Larastan (PHPStan), Pint, `vue-tsc`                                                                              |
 
 ## Arsitektur
 
@@ -86,16 +86,16 @@ flowchart LR
 
 ## Modul & Akses
 
-| Modul | Route file | Permission |
-| --- | --- | --- |
-| Surat (compose & sent) | `web.php` | `compose.create`, `compose.store`, `sent.index`, `sent.show`, `sent.edit`, `sent.update` |
-| Kotak masuk | `inbox.php` | `primary.index`, `primary.show`, `undangan.index`, `undangan.show` |
-| Notifikasi | `notifications.php` | Cukup `auth`; data dibatasi ke notifikasi milik user |
-| Nota dinas | `memo.php` | `memo.index`, `memo.show`, `memo.create`, `memo.store`, `memo.close` |
-| Disposisi | `disposition.php` | `disposition.index`, `disposition.show`, `disposition.create`, `disposition.store` |
-| Arsip | `arsip.php` | `arsip.index`, `arsip.show` |
-| Master data | `master.php` | `master.pengguna`, `master.jabatan`, `master.klasifikasi`, `master.followup`; index `wpermission:master.*` |
-| Settings | `settings.php` | Cukup `auth`; update password memakai `RequirePassword` dan throttle `6,1` |
+| Modul                  | Route file          | Permission                                                                                                 |
+| ---------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Surat (compose & sent) | `web.php`           | `compose.create`, `compose.store`, `sent.index`, `sent.show`, `sent.edit`, `sent.update`                   |
+| Kotak masuk            | `inbox.php`         | `primary.index`, `primary.show`, `undangan.index`, `undangan.show`                                         |
+| Notifikasi             | `notifications.php` | Cukup `auth`; data dibatasi ke notifikasi milik user                                                       |
+| Nota dinas             | `memo.php`          | `memo.index`, `memo.show`, `memo.create`, `memo.store`, `memo.close`                                       |
+| Disposisi              | `disposition.php`   | `disposition.index`, `disposition.show`, `disposition.create`, `disposition.store`                         |
+| Arsip                  | `arsip.php`         | `arsip.index`, `arsip.show`                                                                                |
+| Master data            | `master.php`        | `master.pengguna`, `master.jabatan`, `master.klasifikasi`, `master.followup`; index `wpermission:master.*` |
+| Settings               | `settings.php`      | Cukup `auth`; update password memakai `RequirePassword` dan throttle `6,1`                                 |
 
 ## Struktur Proyek
 
@@ -170,31 +170,31 @@ Perintah tersebut menjalankan tiga proses sekaligus: `php artisan serve`, `php a
 
 ### Perintah penting
 
-| Perintah                              | Fungsi                                                                         |
-| ------------------------------------- | ------------------------------------------------------------------------------ |
-| `composer setup`                      | Bootstrap lengkap: install, `.env`, key, migrate, npm install, build           |
-| `composer dev`                        | Server + queue worker + Vite dev server                                        |
-| `npm run dev`                         | Vite dev server saja                                                           |
-| `npm run build`                       | Build produksi ke `public/build`                                               |
-| `npm run check` / `check:fix`         | Lint + format TS/Vue (`vp check`)                                              |
-| `npm run types:check`                 | Type-check frontend (`vue-tsc --noEmit`)                                       |
-| `composer lint` / `lint:check`        | Pint (format / cek tanpa mengubah file)                                        |
-| `composer types:check`                | PHPStan (Larastan)                                                             |
-| `composer test`                       | `config:clear` → `lint:check` → `types:check` → `php artisan test`             |
-| `composer ci:check`                   | Yang dijalankan CI: `npm run check` → `npm run types:check` → `composer test`  |
-| `php artisan company:validate-config` | Preflight feature/ruleset sebelum deploy                                       |
+| Perintah                              | Fungsi                                                                        |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| `composer setup`                      | Bootstrap lengkap: install, `.env`, key, migrate, npm install, build          |
+| `composer dev`                        | Server + queue worker + Vite dev server                                       |
+| `npm run dev`                         | Vite dev server saja                                                          |
+| `npm run build`                       | Build produksi ke `public/build`                                              |
+| `npm run check` / `check:fix`         | Lint + format TS/Vue (`vp check`)                                             |
+| `npm run types:check`                 | Type-check frontend (`vue-tsc --noEmit`)                                      |
+| `composer lint` / `lint:check`        | Pint (format / cek tanpa mengubah file)                                       |
+| `composer types:check`                | PHPStan (Larastan)                                                            |
+| `composer test`                       | `config:clear` → `lint:check` → `types:check` → `php artisan test`            |
+| `composer ci:check`                   | Yang dijalankan CI: `npm run check` → `npm run types:check` → `composer test` |
+| `php artisan company:validate-config` | Preflight feature/ruleset sebelum deploy                                      |
 
 ## Konfigurasi
 
-| Variabel | Fungsi |
-| --- | --- |
-| `APP_URL`, `APP_KEY` | URL publik dan kunci aplikasi; `APP_KEY` unik per environment. |
-| `COMPANY_KEY`, `COMPANY_FEATURES`, `COMPANY_RULESET` | Identitas instansi, feature gate (`email`, `telegram`, `webpush`), dan ruleset bisnis. |
-| `DB_*`, `CACHE_STORE`, `SESSION_DRIVER`, `QUEUE_CONNECTION` | Database, cache/session, dan queue persisten. |
-| `FILESYSTEM_DISK` | Disk privat lampiran: volume `local` atau bucket `s3`. |
-| `MAIL_*` | Kanal email untuk feature `email`. |
-| `TELEGRAM_*` | Bot dan secret webhook untuk feature `telegram`. |
-| `VAPID_*` | Kunci Web Push untuk feature `webpush`. |
+| Variabel                                                    | Fungsi                                                                                 |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `APP_URL`, `APP_KEY`                                        | URL publik dan kunci aplikasi; `APP_KEY` unik per environment.                         |
+| `COMPANY_KEY`, `COMPANY_FEATURES`, `COMPANY_RULESET`        | Identitas instansi, feature gate (`email`, `telegram`, `webpush`), dan ruleset bisnis. |
+| `DB_*`, `CACHE_STORE`, `SESSION_DRIVER`, `QUEUE_CONNECTION` | Database, cache/session, dan queue persisten.                                          |
+| `FILESYSTEM_DISK`                                           | Disk privat lampiran: volume `local` atau bucket `s3`.                                 |
+| `MAIL_*`                                                    | Kanal email untuk feature `email`.                                                     |
+| `TELEGRAM_*`                                                | Bot dan secret webhook untuk feature `telegram`.                                       |
+| `VAPID_*`                                                   | Kunci Web Push untuk feature `webpush`.                                                |
 
 > [!IMPORTANT]
 > Feature gate bersifat fail-closed: fitur yang tidak tercantum di `COMPANY_FEATURES` tidak aktif. Feature `email` mensyaratkan mailer nyata (bukan `log`/`array`) dan `MAIL_FROM_ADDRESS`; `telegram` memerlukan token, username, dan secret; `webpush` memerlukan VAPID dan `APP_URL` HTTPS. Jalankan `php artisan company:validate-config` sebelum deploy.
