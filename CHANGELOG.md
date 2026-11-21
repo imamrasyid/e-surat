@@ -6,6 +6,8 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-21
+
 ### Added
 
 - Pusat notifikasi dengan kanal database, Web Push, email, dan Telegram untuk surat masuk/undangan, disposisi, dan nota dinas.
@@ -35,5 +37,6 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Penerima disposisi dan nota dinas dapat membuat follow-up.
 - Backup deployment membaca `.env` dengan benar dan memakai path unit systemd yang tepat.
 
-[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.1.7...HEAD
+[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.2.0
 [2.1.7]: https://github.com/msbhdn/e-surat/releases/tag/v2.1.7
