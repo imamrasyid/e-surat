@@ -6,14 +6,26 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-11-22
+
 ### Added
 
-- `SECURITY.md`, issue templates, pull request template, dan audit dependensi di CI.
+- `SECURITY.md`, issue templates, pull request template, dan audit dependensi (`composer audit`, `npm audit`) di CI tes dan rilis.
 
 ### Changed
 
+- `spatie/laravel-permission` 6 → 8 (konfigurasi mengikuti key dan nama event v8).
+- `@vueuse/core` 12 → 15 dan `concurrently` 10 (dev); grup npm minor/patch 16 paket dan grup Composer 12 paket.
 - Metadata Composer/npm, `.env.example` app name, dan pola `.gitignore` untuk file `.env.*`.
-- Dependabot mencakup Composer dan npm.
+- Dependabot: grup minor/patch dipisah per ekosistem; `vite-plus` dan major TypeScript diabaikan sampai prasyarat manualnya siap.
+
+### Fixed
+
+- Cache permission pengguna dibersihkan eksplisit saat pengguna dibuat dan role diperbarui, dengan regression test; listener event yang tidak pernah terdaftar dihapus.
+
+### Removed
+
+- `AGENTS.md` dan referensi agen internal dari repositori publik; `AGENTS.md` dikecualikan dari konteks build Docker.
 
 ## [2.2.0] - 2026-11-21
 
@@ -46,6 +58,7 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Penerima disposisi dan nota dinas dapat membuat follow-up.
 - Backup deployment membaca `.env` dengan benar dan memakai path unit systemd yang tepat.
 
-[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.3.0
 [2.2.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.2.0
 [2.1.7]: https://github.com/msbhdn/e-surat/releases/tag/v2.1.7
