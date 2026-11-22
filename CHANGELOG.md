@@ -6,6 +6,10 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Base image Docker diperbarui: Node 26 (digest baru), Composer 2.11.2, dan FrankenPHP 1.14.0 dengan PHP 8.4.28.
+
 ## [2.3.0] - 2026-11-22
 
 ### Added
