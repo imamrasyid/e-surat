@@ -31,7 +31,7 @@
         "laravel/fortify": "^1.39",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
-        "spatie/laravel-permission": "^6.21",
+        "spatie/laravel-permission": "^8.5",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
