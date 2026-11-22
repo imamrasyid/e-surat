@@ -2,9 +2,9 @@
 
 # Image dibangun SEKALI per tag rilis lalu dipakai semua perusahaan.
 # Base image di-pin by digest; perbarui digest lewat `docker buildx imagetools inspect`.
-ARG NODE_IMAGE=node:26-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216
-ARG COMPOSER_IMAGE=composer:2.11.1@sha256:3d1eb9437516b0ba88c46a0bb05826451a1ab178d29adacb5ded26dad0899ae4
-ARG RUNTIME_IMAGE=dunglas/frankenphp:1.13.5-php8.4-alpine@sha256:2a0633266ba2c821ad3cabb88caa30792a81e2d6c3c3a0720906114c660ede08
+ARG NODE_IMAGE=node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
+ARG COMPOSER_IMAGE=composer:2.11.2@sha256:50ea4d33fdcde1adb0f045547295faa1548b33872e5f789dae5b02ce2fb5de93
+ARG RUNTIME_IMAGE=dunglas/frankenphp:1.14.0-php8.4.28-alpine@sha256:f81693fa548684eb12964eeab78d86325b75c5cd91289c09ffc4dd4404a641e5
 
 # ---------------------------------------------------------------------------
 # 1. Aset frontend (Node 26)
