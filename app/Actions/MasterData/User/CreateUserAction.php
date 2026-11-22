@@ -3,6 +3,7 @@
 namespace App\Actions\MasterData\User;
 
 use App\Models\User;
+use App\Services\PermissionsCache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,6 +29,8 @@ class CreateUserAction
             ]);
 
             $user->syncRoles([(int) $data['role_id']]);
+
+            PermissionsCache::forget($user);
 
             return $user;
         });
