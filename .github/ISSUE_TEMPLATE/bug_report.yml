@@ -1,0 +1,87 @@
+name: Bug report
+description: Laporkan bug atau perilaku yang tidak sesuai.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Terima kasih sudah melaporkan bug. Jangan laporkan kerentanan keamanan di sini; gunakan [SECURITY.md](https://github.com/msbhdn/e-surat/blob/main/SECURITY.md).
+    - type: textarea
+      id: summary
+      attributes:
+          label: Ringkasan
+          description: Apa yang terjadi?
+      validations:
+          required: true
+    - type: textarea
+      id: steps
+      attributes:
+          label: Langkah reproduksi
+          placeholder: |
+              1. Buka halaman ...
+              2. Lakukan ...
+              3. Terjadi ...
+      validations:
+          required: true
+    - type: textarea
+      id: expected
+      attributes:
+          label: Hasil yang diharapkan
+      validations:
+          required: true
+    - type: textarea
+      id: actual
+      attributes:
+          label: Hasil aktual
+      validations:
+          required: true
+    - type: dropdown
+      id: area
+      attributes:
+          label: Area
+          options:
+              - Surat / compose
+              - Kotak masuk / undangan
+              - Disposisi
+              - Nota dinas
+              - Arsip
+              - Notifikasi
+              - Master data
+              - Autentikasi / otorisasi
+              - Deployment / infrastruktur
+              - Lainnya
+      validations:
+          required: true
+    - type: input
+      id: version
+      attributes:
+          label: Versi atau commit
+          placeholder: v2.2.0 atau commit SHA
+      validations:
+          required: true
+    - type: textarea
+      id: environment
+      attributes:
+          label: Environment
+          description: PHP, Node, database, browser, dan feature gate yang aktif.
+          placeholder: PHP 8.4, Node 26, MySQL 8, Chrome, COMPANY_FEATURES=email,telegram
+      validations:
+          required: true
+    - type: textarea
+      id: logs
+      attributes:
+          label: Log atau screenshot
+          description: Hapus data pribadi, token, dan isi surat yang bersifat rahasia.
+          render: shell
+      validations:
+          required: false
+    - type: checkboxes
+      id: checklist
+      attributes:
+          label: Checklist
+          options:
+              - label: Saya sudah mencari issue yang sama.
+                required: true
+              - label: Ini bukan laporan kerentanan keamanan.
+                required: true

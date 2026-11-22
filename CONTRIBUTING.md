@@ -10,7 +10,7 @@ Terima kasih telah meluangkan waktu untuk berkontribusi. Issue dan pull request 
 - Lampirkan log, screenshot, atau stack trace bila ada. Jangan sertakan data pribadi, token, atau isi surat yang bersifat rahasia.
 
 > [!IMPORTANT]
-> Jangan membuka issue publik untuk kerentanan keamanan. Laporkan secara privat kepada maintainer melalui [GitHub](https://github.com/msbhdn) agar dapat ditangani sebelum dipublikasikan.
+> Jangan membuka issue publik untuk kerentanan keamanan. Ikuti [SECURITY.md](SECURITY.md) untuk pelaporan privat.
 
 ## Development setup
 

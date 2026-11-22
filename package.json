@@ -1,5 +1,16 @@
 {
+    "name": "e-surat",
     "private": true,
+    "description": "Sistem manajemen surat elektronik untuk instansi pemerintah, perusahaan swasta, BUMN/BUMD, perguruan tinggi/sekolah, serta organisasi atau individu.",
+    "homepage": "https://github.com/msbhdn/e-surat",
+    "bugs": {
+        "url": "https://github.com/msbhdn/e-surat/issues"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/msbhdn/e-surat.git"
+    },
     "type": "module",
     "scripts": {
         "build": "vp build",

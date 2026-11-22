@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Laporan kerentanan keamanan
+      url: https://github.com/msbhdn/e-surat/security/advisories/new
+      about: Laporkan kerentanan secara privat, jangan buka issue publik.
+    - name: Dokumentasi dan panduan
+      url: https://github.com/msbhdn/e-surat/blob/main/README.md
+      about: Setup, konfigurasi, deployment, dan kontribusi.

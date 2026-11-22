@@ -14,7 +14,7 @@
 ![Node](https://img.shields.io/badge/Node-26-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](https://opensource.org/licenses/MIT)
 
-[Ikhtisar](#ikhtisar) • [Fitur](#fitur) • [Memulai](#memulai) • [Arsitektur](#arsitektur) • [Konfigurasi](#konfigurasi) • [Testing](#testing) • [Deployment](#deployment) • [Contributors](#contributors)
+[Ikhtisar](#ikhtisar) • [Fitur](#fitur) • [Memulai](#memulai) • [Arsitektur](#arsitektur) • [Konfigurasi](#konfigurasi) • [Testing](#testing) • [Deployment](#deployment) • [Security](#security) • [Contributors](#contributors)
 
 </div>
 
@@ -101,6 +101,7 @@ flowchart LR
 
 ```text
 .
+├── .github/              # Workflow CI, Dependabot, template issue/PR
 ├── app/
 │   ├── Actions/          # Logika bisnis per domain: Letter, Memo, Disposition, Notification, MasterData, …
 │   ├── Http/             # Controller, FormRequest, middleware
@@ -114,6 +115,7 @@ flowchart LR
 ├── CODE_OF_CONDUCT.md    # Standar perilaku komunitas
 ├── CONTRIBUTING.md       # Panduan kontribusi
 ├── LICENSE               # Lisensi MIT
+├── SECURITY.md           # Kebijakan pelaporan kerentanan
 ├── docs/                 # Panduan deployment dan runbook
 ├── deploy/               # Docker, systemd, dan script operasional
 └── public/               # Document root; sw.js untuk web push
@@ -241,6 +243,10 @@ Catatan operasional:
 - `public/build` tidak di-commit; image membangunnya pada stage Node 26.
 - `php artisan route:cache` belum bisa dipakai karena beberapa route berupa closure; gunakan `config:cache`.
 - Worker queue harus mendengarkan `notifications,default` agar email, Telegram, dan web push terkirim.
+
+## Security
+
+Laporkan kerentanan secara privat melalui [SECURITY.md](SECURITY.md). Jangan membuka issue publik untuk masalah keamanan.
 
 ## Contributors
 

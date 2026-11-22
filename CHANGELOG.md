@@ -6,6 +6,15 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `SECURITY.md`, issue templates, pull request template, dan audit dependensi di CI.
+
+### Changed
+
+- Metadata Composer/npm, `.env.example` app name, dan pola `.gitignore` untuk file `.env.*`.
+- Dependabot mencakup Composer dan npm.
+
 ## [2.2.0] - 2026-11-21
 
 ### Added

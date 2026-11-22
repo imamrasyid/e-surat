@@ -1,13 +1,29 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "msbhdn/e-surat",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Sistem manajemen surat elektronik untuk instansi pemerintah, perusahaan swasta, BUMN/BUMD, perguruan tinggi/sekolah, serta organisasi atau individu.",
     "keywords": [
         "laravel",
-        "framework"
+        "inertia",
+        "vue",
+        "e-surat",
+        "letter-management",
+        "government",
+        "indonesia"
     ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "e-Surat contributors",
+            "homepage": "https://github.com/msbhdn/e-surat"
+        }
+    ],
+    "homepage": "https://github.com/msbhdn/e-surat",
+    "support": {
+        "issues": "https://github.com/msbhdn/e-surat/issues",
+        "source": "https://github.com/msbhdn/e-surat"
+    },
     "require": {
         "php": "^8.3",
         "inertiajs/inertia-laravel": "^3.0",
