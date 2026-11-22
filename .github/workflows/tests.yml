@@ -37,6 +37,11 @@ jobs:
       - name: Run CI Checks
         run: composer ci:check
 
+      - name: Audit dependencies
+        run: |
+          composer audit --locked --no-dev
+          npm audit --omit=dev --audit-level=high
+
   company-features:
     name: features [${{ matrix.features }}]
     runs-on: ubuntu-24.04

@@ -1,0 +1,42 @@
+name: Feature request
+description: Usulkan fitur atau peningkatan.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Jelaskan masalah yang ingin diselesaikan, bukan hanya solusi yang diinginkan.
+    - type: textarea
+      id: problem
+      attributes:
+          label: Masalah yang ingin diselesaikan
+          description: Siapa yang terdampak dan dalam alur apa?
+      validations:
+          required: true
+    - type: textarea
+      id: solution
+      attributes:
+          label: Usulan solusi
+      validations:
+          required: true
+    - type: textarea
+      id: alternatives
+      attributes:
+          label: Alternatif yang dipertimbangkan
+      validations:
+          required: false
+    - type: textarea
+      id: context
+      attributes:
+          label: Konteks tambahan
+          description: Screenshot, referensi, atau batasan yang perlu diketahui.
+      validations:
+          required: false
+    - type: checkboxes
+      id: checklist
+      attributes:
+          label: Checklist
+          options:
+              - label: Saya sudah mencari issue atau diskusi yang serupa.
+                required: true

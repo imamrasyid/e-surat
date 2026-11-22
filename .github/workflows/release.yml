@@ -60,6 +60,11 @@ jobs:
       - name: Run CI checks
         run: composer ci:check
 
+      - name: Audit dependencies
+        run: |
+          composer audit --locked --no-dev
+          npm audit --omit=dev --audit-level=high
+
   image:
     name: build + push image
     needs: quality
