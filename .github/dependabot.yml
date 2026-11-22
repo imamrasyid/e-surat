@@ -17,9 +17,12 @@ updates:
     cooldown:
       default-days: 5
     groups:
-      composer:
+      composer-minor-patch:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -27,6 +30,16 @@ updates:
     cooldown:
       default-days: 5
     groups:
-      npm:
+      npm-minor-patch:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # The vite alias and overrides must be updated together with vite-plus.
+      - dependency-name: "vite-plus"
+      # Wait until @volar/typescript supports TypeScript 7.
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
