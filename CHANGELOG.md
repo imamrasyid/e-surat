@@ -6,6 +6,8 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-11-22
+
 ### Changed
 
 - Base image Docker diperbarui: Node 26 (digest baru), Composer 2.11.2, dan FrankenPHP 1.14.0 dengan PHP 8.4.28.
@@ -62,7 +64,8 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Penerima disposisi dan nota dinas dapat membuat follow-up.
 - Backup deployment membaca `.env` dengan benar dan memakai path unit systemd yang tepat.
 
-[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/msbhdn/e-surat/releases/tag/v2.3.1
 [2.3.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.3.0
 [2.2.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.2.0
 [2.1.7]: https://github.com/msbhdn/e-surat/releases/tag/v2.1.7
