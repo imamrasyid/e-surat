@@ -3,6 +3,7 @@
 namespace App\Actions\MasterData\User;
 
 use App\Models\User;
+use App\Services\PermissionsCache;
 
 class UpdateUserRoleAction
 {
@@ -13,6 +14,10 @@ class UpdateUserRoleAction
      */
     public function handle(User $user, array $roleIds = []): User
     {
-        return $user->syncRoles($roleIds);
+        $user->syncRoles($roleIds);
+
+        PermissionsCache::forget($user);
+
+        return $user;
     }
 }
