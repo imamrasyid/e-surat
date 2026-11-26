@@ -6,6 +6,14 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- Memperbarui `laravel/framework` 13.43.0 → 13.44.1 dan Symfony 7.4 → 8.1.12 untuk menutup tujuh advisory `composer audit` (CVE-2026-133743, CVE-2026-133746, CVE-2026-133751, CVE-2026-133752, CVE-2026-133754, CVE-2026-133755, CVE-2026-133761).
+
+### Changed
+
+- Syarat minimum PHP dinaikkan dari 8.3 ke 8.4 (selaras dengan CI) agar Laravel 13 dapat memakai Symfony 8.
+
 ## [2.3.1] - 2026-11-22
 
 ### Changed
