@@ -25,7 +25,7 @@
         "source": "https://github.com/msbhdn/e-surat"
     },
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "inertiajs/inertia-laravel": "^3.0",
         "laravel-notification-channels/webpush": "^13.0",
         "laravel/fortify": "^1.39",

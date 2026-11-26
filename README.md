@@ -5,10 +5,10 @@
 
 # e-Surat
 
-**Sistem manajemen surat elektronik untuk instansi pemerintah, perusahaan swasta, BUMN/BUMD, perguruan tinggi/sekolah, serta organisasi atau individu.**
+_Sistem manajemen surat elektronik untuk instansi pemerintah, perusahaan swasta, BUMN/BUMD, perguruan tinggi/sekolah, serta organisasi atau individu._
 
 [![Tests](https://github.com/msbhdn/e-surat/actions/workflows/tests.yml/badge.svg)](https://github.com/msbhdn/e-surat/actions/workflows/tests.yml)
-![PHP](https://img.shields.io/badge/PHP-%5E8.3-777BB4?style=flat-square&logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-%5E8.4-777BB4?style=flat-square&logo=php&logoColor=white)
 ![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
 ![Node](https://img.shields.io/badge/Node-26-339933?style=flat-square&logo=nodedotjs&logoColor=white)
@@ -55,7 +55,7 @@ Notifikasi menghubungkan seluruh alur tersebut: setiap surat, disposisi, dan not
 
 | Lapisan       | Teknologi                                                                                                                |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Backend       | PHP ^8.3, Laravel ^13, Inertia ^3, Laravel Fortify, spatie/laravel-permission, Ziggy                                     |
+| Backend       | PHP ^8.4, Laravel ^13, Inertia ^3, Laravel Fortify, spatie/laravel-permission, Ziggy                                     |
 | Frontend      | Vue 3.5 (Composition API + `<script setup>`), TypeScript, Inertia Vue, Tailwind CSS 4, reka-ui, Unovis, GSAP, vue-sonner |
 | Build         | Vite+ (`vp`); `vite` di-override ke `@voidzero-dev/vite-plus-core`; SSR dinonaktifkan                                    |
 | Database      | Default SQLite; MySQL/PostgreSQL didukung lewat `.env`                                                                   |
@@ -125,7 +125,7 @@ flowchart LR
 
 ### Kebutuhan
 
-- PHP **^8.3** (CI memakai 8.4) dan Composer 2.
+- PHP **^8.4** dan Composer 2.
 - Node **26** dan npm. CI dan image memakai Node 26; gunakan lockfile npm, bukan pnpm/yarn.
 - SQLite (default), MySQL, atau PostgreSQL.
 
