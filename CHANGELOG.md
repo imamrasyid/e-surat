@@ -6,6 +6,8 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-11-26
+
 ### Security
 
 - Memperbarui `laravel/framework` 13.43.0 → 13.44.1 dan Symfony 7.4 → 8.1.12 untuk menutup tujuh advisory `composer audit` (CVE-2026-133743, CVE-2026-133746, CVE-2026-133751, CVE-2026-133752, CVE-2026-133754, CVE-2026-133755, CVE-2026-133761).
@@ -72,7 +74,8 @@ dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Penerima disposisi dan nota dinas dapat membuat follow-up.
 - Backup deployment membaca `.env` dengan benar dan memakai path unit systemd yang tepat.
 
-[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/msbhdn/e-surat/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.4.0
 [2.3.1]: https://github.com/msbhdn/e-surat/releases/tag/v2.3.1
 [2.3.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.3.0
 [2.2.0]: https://github.com/msbhdn/e-surat/releases/tag/v2.2.0
